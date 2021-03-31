@@ -1,0 +1,10 @@
+"id","code","short_description","created_by","created_date","modified_by","modified_date","is_active"
+1,lead_company_type,company type of lead creation,1,2020-12-12 12:12:12,,,true
+2,lead_source,source of lead,1,2020-12-12 12:12:12,,,true
+3,user_category,user's category,1,2020-12-12 12:12:12,,,true
+4,user_status,user's status,1,2020-12-12 12:12:12,,,true
+5,user_gender,user's gender,1,2020-12-12 12:12:12,,,true
+6,lead_track_contact_type,contact type of lead track,1,2020-12-12 12:12:12,,,true
+7,lead_status,lead status,1,2021-02-10 12:12:12,,,true
+8,product_inventory_type,product type for products,1,2020-12-12 12:12:12,,,true
+9,product_inventory_units,product Units for products,1,2020-12-12 12:12:12,,,true

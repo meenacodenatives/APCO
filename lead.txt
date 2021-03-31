@@ -1,0 +1,86 @@
+Search bar , mail - remove
+Dashboard - 
+Lead - Menu- add,edit,delete-pop up tracker - scheduler
+
+Country location
+Customer Name
+contact person
+email
+phone
+skype Id
+website
+address
+remarks
+description
+company type
+source
+
+Remove Status
+add created_date 
+Content 
+country , region and location
+save button - hide when click
+remove drag in textarea
+
+country region location
+cn cname
+email phone
+skype website(http)
+Address description
+companytype source
+remarks button(right side)
+md-8 md-4(HELP)
+
+validate same cname - Already exist
+EMAIL and phone num- Discuss with vel sir
+
+Remarks and contact type - save
+schedule - next week
+
+Dec 15
+All mandatory fields
+your name - name
+Dont use caps in url
+page name-leads     
+
+encrypt id -url
+loading -icon -center
+
+https://sampo.co.uk/blog/masking-ids-in-urls-using-hash-ids-in-laravel
+https://makitweb.com/return-json-response-ajax-using-jquery-php/
+width : 
+contact type - email, phone ,skype - lookup
+Notifiers - multiple - user table
+tracker - icon
+save - add track
+lead header go to top
+multi select - users
+Add scheduler near add track
+append one row 
+save
+button color change
+add track click save to db
+Add track
+track histoty - scroll
+no heading - tracker edit delete
+assign to ,notifiers - users - multiple select
+time - query
+date - 01-
+http://jsfiddle.net/ye24d/
+load icon
+Add track and add scheduler - hide
+scheduled date and time - merge
+title - lead track 
+desc - lead track on ""
+users_profile -users
+save to  add track - 
+save and cancel
+cancel - add track and add scheduler
+schedule type- lead
+multiple 
+Close - x
+
+select 
+// https://stackoverflow.com/questions/15778435/id-of-an-event-fullcalendar
+                //http://www.mikesmithdev.com/fullcalendar-jquery-ui-modal/
+                //https://salesforce.stackexchange.com/questions/115092/how-to-display-modal-popup-with-a-form-inside-a-lightning-component

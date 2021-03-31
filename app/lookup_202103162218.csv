@@ -1,0 +1,33 @@
+"id","lookup_set_id","code","meaning","created_by","created_date","modified_by","modified_date","is_active"
+11,4,Active,user is active,1,2020-12-12 12:12:12,,,true
+12,4,Blocked,user is blocked,1,2020-12-12 12:12:12,,,true
+13,4,Inactive,user is inactive,1,2020-12-12 12:12:12,,,true
+14,5,Male,Male,1,2020-12-12 12:12:12,,,true
+15,5,Female,Female,1,2020-12-12 12:12:12,,,true
+7,2,Website,Website,1,2020-12-12 12:12:12,,,true
+8,2,Other,Other,1,2020-12-12 12:12:12,,,true
+16,3,Technician,Technician,1,2020-12-12 12:12:12,,,true
+17,3,Staff,Staff,1,2020-12-12 12:12:12,,,true
+9,3,Admin,Admin,1,2020-12-12 12:12:12,,,true
+10,3,Manager,Manager,1,2020-12-12 12:12:12,,,true
+18,6,Email,Email,1,2020-12-12 12:12:12,,,true
+19,6,Phone,Phone,1,2020-12-12 12:12:12,,,true
+20,6,Skype,Skype,1,2020-12-12 12:12:12,,,true
+1,1,N/A,Not Available,1,2020-12-12 12:12:12,,,false
+2,1,Staffing,Staffing ,1,2020-12-12 12:12:12,,,false
+3,1,Non-Staffing,Non-Staffing,1,2020-12-12 12:12:12,,,false
+4,1,Not Specified,Not Specified,1,2020-12-12 12:12:12,,,false
+5,1,Partnership Client,Partnership,1,2020-12-12 12:12:12,,,false
+6,1,End Client,End Client,1,2020-12-12 12:12:12,,,false
+23,1,Customer,Customer,1,2020-01-23 00:00:00,,,true
+24,1,Reseller,Reseller,1,2020-01-23 00:00:00,,,true
+25,7,"1",Prospecting,1,2021-02-10 12:12:12,,,true
+26,7,"2",Value Proposition,1,2021-02-10 12:12:12,,,true
+27,7,"3",Quoted / Negotiation,1,2021-02-10 12:12:12,,,true
+28,7,"4",Closed (Won / Lost),1,2021-02-10 12:12:12,,,true
+29,8,Sales,Sales,1,2020-01-23 00:00:00,,,true
+30,8,Service,Service,1,2020-01-23 00:00:00,,,true
+34,9,Litre,Litre,1,2020-01-23 00:00:00,,,true
+31,9,Nos,nos,1,2020-01-23 00:00:00,,,true
+32,9,Sets,sets,1,2020-01-23 00:00:00,,,true
+33,9,Metre,metre,1,2020-01-23 00:00:00,,,true

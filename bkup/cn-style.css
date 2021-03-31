@@ -1,0 +1,19 @@
+.is-error{
+    border-color:#c21a1a;
+}
+
+.load-icon {
+    width: 35px;
+    height: 35px;
+}
+.viewTrackHistory {    
+    overflow-y: auto;
+    max-height: 350px;
+  }
+
+  .row-bordered:after {
+    content: "";
+    display: block;
+    border-bottom: 5px solid #000;
+    margin: 0 15px;
+  }

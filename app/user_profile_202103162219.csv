@@ -1,0 +1,25 @@
+"id","username","firstname","lastname","category","email","password","phone","country","location","dob","joining_date","gender","address","image","status","relieve_date","relieve_reason","secret_key","created_by","created_date","modified_by","modified_date","is_active"
+14,,test,test,Staff,test12@qw.mm,"40bd001563085fc35165329ea1ff5c5ecbdbbeef","321321",91,3,2021-01-07,1956-01-25,Male,reewrew,,Active,1958-01-16,eewre,,1,2021-01-29 07:59:18,,,false
+13,,testmail,test,Admin,test@qw.mm,"40bd001563085fc35165329ea1ff5c5ecbdbbeef","3213",91,2,2021-01-23,2021-01-19,Male,hi,,Active,2021-01-26,rerw,,1,2021-01-29 07:53:55,,,false
+2,,Vignesh,Dhamodaran,Manager,vignesh91.cn@gmail.com,"40bd001563085fc35165329ea1ff5c5ecbdbbeef","7358534142",91,1,2020-11-12,2020-11-12,Male,Sample Address 12,,Active,2020-11-12,Sample Reason 24,,1,2020-12-11 13:19:48,1,2021-01-22 14:39:34,true
+18,,ewqewq,eqwe,Staff,qw@qw.ccw,"40bd001563085fc35165329ea1ff5c5ecbdbbeef","121123",91,5,2021-01-23,1961-01-31,Male,"3123",,Active,1956-01-26,dasd,,1,2021-01-29 08:07:51,,,false
+17,,qwewew,ewqe,Staff,qqw@qw.cc,"40bd001563085fc35165329ea1ff5c5ecbdbbeef","321321",91,2,2021-01-27,1958-01-29,Male,"3213",,Active,2021-01-24,"3123",,1,2021-01-29 08:05:37,,,false
+7,,Meena,EMPLOYEE,Technician,emp@gmail.com,"40bd001563085fc35165329ea1ff5c5ecbdbbeef","2312321",91,6,2021-01-06,2021-01-22,Male,fdsfdsf,,Blocked,2021-01-05,fdsfdsf,,1,2021-01-22 14:42:34,1,2021-01-22 14:46:16,false
+3,,Raj,Mohan,Technician,rajmohan@gmail.com,da39a3ee5e6b4b0d3255bfef95601890afd80709,"1231231231",91,3,2020-11-12,2020-11-12,Male,Sample Address,,Blocked,2020-11-12,"123",,1,2020-12-11 13:26:34,1,2020-12-11 13:40:50,false
+8,,Viswa,Saai,Technician,viswa@qw.cc,"7c4a8d09ca3762af61e59520943dc26494f8941b","431321321",91,3,2015-01-15,2015-01-29,Male,hi,,Active,2015-01-22,hi,"",1,2021-01-25 07:45:14,,,true
+10,,test emp1234,test empwer,Manager,rr@qw.mm,"7c4a8d09ca3762af61e59520943dc26494f8941b","3123213",91,4,2015-01-26,2015-01-29,Female,hi,,Active,2018-01-31,hi,,1,2021-01-25 08:11:18,1,2021-01-25 08:15:34,false
+9,,Meena,Emp,Staff,emp@qw.cc,"7c4a8d09ca3762af61e59520943dc26494f8941b","12343442",91,3,2015-01-30,2015-01-27,Male,Hi,,Active,2019-01-30,hi,,1,2021-01-25 08:09:13,,,false
+11,,TEST MAIL updated,TEST MAIL,Technician,mail@qw.cc,"7c4a8d09ca3762af61e59520943dc26494f8941b","343243243",91,8,1990-01-19,1973-01-25,Female,hi,,Active,2020-01-16,saddsadasdsadadasd,,1,2021-01-25 13:23:55,1,2021-01-25 13:24:46,false
+20,,xcvvxc,vcxv,Admin,vxc1@w.cc,"40bd001563085fc35165329ea1ff5c5ecbdbbeef","312312",91,5,2021-01-08,2021-01-23,Male,hi,,Active,1966-01-28,"3123",,1,2021-01-29 09:35:23,,,false
+12,,teset,test,Staff,test@qw.cc,"7c4a8d09ca3762af61e59520943dc26494f8941b","4123213213",91,4,1986-01-10,2008-01-09,Male,hi,,Blocked,2019-01-16,hi,"",1,2021-01-25 14:00:12,,,false
+6,,Meena,Subramanian,Staff,mm@qw.mm,"7c4a8d09ca3762af61e59520943dc26494f8941b","5555555555",91,2,2020-12-24,2020-12-30,Male,kkkkkkkkkk,,Active,2020-12-09,jnk,"",1,2020-12-30 13:42:18,,,false
+5,,Sample ,User,Technician,sample@gmail.com,"40bd001563085fc35165329ea1ff5c5ecbdbbeef","1231231231",91,4,2020-12-11,2020-12-11,Male,Sample Address,,Active,,,,1,2020-12-11 15:19:26,,,false
+25,,test,test,Staff,tt@qw.mm,fd93ac461456a118d38a8d6b4d18f6741682f3eb,"3213",91,4,2016-01-27,1984-01-25,Female,fdfd,,Active,2021-01-26,fsdf,,1,2021-01-29 15:21:35,,,false
+21,,test,subramanian,Staff,tt@qw.cc,"40bd001563085fc35165329ea1ff5c5ecbdbbeef","32131",91,3,1967-01-27,2021-01-14,Male,rewrew,,Active,2021-01-26,eqweqw,,1,2021-01-29 09:39:20,,,false
+23,,test,test,Staff,tt@qw.mm,fd93ac461456a118d38a8d6b4d18f6741682f3eb,"331232132",91,5,1960-01-30,2007-01-26,Female,ewqe,,Active,2008-01-30,eqwewq,,1,2021-01-29 15:01:33,,,false
+16,,tet,twetew,Technician,ew1@qw.com,"40bd001563085fc35165329ea1ff5c5ecbdbbeef","21312",91,2,1956-01-20,2021-01-26,Male,"3213",,Active,1957-01-25,ewqew,,1,2021-01-29 08:04:26,,,false
+15,,tet,twetew,Technician,ew@qw.mm,"40bd001563085fc35165329ea1ff5c5ecbdbbeef","21312",91,2,1956-01-20,2021-01-26,Male,"3213",,Active,1957-01-25,ewqew,,1,2021-01-29 08:03:31,,,false
+24,,vv,TEST,Admin,tt1@qw.cc,fd93ac461456a118d38a8d6b4d18f6741682f3eb,"321321",91,5,2007-01-30,1995-01-28,Female,hi,,Active,2008-01-30,hi,,1,2021-01-29 15:15:56,,,false
+22,,TEST,Subramanian,Technician,mm@qw.cc,fd93ac461456a118d38a8d6b4d18f6741682f3eb,"1234566666",91,5,1970-01-31,2019-01-17,Female,fdsf,,Active,2020-01-30,hi,,1,2021-01-29 14:59:38,,,false
+1,admin,Super,Administrator,Admin,admin@apco.com,"7c4a8d09ca3762af61e59520943dc26494f8941b","7358534142",91,1,2000-12-12,2020-12-12,Male,Sample address,,Active,,,"",1,2020-12-12 12:12:12,,,true
+19,,xcvvxc,vcxv,Admin,vxc@w.cc,"40bd001563085fc35165329ea1ff5c5ecbdbbeef","312312",91,5,2021-01-08,2021-01-23,Male,hi,,Active,1966-01-28,"3123",,1,2021-01-29 08:12:52,,,false

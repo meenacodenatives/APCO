@@ -1,0 +1,16 @@
+CREATE TABLE email_notification(
+   id serial,
+   user_id            INT     NOT NULL,
+   email_to        varchar(150),
+   notify_type       varchar ,
+   notify_status         int,
+   subject        text,
+   message        text,
+   created_date       timestamp,
+   created_by        INT,
+   modified_date   timestamp,
+   modified_by  INT,
+   is_active bool
+)
+
+    //https://www.cloudways.com/blog/laravel-cron-job-scheduling/
