@@ -5,7 +5,7 @@ use App\Http\Models\ProductModel;
 use App\Http\Models\RFQModel;
 use App\Http\Models\RFQProductsModel;
 use App\Http\Models\LeadModel;
-
+use App\Http\Models\LeadRFQMappingModel;
 use Illuminate\Http\Request;
 
 
@@ -24,13 +24,18 @@ class RFQController extends Controller
     {
         DB::enableQueryLog();
         $product='';$RFQProducts='';$preselectProducts=''; $lead=''; 
-        $productList = ProductModel::select("product_name","id")
-        ->where("product_type", 'Service')
-        ->get()
-        ->sortByDesc("id");
+        $productList =DB::table('product')->select( DB::raw('DISTINCT on(product_name)product_name,id') )->where('product_type','Service')->orderBy('product_name')
+        ->orderBy('id')
+        ->get(['product_name','id']);
+ 
+        // $query = DB::getQueryLog();
+        //               $query = end($query);
+        //               print_r($query);exit;
+
         $rfq_discount = app('App\Http\Models\EmployeeModel')->getLookup('rfq_discount');
-      return view('add-req', compact('product','lead','RFQProducts','preselectProducts','rfq_discount','productList'));
+     return view('add-req', compact('product','lead','RFQProducts','preselectProducts','rfq_discount','productList'));
     }
+    //CREATE RFQ
     public function storeRFQ(Request $request,RFQModel $RFQ)
     {
         $param = array(
@@ -48,27 +53,44 @@ class RFQController extends Controller
             'final_value'=>$_POST['data']['final_value'],
             'discount_type'=>$_POST['data']['discount_type'],
             'discount_value'=>$_POST['data']['discount_value'],
-            'is_active'=>true
+            'amc'=>$_POST['data']['amc'],
+            'is_active'=>true,
+            'is_child'=>0
             );
             DB::enableQueryLog();
-           
+         //UPDATE PRODUCT AND RFQ  
         if($_POST['data']['id']!='')
         {
-            $isExist = RFQModel::select("*")
-            ->where("customer_name", $_POST['data']['customer_name'])
-            ->where("id", '!=',$_POST['data']['id'])
-            ->exists();
-            if ($isExist==1) {
-            $result=3;
-            }else{
+            // $isExist = RFQModel::select("*")
+            // ->where("email", $_POST['data']['email'])
+            // ->where("id", '!=',$_POST['data']['id'])
+            // ->exists();
+            
+            // if ($isExist==1) {
+            // $result=3;
+            // }else{
                 $RFQ = RFQModel::findOrFail($_POST['data']['id']);
-                $RFQ->delete();
-                RFQProductsModel::where('rfq_products.rfq_id',$_POST['data']['id'])->delete();
-                RFQModel::whereId($_POST['data']['id'])->update($param);
+                // $RFQ->delete();
+                //RFQProductsModel::where('rfq_products.rfq_id',$_POST['data']['id'])->delete();
+                //UPDATE QUERY - Check parent Id
+                $param_track['is_child'] = 1;
+                RFQModel::whereId($_POST['data']['id'])->update($param_track);
+                if($RFQ->parent_id=='')
+                {
+                $param['parent_id'] = $_POST['data']['id'];
                 $param['modified_by'] = Session::get('user-id');
-            $param['updated_at'] = date('Y-m-d H:i:s');
-            RFQModel::create($param);
-            $rfqID=DB::getPdo()->lastInsertId();
+                $param['updated_at'] = date('Y-m-d H:i:s');
+                RFQModel::create($param);
+                $rfqID=DB::getPdo()->lastInsertId();
+                }
+                else
+                {
+                $param['parent_id'] = $RFQ->parent_id;
+                RFQModel::create($param);
+                $rfqID=DB::getPdo()->lastInsertId();
+                }
+                     
+                //End
             for ($i=0; $i <$_POST['data']['rowLen']; $i++) { 
                 $pdt=$_POST['data']['mul_pdt_name'][$i];
                 $quantity=$_POST['data']['mul_quantity'][$i];
@@ -87,28 +109,26 @@ class RFQController extends Controller
                 DB::table("rfq_products")->insert($param);
             $result=1;
             }  
-        }
+       // }
     }
         else
         {
-            
             $isExist = RFQModel::select("*")
-            ->where("customer_name", $_POST['data']['customer_name'])
+            ->where("email", $_POST['data']['email'])
             ->exists();
             if ($isExist==1) {
             $result=3;
             }else{
-                if($_POST['data']['lead_id']!='')
-                {
-                $paramUpdate = array('is_active' => false);
-                 DB::table('lead')
-                ->where('id', $_POST['data']['lead_id'])
-                ->update($paramUpdate);
-                }
+              //  if($_POST['data']['lead_id']!='')
+               // {
+                // $paramUpdate = array('is_active' => false);
+                //  DB::table('lead')
+                // ->where('id', $_POST['data']['lead_id'])
+                // ->update($paramUpdate);
+              //  }
             $param['created_by'] = Session::get('user-id');
             $param['created_date'] = date('Y-m-d H:i:s');
             RFQModel::create($param);
-
             $rfqID=DB::getPdo()->lastInsertId();
             for ($i=0; $i <$_POST['data']['rowLen']; $i++) { 
                 $pdt=$_POST['data']['mul_pdt_name'][$i];
@@ -128,8 +148,43 @@ class RFQController extends Controller
                 DB::table("rfq_products")->insert($param);
 
             }
+            //Lead Creation - Direct RFQ convert into Lead table
+            $param = array(
+                'country'=> 1,
+                'region'=> 1,
+                'location'=> 6,
+                'created_by' => Session::get('user-id'),
+                'created_date' => date('Y-m-d H:i:s'),
+                'name'=>$_POST['data']['customer_name'],
+                'contact_name'=>$_POST['data']['contact_name'],
+                'phone'=> $_POST['data']['phone'],
+                'email'=>$_POST['data']['email'],
+                'address'=>$_POST['data']['address'],
+                'description'=>$_POST['data']['description'],
+                'status'=>'0',
+                'is_active'=>true
+                );
+               $lead_isExist = DB::select("select * from lead where email='" . $_POST['data']['email']."' AND phone='".$_POST['data']['phone']."'");
+            if (count($lead_isExist)==0) {
+                DB::table("lead")->insert($param);
+                $leadID=DB::getPdo()->lastInsertId();
+            }
+            else
+            {
+                $result=3;
+            }
+            //lead and RFQ Mapping
+            $param_mapping = array(
+                'created_by' => Session::get('user-id'),
+                'created_date' => date('Y-m-d H:i:s'),
+                'lead_id'=>$leadID,
+                'rfq_id'=>$rfqID,
+                'is_active'=>true
+                );
+            LeadRFQMappingModel::create($param_mapping);
             $result=1;
-            }  
+         }
+ 
         }
         return response()->json(array('status' => $result), 200);
     }
@@ -144,7 +199,12 @@ class RFQController extends Controller
     public function showRFQ(Request $request)
     {
         DB::enableQueryLog();
-        $RFQList = RFQModel::all()->sortByDesc("id");
+        //$RFQList = RFQModel::all()->sortByDesc("id");
+        $parent_id='';
+        $RFQList = RFQModel::select("*")
+        ->where('is_child','=', 0)
+        ->get()
+        ->sortByDesc("id");
         $productList = ProductModel::select("product_name","id")
         ->where("product_type", 'Service')
         ->get()
@@ -176,15 +236,17 @@ class RFQController extends Controller
         ->get()
         ->sortByDesc("id");
         $product = RFQModel::findOrFail($de_id);
-        $RFQProducts =RFQProductsModel::join('product', 'rfq_products.product_id', '=', 'product.id')
-        ->where('rfq_products.rfq_id','=', $de_id)
-        ->get(['rfq_products.*', 'product.product_name']);
-        //   $query = DB::getQueryLog();
+        // $query = DB::getQueryLog();
         //               $query = end($query);
         //               print_r($query);
         //               exit;
-        
-        
+        //  echo '<pre>';
+        //             print_r($product);
+        //             echo '</pre>'; exit;
+        $RFQProducts =RFQProductsModel::join('product', 'rfq_products.product_id', '=', 'product.id')
+        ->where('rfq_products.rfq_id','=', $de_id)
+        ->get(['rfq_products.*', 'product.product_name']);
+          
                     $preselectProducts='';
                     $product_idFirst=$RFQProducts[0]->product_id;
                     $quantityFirst=$RFQProducts[0]->quantity;
@@ -197,7 +259,7 @@ class RFQController extends Controller
                     for ($i=1; $i<=count($RFQProducts)-1;$i++) { 
                         $pdt_id=$RFQProducts[$i]->product_id;
                    $preselectProducts.='
-                   <tr id="rec-'.$j.'"><td>'.$j.'</td><td><select class="form-control rfq_Product_name custom-select " id="product_name-'.$j.'" data-id="'.$j.'">
+                   <tr id="rec-'.$j.'"><td>'.$j.'<input type="hidden" name="sno" id="sno" value="'.$j.'"></td><td><select class="form-control rfq_Product_name custom-select " id="product_name-'.$j.'" data-id="'.$j.'">
                                     <option value="">Select</option>';
                                     foreach($productList as $pt)
                                     {
@@ -221,30 +283,33 @@ class RFQController extends Controller
                             </td>
                             <td><input type="text" class="form-control subtotal" name="subtotal" placeholder="Subtotal"
                                     id="subtotal-'.$j.'" value="' . $RFQProducts[$i]->subtotal . '"></td>
-                            
                             <td>
-                                <a class="btn btn-primary btn-sm mb-2 mb-xl-0 add-record hidetd" data-added="0"><i
-                                        class="fa fa-plus"></i></a>&nbsp;&nbsp;
-                                <a class="btn btn-danger btn-sm mb-2 mb-xl-0 delete-record hidetd" data-id="'.$j.'"><i
-                                        class="fa fa-trash"></i></a>
+                                <a class="btn btn-primary btn-sm mb-2 mb-xl-0 add-record hidetd fa fa-plus" data-added="0"><i
+                                 ></i></a>&nbsp;&nbsp;
+                                <a class="btn btn-danger btn-sm mb-2 mb-xl-0 delete-record hidetd fa fa-trash" data-id="'.$j.'"><i
+                                ></i></a>
                             </td></tr>';
                             $j++;
                     }
-                    // echo '<pre>';
-                    // print_r($product);
-                    // echo '</pre>'; exit;
+                   
         $rfq_discount = app('App\Http\Models\EmployeeModel')->getLookup('rfq_discount');
-         $lead='';           
+        $lead='';           
         return view('add-req', compact('lead','product','preselectProducts','RFQProducts','unitsFirst','selling_priceFirst','rfq_discount','subtotalFirst','quantityFirst','product_idFirst','productList'));
     }
     public function viewSingleRFQ($id,RFQModel $RFQ,RFQProductsModel $RFQProduct)
     {
         $de_id=base64_decode($id);
         $RFQList = RFQModel::findOrFail($de_id);
+        if($RFQList->parent_id)
+        {
+        $RFQTracking=RFQModel::select('*')
+        ->where('rfq.parent_id','=', $RFQList->parent_id)
+        ->get(['rfq_products.*', 'product.product_name']);
+        }
         $RFQProducts =RFQProductsModel::join('product', 'rfq_products.product_id', '=', 'product.id')
         ->where('rfq_products.rfq_id','=', $de_id)
         ->get(['rfq_products.*', 'product.product_name']);
-        return response()->json(array('RFQProducts' => $RFQProducts,'RFQList' => $RFQList), 200);
+        return response()->json(array('RFQProducts' => $RFQProducts,'RFQTracking'=>$RFQTracking,'RFQList' => $RFQList), 200);
     }
     public function editLeadRFQ($id,LeadModel $Lead)
     {

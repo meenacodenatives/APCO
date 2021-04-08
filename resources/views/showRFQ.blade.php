@@ -114,7 +114,7 @@
                     <div class="table-responsive">
                         <div class="span12 text-center load-search-RFQs">
                         </div>
-                        <table id="table-sortable" class="table table-striped table-bordered text-nowrap w-100">
+                        <table id="data-table3" class="table table-striped table-bordered text-nowrap w-100">
 
                             <thead>
 

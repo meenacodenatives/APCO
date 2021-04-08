@@ -25,6 +25,49 @@ class ProductController extends Controller
         $product_units = app('App\Http\Models\EmployeeModel')->getLookup('product_inventory_units');
         return view('add-product', compact('product_type','product_units','product','allCategories'));
     }
+    public function chkProductPrice(Request $request,ProductModel $Product)
+    {
+        DB::enableQueryLog();
+        if($_POST['data']['id']!='')
+        {
+            
+            $updateExist = ProductModel::select("*")
+            ->where("product_code", $_POST['data']['product_code'])
+            ->where("actual_price", $_POST['data']['actual_price'])
+            ->where("product_type", $_POST['data']['product_type'])
+            ->where("category", $_POST['data']['category'])
+            ->where("id", '!=',$_POST['data']['id'])
+            ->count();
+                    //  $query = DB::getQueryLog();
+                    //   $query = end($query);
+                    //   print_r($updateExist);
+                    // echo "cc=".$updateExist; 
+                    // exit;
+
+            if ($updateExist>0) {
+            $result=3;
+            }else{
+            $result=2;
+            }  
+            
+        }
+        else
+        {
+            $isExist = ProductModel::select("*")
+            ->where("product_code", $_POST['data']['product_code'])
+            ->where("actual_price", $_POST['data']['actual_price'])
+            ->where("product_type", $_POST['data']['product_type'])
+            ->where("category", $_POST['data']['category'])
+            ->exists();
+            if ($isExist==1) {
+            $result=3;
+            }else{
+            $result=2;
+            }  
+        }
+       // exit;
+       return response()->json(array('status' => $result), 200);
+    }
     public function storeProduct(Request $request,ProductModel $Product)
     {
         $param = array(
@@ -37,47 +80,30 @@ class ProductController extends Controller
             'units'=>$_POST['data']['units'],
             'mfg_date'=>$_POST['data']['mfg_date'],
             'selling_price'=> $_POST['data']['selling_price'],
+            'selling_price2'=> $_POST['data']['selling_price2'],
+            'selling_price3'=> $_POST['data']['selling_price3'],
             'batch_number'=>$_POST['data']['batch_number'],
             'expiry_date'=> $_POST['data']['expiry_date'],
             'gst'=> $_POST['data']['gst'],
             'is_active'=>true
             );
             DB::enableQueryLog();
-
         if($_POST['data']['id']!='')
         {
-            $isExist = ProductModel::select("*")
-            ->where("product_name", $_POST['data']['product_name'])
-            ->where("category", $_POST['data']['category'])
-            ->where("id", '!=',$_POST['data']['id'])
-            ->exists();
-            if ($isExist==1) {
-            $result=3;
-            }else{
-                $param['modified_by'] = Session::get('user-id');
-                $param['updated_at'] = date('Y-m-d H:i:s');
-                ProductModel::whereId($_POST['data']['id'])->update($param);
+            $param['modified_by'] = Session::get('user-id');
+            $param['updated_at'] = date('Y-m-d H:i:s');
+            ProductModel::whereId($_POST['data']['id'])->update($param);
             $result=1;
-            }  
         }
         else
         {
-            $isExist = ProductModel::select("*")
-            ->where("product_name", $_POST['data']['product_name'])
-            ->where("category", $_POST['data']['category'])
-            ->exists();
-            if ($isExist==1) {
-            $result=3;
-            }else{
             $param['created_by'] = Session::get('user-id');
             $param['created_date'] = date('Y-m-d H:i:s');
             ProductModel::create($param);
             $result=1;
-            }  
         }
         return response()->json(array('status' => $result), 200);
     }
-
     
     /**
      * Display the specified resource.

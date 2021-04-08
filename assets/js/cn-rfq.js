@@ -1,9 +1,38 @@
 var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 var loading_icon = '<img class="load-icon" src=' + base_url + '/assets/images/brand/loader.gif>';
 var host = window.location.host;
-var pathname = window.location.pathname;
+var pathname = window.location.pathname.split("/");
+    $('#recurring').click(function(){
+    if ($(this).is(':checked'))
+    {
+        $("#amc").removeAttr("disabled");
+    }
+    else
+    {
+        $("#amc").attr("disabled", "disabled");
+    }
+    });
+    if (pathname[2] == 'edit-RFQ') {
+    console.log("edit");
+    //Filter - Select 2 
 
-console.log("pathname"+pathname);
+    //END
+    $('#editPreselectProducts').show();
+    $('.hideProposalVal').show();
+    $('.hideTotPdt').show();
+    $('.hideFinalVal').show();
+    $("#quantity-1").removeAttr("disabled", "disabled");
+}
+if (pathname[2] == 'add-RFQ') {
+    console.log("a");
+
+    //Filter - Select 2
+
+    //End - Select 2
+    $("#selling_price-1").attr("disabled", "disabled");
+    $("#units-1").attr("disabled", "disabled");
+    $(".subtotal").attr("disabled", "disabled");
+}
 $('.closeModal').click(function () {
     $('#viewProduct').modal("hide");
 });
@@ -17,17 +46,25 @@ $('#rfqSearch').click(function () {
 });
 
 $(function () {
-    console.log("eer");
-    //Filter - Select 2
+    //To display the select 2 drop down
+    var rowCnt=$('#sno').val(); 
+    if (pathname[2] == 'edit-RFQ') {
+        console.log("rowCnt"+rowCnt);
+        if(rowCnt){
+        for(var i=1;i<=rowCnt+1;i++)
+        {
+        $('#product_name-'+i).select2({
+            filter: true
+        })
+        }
+        }
+    }
     $('#product_name-1').select2({
-        filter: true
+            filter: true
     })
-    //$('.rfq_Product_name').attr('class','form-control rfq_Product_name custom-select select2-hidden-accessible');
-    //End - Select 2
-    $("#selling_price-1").attr("disabled", "disabled");
-    $("#units-1").attr("disabled", "disabled");
-    $(".subtotal").attr("disabled", "disabled");
+    //END
     var err = 0;
+    //MARGIN and Disocunt - Validation
     $("#margin").bind("keypress", function (e) {
         console.log("s=");
         var keyCode = e.keyCode || e.which;
@@ -60,7 +97,9 @@ $(function () {
             $('.is-invalid').removeClass('is-invalid');
         }
     });
+    //END
 });
+//QUANTITY
 $(document).delegate(".rfq_quantity", "change", function (e) {
     var id = $(this).val();
     console.log("id=" + id);
@@ -97,6 +136,7 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
     }
 
 });
+//END
 $('.proposed_val_change').on('input', function (e) {
     console.log("TESTPROPSed");
     var grdtot = $('.grdtot').text();
@@ -115,7 +155,6 @@ $('.proposed_val_change').on('input', function (e) {
         $('.hideProposalVal').show();
         $('.proposal_value').text('Rs.' + proposalVal.toFixed(2));
     }
-
 });
 $(document).delegate(".final_val_change", "change", function (e) {
     var type = $('#discount_type').val();
@@ -184,7 +223,7 @@ $(document).delegate(".rfq_Product_name", "change", function (e) {
                 $("#units-" + rowID).removeAttr("disabled", "disabled");
                 $('#selling_price-' + rowID).val('Rs.' + result.selling_price);
                 $('#units-' + rowID).val(result.units);
-                console.log("units=="+result.units);
+                console.log("units==" + result.units);
             }
 
         }
@@ -193,9 +232,7 @@ $(document).delegate(".rfq_Product_name", "change", function (e) {
 
 $(document).delegate("a.add-record", "click", function (e) {
     $('#editPreselectProducts').hide();
-    console.log("test estses");
     e.preventDefault();
-   
     var content = $('#pdt_table tr'),
         size = $('#tbl_pdts >tbody >tr').length + 1,
         element = null,
@@ -203,12 +240,8 @@ $(document).delegate("a.add-record", "click", function (e) {
         element.find('.rfq_Product_name').select2({
             filter: true
         })
-     //   element.find('.rfq_Product_name').attr('class','form-control rfq_Product_name custom-select select2-hidden-accessible');
-
     element.attr('id', 'rec-' + size);
     element.find('.load-mul-product').attr('class', 'load-mul-product' + size);
-    //element.find('.form-control').attr('class', 'form-control hidetd' + size);
-
     $("#quantity-" + size).attr("disabled", "disabled");
     $("#selling_price-" + size).attr("disabled", "disabled");
     $("#units-" + size).attr("disabled", "disabled");
@@ -296,6 +329,7 @@ function createRFQ() {
     data.final_value = $('.final_value').text();
     data.discount_type = $('#discount_type').val();
     data.discount_value = $('#add_discount').val();
+    data.amc = $('#amc').val();
     data.rowLen = $('#tbl_pdts >tbody >tr').length;
     console.log("countRows=" + data.rowLen);
     data.mul_quantity = [];
@@ -351,7 +385,7 @@ function createRFQ() {
         $('#address').addClass('is-invalid');
         err++;
     }
-    
+
 
     if ($("#quantity-1").val() == '') {
         $('#quantity-1').addClass('is-invalid');
@@ -366,11 +400,12 @@ function createRFQ() {
     } else {
         console.log("RFQ" + JSON.stringify(data));
         console.log("mul_quantity" + JSON.stringify(mul_quantity));
-        $('.RFQSave').hide();
-        $('#load-RFQ').html(loading_icon);
+        // $('.RFQSave').hide();
+        // $('#load-RFQ').html(loading_icon);
         $('.is-invalid').removeClass('is-invalid');
     }
     data.id = $('#editRFQID').val();
+    data.editDis = $('#editDis').val();
     data.lead_id = $('#lead_id').val();
     console.log("data.lead_id" + data.lead_id);
     $.ajax({
@@ -396,7 +431,7 @@ function createRFQ() {
             } else if (data.status == 3) { //name exist already
                 $.growl({
                     title: "",
-                    message: "Entered Business name already exist",
+                    message: "Entered Email already exist",
                     duration: "3000",
                     location: "tr",
                     style: "error"
@@ -491,19 +526,7 @@ $(document).on("click", "#viewSingleRFQ", function (e) {
     });
 
 });
-$(document).on("click", "#editSingleRFQ", function (e) {
-    console.log("sss");
- //Filter - Select 2
-    $('#product_name-2').select2({
-        filter: true
-    })
-    //END
-    $('#editPreselectProducts').show();
-    $('.hideProposalVal').css('display','block');
-    $('.hideTotPdt').css('display','block');
-    $('.hideFinalVal').css('display','block');
-    $("#quantity-1").removeAttr("disabled", "disabled");
-});
+
 //DELETE RFQ
 $(document).on("click", "#confirmRFQDelete", function (e) {
     console.log("DELETE");

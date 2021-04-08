@@ -57,3 +57,6 @@
 		<!-- INTERNAL TABS JS -->
         <script src="{{URL::asset('assets/plugins/tabs/jquery.multipurpose_tabcontent.js')}}"></script>
         <script src="{{URL::asset('assets/plugins/tabs/tab-content.js')}}"></script>
+      <!-- INTERNAL SWEET-ALERT JS -->
+	  <script src="{{URL::asset('assets/plugins/sweet-alert/sweetalert.min.js')}}"></script>
+        <script src="{{URL::asset('assets/js/sweet-alert.js')}}"></script>

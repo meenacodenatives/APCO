@@ -65,7 +65,7 @@
                             <label class="form-label">Email</label>
                             <input type="text"
                                 value="{{($product!='') ? $product->email : (($lead != '') ? $lead[0]->email : '')}}"
-                                name="email" id="email" class="form-control" placeholder="Email">
+                                name="email"  id="email" class="form-control" placeholder="Email">
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -88,8 +88,7 @@
                     <div class="col-md-5">
                         <div class="form-group">
                             <label class="form-label">Description</label>
-                            <textarea class="form-control" id="description" style="resize:none"
-                                placeholder="Description">{{($product!='') ? $product->description : (($lead != '') ? $lead[0]->description : '')}}</textarea>
+                            <textarea class="form-control" id="description" style="resize:none" placeholder="Description">{{($product!='') ? $product->description : (($lead != '') ? $lead[0]->description : '')}}</textarea>
                         </div>
                     </div>
                 </div>
@@ -122,10 +121,8 @@
                         <tbody id="tbl_pdts_body">
                             <tr id="rec-1">
                                 <td>1
-
                                 </td>
                                 <td>
-      
                                     <select class="form-control rfq_Product_name custom-select" id="product_name-1"
                                         data-id="">
                                         <option value="">Select</option>
@@ -140,16 +137,16 @@
                                 <td><input type="text" class="form-control rfq_quantity" name="Quantity"
                                         placeholder="Quantity" id="quantity-1" maxlength="3"
                                         onkeypress='return event.charCode >= 48 && event.charCode <= 57'
-                                        value="@if($RFQProducts!=''){{ $quantityFirst }} @endif" data-id=""></td>
+                                        value="@if($RFQProducts!=''){{$quantityFirst }} @endif" data-id=""></td>
                                 <td><input type="text" class="form-control hidetd1" name="units" placeholder="Units"
-                                        id="units-1" value="@if($RFQProducts!=''){{ $unitsFirst }} @endif" readonly>
+                                        id="units-1" value="@if($RFQProducts!=''){{$unitsFirst}}@endif" readonly>
                                 </td>
                                 <td><input type="text" class="form-control hidetd1" name="selling_price"
                                         placeholder="Price" id="selling_price-1"
-                                        value="@if($RFQProducts!=''){{ $selling_priceFirst }} @endif" readonly></td>
+                                        value="@if($RFQProducts!=''){{$selling_priceFirst}}@endif" readonly></td>
                                 <td><input type="text" class="form-control subtotal" name="subtotal"
                                         placeholder="Subtotal" id="subtotal-1"
-                                        value="@if($RFQProducts!=''){{ $subtotalFirst }} @endif" readonly></td>
+                                        value="@if($RFQProducts!=''){{$subtotalFirst }}@endif" readonly></td>
                                 <td><a class="btn btn-primary btn-sm mb-2 mb-xl-0 add-record hidetd1" data-added="0"><i
                                             class="fa fa-plus"></i></a>&nbsp;&nbsp;
                                     <a class="btn btn-danger btn-sm mb-2 mb-xl-0 delete-record hidetd1" data-id="1"><i
@@ -181,16 +178,16 @@
                             <td><input type="text" class="form-control" name="units" id="units-" placeholder="Units"
                                     value="@if($product!=''){{ $product->units }} @endif" readonly></td>
                             <td><input type="text" class="form-control hidetd" name="selling_price" id="selling_price-"
-                                    placeholder="Price" value="@if($product!=''){{ $product->selling_price }} @endif"
+                                    placeholder="Price" value="@if($product!=''){{$product->selling_price}}@endif"
                                     readonly>
                             </td>
                             <td><input type="text" class="form-control subtotal" name="subtotal" placeholder="Subtotal"
                                     id="subtotal-" value=""></td>
                             <td>
-                                <a class="btn btn-primary btn-sm mb-2 mb-xl-0 add-record hidetd" data-added="0"><i
-                                        class="fa fa-plus"></i></a>&nbsp;&nbsp;
-                                <a class="btn btn-danger btn-sm mb-2 mb-xl-0 delete-record hidetd" data-id=""><i
-                                        class="fa fa-trash"></i></a>
+                                <a class="btn btn-primary btn-sm mb-2 mb-xl-0 add-record hidetd fa fa-plus" id="testbtn" data-added="0"><i
+                                        ></i></a>&nbsp;&nbsp;
+                                <a class="btn btn-danger btn-sm mb-2 mb-xl-0 delete-record hidetd fa fa-trash" data-id=""><i
+                                        ></i></a>
                             </td>
                         </tr>
                     </table>
@@ -200,7 +197,7 @@
                         <tr class="wd-25p pb-10 lightBlue text-capitalize hideTotPdt" style="display:none;">
                             <td class="wd-10p">Total Amount</td>
                             <td class="wd-25p hideTotPdt" style="display:none;"><span
-                                    class="grdtot">@if($product!=''){{ $product->total_pdt_price }} @endif</span></td>
+                                    class="grdtot">@if($product!=''){{$product->total_pdt_price}}@endif</span></td>
                         </tr>
                         <tr>
                             <td class="wd-10p">Labour Charge</td>
@@ -208,7 +205,7 @@
                                 <input type="text" class="form-control proposed_val_change" name="labour_charge"
                                     placeholder="Labour Charge"
                                     onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="labour_charge"
-                                    value="@if($product!=''){{ $product->labourcharge }} @endif">
+                                    value="@if($product!=''){{$product->labourcharge}}@endif">
                             </td>
                         </tr>
                         <tr>
@@ -218,7 +215,7 @@
                                     placeholder="Transport Charge"
                                     onkeypress='return event.charCode >= 48 && event.charCode <= 57'
                                     id="transport_charge"
-                                    value="@if($product!=''){{ $product->transportcharge }} @endif">
+                                    value="@if($product!=''){{$product->transportcharge }}@endif">
                             </td>
 
                         </tr>
@@ -226,15 +223,14 @@
                             <td>Margin</td>
                             <td><input type="text" maxlength="10" class="form-control proposed_val_change margin"
                                     name="margin" placeholder="Margin" id="margin"
-                                    value="@if($product!=''){{ $product->margin }} @endif">
+                                    value="@if($product!=''){{$product->margin}}@endif">
                             </td>
 
                         </tr>
                         <tr class="wd-25p p-10 lightBlue text-capitalize hideProposalVal" style="display:none;">
                             <td class="wd-10p">Proposal Value</td>
                             <td class="wd-25p">
-                                <span class="proposal_value">@if($product!=''){{ $product->proposed_value }}
-                                    @endif</span>
+                                <span class="proposal_value">@if($product!=''){{$product->proposed_value}}@endif</span>
                             </td>
                         </tr>
                         <tr>
@@ -243,7 +239,7 @@
                                     name="discount_type" id="discount_type">
                                     <option value="">Select</option>
                                     @foreach ($rfq_discount as $dis)
-                                    <option value="{{ $dis->code }}" @if($product!='' ) @if($product->discount_type ==
+                                    <option value="{{ $dis->code }}" @if($product!='')@if($product->discount_type ==
                                         $dis->code) selected @endif @endif
                                         >{{ $dis->code }}
                                     </option>
@@ -255,13 +251,19 @@
                             <td class="wd-25p">
                                 <input type="text" class="form-control final_val_change" name="add_discount"
                                     placeholder="Discount" id="add_discount"
-                                    value="@if($product!=''){{ $product->discount_value }} @endif">
+                                    value="@if($product!=''){{$product->discount_value}}@endif">
                             </td>
                         </tr>
                         <tr class="wd-25p p-10 lightBlue text-capitalize hideFinalVal" style="display:none;">
                             <td class="wd-10p">Final Value</td>
                             <td class="wd-25p hideFinalVal" style="display:none;"><span
-                                    class="final_value">@if($product!=''){{ $product->final_value }} @endif</span>
+                                    class="final_value">@if($product!=''){{$product->final_value}}@endif</span>
+                            </td>
+                        </tr>
+                        <tr><td>AMC
+                        <input type="checkbox" name="" id="recurring" value=""></td>
+                            <td class="wd-25p">
+                                <input type="text"  class="form-control" disabled="disabled" placeholder="AMC" id="amc" value="@if($product!=''){{$product->amc}}@endif">
                             </td>
                         </tr>
                     </tbody>
@@ -285,6 +287,7 @@
 
     <input type="hidden" class="form-control" name="editRFQID" id="editRFQID"
         value="@if($product!=''){{ $product->id }}  @endif">
+
     <input type="hidden" class="form-control" name="lead_id" id="lead_id" value="@if($lead!=''){{$lead[0]->id}}@endif">
     <!-- ROW-6 CLOSED -->
     @endsection

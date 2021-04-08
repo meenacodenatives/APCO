@@ -60,20 +60,20 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Quantity</label>
-                            <input type="text" value="@if($product!=''){{ $product->quantity}} @endif" name="quantity"
+                            <input type="text" value="@if($product!=''){{ $product->quantity}}@endif" name="quantity"
                                 id="quantity" class="form-control" placeholder="Quantity">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Product Code / SKQ</label>
-                            <input type="text" value="@if($product!=''){{ $product->product_code}} @endif"
+                            <input type="text" value="@if($product!=''){{ $product->product_code}}@endif"
                                 name="product_code" id="product_code" class="form-control" placeholder="Product Code">
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Actual Price</label>
-                            <input type="text" name="actual_price" id="actual_price"
-                                value="@if($product!=''){{ $product->actual_price}} @endif" class="form-control"
-                                placeholder="Actual Price">
+                        <label class="form-label">Selling Price1</label>
+                            <input type="text" class="form-control" name="selling_price" id="selling_price1"
+                                placeholder="Selling Price"
+                                value="@if($product!=''){{ $product->selling_price}}@endif">
                         </div>
 
                     </div>
@@ -81,7 +81,7 @@
                         <div class="form-group">
                             <label class="form-label">Product Name</label>
                             <input type="text" class="form-control" name="product_name" id="product_name"
-                                placeholder="Product Name" value="@if($product!=''){{ $product->product_name}} @endif">
+                                placeholder="Product Name" value="@if($product!=''){{$product->product_name}}@endif">
                         </div>
                         <div class="form-group m-0">
                             <label class="form-label">Units</label>
@@ -96,15 +96,17 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Manufacture Date</label>
-                            <input type="text" class="form-control mfg_date" name="mfg_date" id="mfg_date"
-                                placeholder="Manufacture Date" value="@if($product!=''){{ $product->mfg_date }} @endif">
+                        <label class="form-label">Actual Price</label>
+                            <input type="text" name="actual_price" id="actual_price"
+                                value="@if($product!=''){{$product->actual_price}}@endif" class="form-control"
+                                placeholder="Actual Price">
+                           
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Selling Price</label>
-                            <input type="text" class="form-control" name="selling_price" id="selling_price"
+                            <label class="form-label">Selling Price2</label>
+                            <input type="text" class="form-control" name="selling_price" id="selling_price2"
                                 placeholder="Selling Price"
-                                value="@if($product!=''){{ $product->selling_price }} @endif">
+                                value="@if($product!=''){{$product->selling_price2 }}@endif">
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -124,18 +126,34 @@
                         <div class="form-group">
                             <label class="form-label">Batch Number</label>
                             <input type="text" class="form-control" name="batch_number" id="batch_number"
-                                placeholder="Batch Number" value="@if($product!=''){{ $product->batch_number }} @endif">
+                                placeholder="Batch Number" value="@if($product!=''){{$product->batch_number}}@endif">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Expiry Date</label>
-                            <input type="text" class="form-control expiry_date" name="expiry_date" id="expiry_date"
-                                placeholder="Expiry Date" value="@if($product!=''){{ $product->expiry_date }} @endif">
-
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">GST</label>
+                                <label class="form-label">GST</label>
                             <input type="text" class="form-control" name="gst" placeholder="GST" id="gst"
-                                value="@if($product!=''){{ $product->gst }} @endif">
+                                value="@if($product!=''){{$product->gst }}@endif">
+                        </div>
+                        <div class="form-group">
+                        <label class="form-label">Selling Price3</label>
+                            <input type="text" class="form-control" name="selling_price" id="selling_price3"
+                                placeholder="Selling Price"
+                                value="@if($product!=''){{$product->selling_price3}}@endif">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                        <label class="form-label">Manufacture Date</label>
+                            <input type="text" class="form-control mfg_date" name="mfg_date" id="mfg_date"
+                                placeholder="Manufacture Date" value="@if($product!=''){{$product->mfg_date }}@endif">
+                        </div>
+                      
+                    </div>
+                    <div class="col-md-4">
+                        
+                        <div class="form-group">
+                        <label class="form-label">Expiry Date</label>
+                            <input type="text" class="form-control expiry_date" name="expiry_date" id="expiry_date"
+                                placeholder="Expiry Date" value="@if($product!=''){{$product->expiry_date }}@endif">
                         </div>
                     </div>
                 </div>

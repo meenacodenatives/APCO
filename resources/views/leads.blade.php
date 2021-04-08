@@ -131,7 +131,7 @@
                 <div class="table-responsive">
                     <div class="span12 text-center load-search-lead">
                     </div>
-                    <table id="data-table1" class="table table-striped table-bordered text-nowrap w-100">
+                    <table id="data-table3" class="table table-striped table-bordered text-nowrap w-100">
 
                         <thead>
                             <tr>

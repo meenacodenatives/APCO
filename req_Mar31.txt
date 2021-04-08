@@ -1,0 +1,44 @@
+Product Inventory 
+1. Actual Price - Multiple
+Scenario
+SKU and Pricing == same price - Alert pdt name with same price else Same pdt name with
+diff price.
+2.Selling price 1,2,3 - optional.
+3.Stock is different with different price. - Handling Price Model
+
+Create RFQ
+1. Product grid - Dont repeat pdts - Do with SKU
+2. Quantity - Compare quan>=stock - allow else - choose different Pricing
+3. Actual Price - Drop down
+4. Multiple Pricing
+5. chk quantity and stock
+6. Another pricing  = That pdt have another price then will give another price
+7. Recurring - chk box - AMC(Label) - Number of recurring (text box) - Store the numbers 
+in DB
+
+RFQ Tracking
+1.RFQ Edit - increase the discount.
+2.REVERSE QUOTATION - Maintain Records - a)10000 b)9000 c)8000 - Same 
+Dont generate update query - Insert query - insert id "Parent ID"
+3. b)9000 - parent id chk id and parent id
+IF parent id is not there - insert id as parent id.
+4.go Generate Invoice - Final
+5. Convert customer after Generate Invoice.
+
+Create Lead record when direct RFQ generated
+1.Direct person meet in office.
+2.existing email and phone check in lead == is there - dont insert into lead
+else insert into lead table
+3.mapping table - lead and RFQ
+4. one lead multiple RFQ
+5.lead_rfq_mapping- lead_id,rfq_id - Multiple RFQ for same lead.
+We will find how many RFQ for single lead called - Mapping
+
+Query:
+1. Generate RFQ - Any status will change.
+2.Edit other fields in rfq - RFQ tracking
+3.One lead (email) have multiple RFQ - when new insertion check email id and phone
+
+ISSUE:
+Flat
+Validation

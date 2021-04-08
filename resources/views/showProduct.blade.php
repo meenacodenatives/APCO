@@ -137,7 +137,7 @@
                     <div class="table-responsive">
                         <div class="span12 text-center load-search-product">
                         </div>
-                        <table id="table-sortable" class="table table-striped table-bordered text-nowrap w-100">
+                        <table id="data-table3" class="table table-striped table-bordered text-nowrap w-100">
 
                             <thead>
 
@@ -145,9 +145,9 @@
                                     <th class="wd-25p">Category</th>
                                     <th class="wd-25p">Product Name</th>
                                     <th class="wd-10p">Product Code</th>
+                                    <th class="wd-10p">Actual Price</th>
                                     <th class="wd-25p">Type</th>
                                     <th class="wd-25p">Quantity</th>
-                                    <th class="wd-25p">Units</th>
                                     <th class="wd-10p">Created Date</th>
                                     <th class="wd-10p">&nbsp;</th>
                                 </tr>
@@ -163,15 +163,14 @@
                                     <td>{{$pt->name}} </td>
                                     <td>{{$pt->product_name}} </td>
                                     <td>{{$pt->product_code}}</td>
+                                    <td>{{$pt->actual_price}}</td>
                                     <td>
                                         {{$pt->product_type}}
                                     </td>
                                     <td>
-                                        {{$pt->quantity}}
+                                        {{$pt->quantity}}  {{$pt->units}}
                                     </td>
-                                    <td>
-                                        {{$pt->units}}
-                                    </td>
+                                   
                                     <td>{{date('M d, Y', strtotime($pt->created_at))}}</td>
                                     <td>
                                         <a href="#" class="btn btn-secondary btn-sm mb-2 mb-xl-0" data-toggle="modal"

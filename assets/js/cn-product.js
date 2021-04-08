@@ -55,13 +55,15 @@ function createProduct() {
     data.product_name = $('#product_name').val();
     data.units = $('#units').val();
     data.mfg_date = $('#mfg_date').val();
-    data.selling_price = $('#selling_price').val();
+    data.selling_price = $('#selling_price1').val();
+    data.selling_price2 = $('#selling_price2').val();
+    data.selling_price3 = $('#selling_price3').val();
     data.product_type = $('#product_type').val();
     data.batch_number = $('#batch_number').val();
     data.expiry_date = $('#expiry_date').val();
     data.gst = $('#gst').val();
     data.id = $('#editPdtID').val();
-    // console.log("id==" + data.id);
+    console.log("id==" + data.id);
 
     $('.is-invalid').removeClass('is-invalid');
     //Validation
@@ -115,20 +117,16 @@ function createProduct() {
         err++;
     }
 
-    // if ($("#pCategory").val() == '') {
-    //     $('#pCategory').addClass('is-invalid');
-    //     err++;
-    // }
 
     if (err > 0) {
         return false;
     } else {
         console.log("CATE" + JSON.stringify(data));
-        $('.productSave').hide();
-        $('#load-product').html(loading_icon);
+       $('.productSave').hide();
+       $('#load-product').html(loading_icon);
     }
     $.ajax({
-        url: base_url + '/storeProduct',
+        url: base_url + '/chkProductPrice',
         type: 'POST',
         data: {
             _token: CSRF_TOKEN,
@@ -136,26 +134,38 @@ function createProduct() {
         },
         dataType: 'JSON',
         success: function (data) {
-            if (data.status == 1) { //success login
-                $.growl({
+            if (data.status == 2) { //success login
+                
+                swal({
                     title: "",
-                    message: "Product has been saved successfully",
-                    duration: "3000",
-                    location: "tr",
-                    style: "notice"
+                    text: "Do you want to add product with different price ",
+                    type: "success",
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes',
+                    //confirmButtonColor: '#DD6B55',
+                    cancelButtonText: 'Cancel'
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                       addProduct();
+                    }
+                    else
+                    {
+                        $('.productSave').show();
+                        $('#load-product').html('');
+                        console.log("TEST");  
+                    }
                 });
-                setTimeout(function () {
-                    window.location.href = base_url + '/showProduct';
-                }, 2000);
             } else if (data.status == 3) { //name exist already
                 $.growl({
                     title: "",
-                    message: "Entered product name already exist",
+                    message: "Already Entered product has been added with same price",
                     duration: "3000",
                     location: "tr",
                     style: "error"
                 });
                 $('#product_name').addClass('is-invalid');
+                $('#actual_price').addClass('is-invalid');
+                $('#product_code').addClass('is-invalid');
                 $('.productSave').show();
                 $('#load-product').html('');
             } else { //error
@@ -173,6 +183,52 @@ function createProduct() {
 
     });
 }
+//Start of add product
+function addProduct() {
+    var data = {}
+    data.category = $('#category').val();
+    data.quantity = $('#quantity').val();
+    data.product_code = $('#product_code').val();
+    data.actual_price = $('#actual_price').val();
+    data.product_name = $('#product_name').val();
+    data.units = $('#units').val();
+    data.mfg_date = $('#mfg_date').val();
+    data.selling_price = $('#selling_price1').val();
+    data.selling_price2 = $('#selling_price2').val();
+    data.selling_price3 = $('#selling_price3').val();
+    data.product_type = $('#product_type').val();
+    data.batch_number = $('#batch_number').val();
+    data.expiry_date = $('#expiry_date').val();
+    data.gst = $('#gst').val();
+    data.id = $('#editPdtID').val();
+    $('.productSave').hide();
+                $('#load-product').html(loading_icon);
+    $.ajax({
+        url: base_url + '/storeProduct',
+        type: 'POST',
+        data: {
+            _token: CSRF_TOKEN,
+            data: data
+        },
+        dataType: 'JSON',
+        success: function (data) {
+            console.log("datadata"+JSON.stringify(data));
+            if (data.status == 1) {
+                $.growl({
+                    title: "",
+                    message: "Product has been added successfully",
+                    duration: "3000",
+                    location: "tr",
+                    style: "notice"
+                });
+                setTimeout(function () {
+                    window.location.href = base_url + '/showProduct';
+                }, 1000);
+            }
+        }
+    });
+}
+//END OF Add Product
 //View Single Product
 function formatDate(dateObject) {
     var d = new Date(dateObject);

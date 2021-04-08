@@ -11,6 +11,9 @@
 
 		<!-- BOOTSTRAP CSS -->
 		<link href="{{URL::asset('assets/plugins/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet" />
+				<!-- SWEET ALERT CSS -->
+
+		<link href="{{URL::asset('assets/plugins/sweet-alert/sweetalert.css')}}" rel="stylesheet" />
 
 		<!-- STYLE CSS -->
 		<link href="{{URL::asset('assets/css/style.css')}}" rel="stylesheet" />

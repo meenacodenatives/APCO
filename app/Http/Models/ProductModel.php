@@ -17,6 +17,8 @@ class ProductModel extends Model
         'product_type',
         'actual_price',
         'selling_price',
+        'selling_price2',
+        'selling_price3',
         'quantity',
         'units',
         'batch_number',

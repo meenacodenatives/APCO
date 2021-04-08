@@ -34,7 +34,9 @@ Route::group(['middleware' => 'usersession'], function () {
   Route::post('/searchResults','ProductController@searchResults');
 
          // Product -Store
-         Route::post('/storeProduct','ProductController@storeProduct');
+         Route::post('/chkProductPrice','ProductController@chkProductPrice');
+           // Product -Store
+           Route::post('/storeProduct','ProductController@storeProduct');
          // Product -View
          Route::get('/showProduct','ProductController@showProduct');
           //Add Product
@@ -45,7 +47,7 @@ Route::group(['middleware' => 'usersession'], function () {
     Route::get('/viewSingleproduct/{id}', 'ProductController@viewSingleproduct');
      // RFQ -View
      Route::get('/showRFQ','RFQController@showRFQ');
-     //Add rfq
+     //Add RFQ
     Route::get('/add-RFQ', 'RFQController@addRFQ');
      // RFQ -Store
      Route::post('/storeRFQ','RFQController@storeRFQ');
