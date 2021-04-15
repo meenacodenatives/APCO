@@ -49,4 +49,9 @@ if quantity change disabled the charges
 git push origin master
 git push origin <branch name>
 git push <remote> <branch>
+git branch -D newbranch
+
 git branch newbranch - To create new branch
+git checkout  your-new-branch - switch to branch
+git add <files>
+git commit -m <message>
