@@ -49,3 +49,4 @@ if quantity change disabled the charges
 git push origin master
 git push origin <branch name>
 git push <remote> <branch>
+git branch newbranch - To create new branch
