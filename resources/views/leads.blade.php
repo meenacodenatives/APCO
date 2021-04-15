@@ -131,7 +131,7 @@
                 <div class="table-responsive">
                     <div class="span12 text-center load-search-lead">
                     </div>
-                    <table id="data-table3" class="table table-striped table-bordered text-nowrap w-100">
+                    <table id="table-sortable" class="table table-striped table-bordered text-nowrap w-100">
 
                         <thead>
                             <tr>
@@ -144,24 +144,22 @@
                                 <th class="wd-10p">&nbsp;</th>
                             </tr>
                         </thead>
-                        <tbody id="showLead" style="display:none;">
-
-                        </tbody>
+                        
                         <tbody id="hideLead">
-
-                            <?php if (count($data['lead']) > 0): foreach ($data['lead'] as $le): ?>
+                        @if(count($data['lead']) > 0 )
+                                @foreach($data['lead'] as $le)
                             <tr>
-                                <td><?= $le->name ?></td>
-                                <td><?= $le->contact_name ?></td>
-                                <td><?= $le->email ?></td>
-                                <td><?= $le->phone ?></td>
+                                <td>{{$le->name}}</td>
+                                <td>{{$le->contact_name}}</td>
+                                <td>{{$le->email}}</td>
+                                <td>{{$le->phone}}</td>
                                 <td>
-                                    <?php foreach ($data['status'] as $st): ?>
-                                    <?php if ($le->status == $st->code): echo $st->meaning ?>
-                                    <?php endif;  endforeach;?>
+                                @foreach($data['status'] as $st) 
+                                @if($le->status == $st->code){{$st->meaning}} 
+                                    @endif  @endforeach
                                 </td>
                                 <td>
-                                    <?=  date('M d , Y', strtotime($le->created_date)); //date('d-m-Y h:i A', strtotime($le->created_date)); ?>
+                                {{date('M d, Y', strtotime($le->created_date))}} 
                                 </td>
                                 <td>
                                     <a data-toggle="modal" data-target="#mytracker" id="button1"
@@ -182,17 +180,17 @@
                                                 class="fa fa-plus"></i></a>
                                 </td>
                             </tr>
-                            <?php
-                                endforeach;
-                            else:
-                                ?>
+                            @endforeach
+                                @else
+                                <tr colspan="8">
+                                    <td>No Records Found</td>
+                                </tr>
+                                @endif
 
-                            <tr>
-                                <td colspan="6">No Lead Found!</td>
-                            </tr>
-
-                            <?php endif; ?>
                         </tbody>
+                        <tbody id="showLead" style="display:none">
+
+</tbody>
                     </table>
                 </div>
             </div>

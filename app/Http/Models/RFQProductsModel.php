@@ -21,6 +21,7 @@ class RFQProductsModel extends Model
         'created_at',
         'created_by',
         'is_active',
+        'parent_id',
         'modified_by',
         'updated_at'
     ];

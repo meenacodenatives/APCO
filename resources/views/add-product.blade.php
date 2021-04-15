@@ -64,8 +64,8 @@
                                 id="quantity" class="form-control" placeholder="Quantity">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Product Code / SKQ</label>
-                            <input type="text" value="@if($product!=''){{ $product->product_code}}@endif"
+                            <label class="form-label">Product Code / SKU</label>
+                            <input type="text" value="@if($product!=''){{$product->product_code}}@endif"
                                 name="product_code" id="product_code" class="form-control" placeholder="Product Code">
                         </div>
 
@@ -73,7 +73,7 @@
                         <label class="form-label">Selling Price1</label>
                             <input type="text" class="form-control" name="selling_price" id="selling_price1"
                                 placeholder="Selling Price"
-                                value="@if($product!=''){{ $product->selling_price}}@endif">
+                                value="@if($product!=''){{$product->selling_price}}@endif">
                         </div>
 
                     </div>

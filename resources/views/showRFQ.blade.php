@@ -114,7 +114,7 @@
                     <div class="table-responsive">
                         <div class="span12 text-center load-search-RFQs">
                         </div>
-                        <table id="data-table3" class="table table-striped table-bordered text-nowrap w-100">
+                        <table id="RFQDataTable" class="table table-striped table-bordered text-nowrap w-100">
 
                             <thead>
 
@@ -130,9 +130,7 @@
                                 </tr>
 
                             </thead>
-                            <tbody id="showRFQs" style="display:none;">
-
-                            </tbody>
+                            
                             <tbody id="hideRFQs">
                                 @if($RFQList->count() > 0 )
                                 @foreach($RFQList as $pt)
@@ -176,6 +174,9 @@
                                     <td>No Records Found</td>
                                 </tr>
                                 @endif
+                            </tbody>
+                            <tbody id="showRFQs" style="display:none">
+
                             </tbody>
                         </table>
 
@@ -251,6 +252,18 @@
                                                 <div class="form-group">
                                                     <label class="form-label lightBlue text-capitalize">Phone</label>
                                                     <span id="popup_phone"></span>
+                                                </div>
+
+                                            </div>
+                                            <div class="col">
+
+                                                <div class="form-group">
+                                                    <label class="form-label lightBlue text-capitalize">Discount</label>
+                                                    <span id="popup_discount_value"></span>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label lightBlue text-capitalize">AMC</label>
+                                                    <span id="popup_amc"></span>
                                                 </div>
 
                                             </div>

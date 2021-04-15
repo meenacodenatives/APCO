@@ -42,3 +42,10 @@ Query:
 ISSUE:
 Flat
 Validation
+compare qunatity and price cnt edit- partially error fixed
+change quantity and chk the stock
+if quantity change disabled the charges
+
+git push origin master
+git push origin <branch name>
+git push <remote> <branch>

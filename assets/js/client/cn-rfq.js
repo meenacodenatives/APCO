@@ -1,7 +1,37 @@
 var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 var loading_icon = '<img class="load-icon" src=' + base_url + '/assets/images/brand/loader.gif>';
+var host = window.location.host;
+var pathname = window.location.pathname.split("/");
+console.log("pathname"+pathname);
+console.log("pathname[2]"+pathname[2]);
 
-
+$('#recurring').click(function () {
+    if ($(this).is(':checked')) {
+        $("#amc").removeAttr("disabled");
+    }
+    else {
+        $("#amc").attr("disabled", "disabled");
+    }
+});
+if (pathname[1] == 'edit-RFQ') {
+    console.log("edit"+pathname);
+    //Filter - Select 2 
+    //END
+    $('#editPreselectProducts').show();
+    $('.hideProposalVal').show();
+    $('.hideTotPdt').show();
+    $('.hideFinalVal').show();
+    $("#quantity-1").removeAttr("disabled", "disabled");
+}
+if (pathname[1] == 'add-RFQ') {
+    var actual_p = '';
+    actual_p = actual_p + '<option value="">Select</option>';
+    $("#actual_price-1").attr("disabled", "disabled");
+    $("#units-1").attr("disabled", "disabled");
+    $(".subtotal").attr("disabled", "disabled");
+    $('#quantity-1').attr("disabled", "disabled");
+    $('#actual_price-1').html(actual_p);
+}
 $('.closeModal').click(function () {
     $('#viewProduct').modal("hide");
 });
@@ -15,14 +45,24 @@ $('#rfqSearch').click(function () {
 });
 
 $(function () {
+    //To display the select 2 drop down
+    var rowCnt = $('#sno').val();
+    if (pathname[2] == 'edit-RFQ') {
+        console.log("rowCnt" + rowCnt);
+        if (rowCnt) {
+            for (var i = 1; i <= rowCnt + 1; i++) {
+                $('#product_name-' + i).select2({
+                    filter: true
+                })
+            }
+        }
+    }
     $('#product_name-1').select2({
         filter: true
     })
-    $("#quantity-1").attr("disabled", "disabled");
-    $("#selling_price-1").attr("disabled", "disabled");
-    $("#units-1").attr("disabled", "disabled");
-    $(".subtotal").attr("disabled", "disabled");
+    //END
     var err = 0;
+    //MARGIN and Disocunt - Validation
     $("#margin").bind("keypress", function (e) {
         console.log("s=");
         var keyCode = e.keyCode || e.which;
@@ -55,31 +95,102 @@ $(function () {
             $('.is-invalid').removeClass('is-invalid');
         }
     });
+    //END
 });
-$(document).delegate(".rfq_quantity", "change", function (e) {
-    var id = $(this).val();
-    console.log("id=" + id);
+//compare Stock with quantity
+$(document).delegate(".chkQuantitybyPrice", "change", function (e) {
+    var price = $(this).val();
     var rowID = $(this).attr('data-id');
-    console.log("countRows=" + rowID);
+    $.ajax({
+        url: base_url + '/compareStockQuantity/'+price,
+        type: 'GET',
+        dataType: 'JSON',
+        success: function (data) {
+            var result = data.compareQuantity;
+            var priceLen=data.cntAp;
+            var product_id=data.product_id;
+            if (rowID == '') {
+                var product_id_c = $("#product_id-1").val(product_id);
+                console.log("first=" +product_id);
+            }
+            else{
+                var product_id_c = $("#product_id-"+rowID).val(product_id);
+                console.log("second=" +product_id); 
+            }
+            var lengthPri = $("#cntPrice").val(priceLen);
+            var qunPrice = $("#compareQuantity").val(result);
+            $("#quantity-1").removeAttr("disabled", "disabled");
+            $("#quantity-"+ rowID).removeAttr("disabled", "disabled");
+        }
+    });
+    $(".subtotal").attr("disabled", "disabled");
+    $('.hideTotPdt').hide();
+});
+//QUANTITY - calculation
+$(document).delegate(".rfq_quantity", "change", function (e) {
+    var quantity = $(this).val();
+    console.log("id=" + quantity);
+    var rowID = $(this).attr('data-id');
+    var stock=$('#compareQuantity').val();
+    var cntPriceLen=$('#cntPrice').val();
+    console.log("compareQuantity=" + stock);
+    console.log("cntPriceLen=" + cntPriceLen);
+
+//Error Message for quantity and stock - scenario
+                if (quantity != '') {
+                    // if (stock > quantity) 
+                    // {
+                    //     var stockLeft = 'Stock is Available';
+                    //     $.growl({
+                    //         title: "",
+                    //         message: stockLeft,
+                    //         duration: "3000",
+                    //         location: "tr",
+                    //         style: "notice"
+                    //     });
+                    // }
+                   // else{
+                    if(cntPriceLen > 1 && stock < quantity)
+                    {
+                        var stockLeft = 'Out Of stock Please choose another price';
+                        $.growl({
+                            title: "",
+                            message: stockLeft,
+                            duration: "3000",
+                            location: "tr",
+                            style: "warning"
+                        });
+                    }
+                    if(cntPriceLen == 1 && stock < quantity)
+                    {
+                        var stockLeft = 'Out Of stock';
+                        $.growl({
+                            title: "",
+                            message: stockLeft,
+                            duration: "3000",
+                            location: "tr",
+                            style: "error"
+                        });
+                    }
+                 //}
+                }
     if (rowID == '') {
         var qty = $('#quantity-1').val();
-        var price = $('#selling_price-1').val();
+        var price = $('#actual_price-1').val();
         var r_price = price.replace("Rs.", "");
         var subTotal = parseInt(qty, 10) * parseFloat(r_price);
         $("#subtotal-1").val('Rs.' + subTotal.toFixed(2));
     }
     else {
         var qty = $('#quantity-' + rowID).val();
-        var price = $('#selling_price-' + rowID).val();
+        var price = $('#actual_price-' + rowID).val();
         console.log("qty=" + qty);
         console.log("price=" + price);
         var r_price = price.replace("Rs.", "");
         var subTotal = parseInt(qty, 10) * parseFloat(r_price);
         $("#subtotal-" + rowID).val('Rs.' + subTotal.toFixed(2));
         console.log("subtotal=" + subTotal);
-        
     }
-
     if (!isNaN(subTotal)) {
         $('.hideTotPdt').show();
         var grandTotal = 0;
@@ -90,15 +201,14 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
         });
         $('.grdtot').text('Rs. ' + grandTotal.toFixed(2));
     }
-
 });
-$('.proposed_val_change').on('input',function(e){
-    console.log("TESTPROPSed");
+//END
+//Proposal val
+$('.proposed_val_change').on('input', function (e) {
     var grdtot = $('.grdtot').text();
     console.log("grdtot=" + grdtot);
     var labour_charge = $('#labour_charge').val();
     var transport_charge = $('#transport_charge').val();
-
     var margin = $('#margin').val();
     var r_gTotal = grdtot.replace("Rs.", "");
     var totalExpenses = parseFloat(r_gTotal) + parseFloat(labour_charge) + parseFloat(transport_charge);
@@ -107,11 +217,11 @@ $('.proposed_val_change').on('input',function(e){
     var marginProposalVal = (r_margin / 100) * totalExpenses;
     var proposalVal = parseFloat(marginProposalVal) + parseFloat(totalExpenses);
     if (!isNaN(proposalVal)) {
-   $('.hideProposalVal').show();
-    $('.proposal_value').text('Rs.' + proposalVal.toFixed(2));
+        $('.hideProposalVal').show();
+        $('.proposal_value').text('Rs.' + proposalVal.toFixed(2));
     }
-
 });
+//Final val
 $(document).delegate(".final_val_change", "change", function (e) {
     var type = $('#discount_type').val();
     var proposalVal = $('.proposal_value').text();
@@ -128,95 +238,116 @@ $(document).delegate(".final_val_change", "change", function (e) {
         var final_value = (r_proposalVal - disFinalValue);
     }
     if (!isNaN(final_value)) {
-    $('.hideFinalVal').show();
-    $('.final_value').text('Rs.' + final_value.toFixed(2));
-    console.log("final_value=" + final_value);
+        $('.hideFinalVal').show();
+        $('.final_value').text('Rs.' + final_value.toFixed(2));
+        console.log("final_value=" + final_value);
     }
 });
+//Product name - get price,units
 $(document).delegate(".rfq_Product_name", "change", function (e) {
-    var id = $(this).val();
-    console.log("id=" + id);
+    var product_code = $(this).val();
+    console.log("id=" + product_code);
     var rowID = $(this).attr('data-id');
     console.log("countRows=" + rowID);
+   
 
     if (rowID == '') {
         $('.load-mul-product1').html(loading_icon);
         $('.load-mul-product1').show();
         $("#quantity-1").attr("disabled", "disabled");
-        $("#selling_price-1").attr("disabled", "disabled");
+        $("#actual_price-1").attr("disabled", "disabled");
         $("#units-1").attr("disabled", "disabled");
+        
     }
     else {
         $('.load-mul-product' + rowID).html(loading_icon);
         $('.load-mul-product' + rowID).show();
-        $("#quantity-"+ rowID).attr("disabled", "disabled");
-        $("#selling_price-" + rowID).attr("disabled", "disabled");
+        $("#quantity-" + rowID).attr("disabled", "disabled");
+        $("#actual_price-" + rowID).attr("disabled", "disabled");
         $("#units-" + rowID).attr("disabled", "disabled");
     }
     $(".subtotal").attr("disabled", "disabled");
     $('.hideTotPdt').hide();
     $.ajax({
-        url: base_url + '/viewSingleproduct/' + id,
+        url: base_url + '/viewProductGridData/' + btoa(product_code),
         type: 'GET',
         dataType: 'JSON',
         success: function (data) {
-            var result = data.allProducts[0];
+            var result = data.allProducts;
+            console.log("pdt=" + JSON.stringify(result));
             if (rowID == '') {
                 $('.load-mul-product1').html("");
                 $('.load-mul-product1').hide();
-                $("#quantity-1").removeAttr("disabled", "disabled");
-                $("#selling_price-1").removeAttr("disabled", "disabled");
+              //  $("#quantity-1").removeAttr("disabled", "disabled");
                 $("#units-1").removeAttr("disabled", "disabled");
-                $('#selling_price-1').val('Rs.' + result.selling_price);
-                $('#units-1').val(result.units);
+                $("#actual_price-1").removeAttr("disabled", "disabled");
+                var actual_p = '';
+                actual_p = actual_p + '<option value="">Select</option>';
+                $.each(result, function (key, value) {
+                    $('#units-1').val(value.units);
+                    actual_p = actual_p + '<option value="' + value.actual_price + '">' + value.actual_price + '</option>';
+                    actual_p = actual_p + '</option>';
+                });
+                $('#actual_price-1').html(actual_p);
             }
             else {
                 $('.load-mul-product' + rowID).html("");
                 $('.load-mul-product' + rowID).hide();
-                $("#quantity-"+ rowID).removeAttr("disabled", "disabled");
-                $("#selling_price-" + rowID).removeAttr("disabled", "disabled");
+              //  $("#quantity-" + rowID).removeAttr("disabled", "disabled");
                 $("#units-" + rowID).removeAttr("disabled", "disabled");
-                $('#selling_price-' + rowID).val('Rs.' + result.selling_price);
-                $('#units-' + rowID).val(result.units);
-
+                $("#actual_price-" + rowID).removeAttr("disabled", "disabled");
+                var actual_p = '';
+                actual_p = actual_p + '<option value="">Select</option>';
+                $.each(result, function (key, value) {
+                    $('#units-' + rowID).val(value.units);
+                    actual_p = actual_p + '<option value="' + value.actual_price + '">' + value.actual_price + '</option>';
+                    actual_p = actual_p + '</option>';
+                });
+                
             }
+            var priceLen=data.cntAp;
+                var lengthPri = $("#cntPrice").val(priceLen);
+                console.log("result=" +priceLen);
+                $('#actual_price-' + rowID).html(actual_p);
 
         }
     });
 });
 
-
+//Add row - product grid
 $(document).delegate("a.add-record", "click", function (e) {
     $('#editPreselectProducts').hide();
-
     e.preventDefault();
-
     var content = $('#pdt_table tr'),
         size = $('#tbl_pdts >tbody >tr').length + 1,
         element = null,
         element = content.clone();
-    element.attr('id', 'rec-' + size);
-    element.find('.load-mul-product').attr('class', 'load-mul-product' + size);
-    //element.find('.form-control').attr('class', 'form-control hidetd' + size);
-    $('#product_name-' + size).select2({
+    element.find('.rfq_Product_name').select2({
         filter: true
     })
+    element.attr('id', 'rec-' + size);
+    element.find('.load-mul-product').attr('class', 'load-mul-product' + size);
     $("#quantity-" + size).attr("disabled", "disabled");
-    $("#selling_price-" + size).attr("disabled", "disabled");
+    $("#actual_price-" + size).attr("disabled", "disabled");
     $("#units-" + size).attr("disabled", "disabled");
     element.find('#quantity-').attr('id', 'quantity-' + size);
     element.find('#units-').attr('id', 'units-' + size);
     element.find('#product_name-').attr('id', 'product_name-' + size);
-    element.find('#selling_price-').attr('id', 'selling_price-' + size);
+    element.find('#product_id-').attr('id', 'product_id-' + size);
+    element.find('#actual_price-').attr('id', 'actual_price-' + size);
     element.find('#subtotal-').attr('id', 'subtotal-' + size);
     element.find('.delete-record').attr('data-id', size);
     element.find('.rfq_Product_name').attr('data-id', size);
     element.find('.rfq_quantity').attr('data-id', size);
+    element.find('.chkQuantitybyPrice').attr('data-id', size);
     element.appendTo('#tbl_pdts_body');
     element.find('.sn').html(size);
-
+    var actual_p = '';
+    actual_p = actual_p + '<option value="">Select</option>';
+    $('#actual_price-'+ size).html(actual_p);
 });
 
+//DELETE Rcord in product grid data
 $(document).delegate('a.delete-record', 'click', function () {
     var id = jQuery(this).attr('data-id');
     console.log("xx===" + id);
@@ -259,6 +390,7 @@ $(document).delegate('a.delete-record', 'click', function () {
 
 });
 
+//To REset search Form
 function RFQresetForm() {
     console.log("ID");
     $('#customer_name').val('');
@@ -269,6 +401,7 @@ function RFQresetForm() {
     $('#to').val('');
 }
 
+//To Store data in RFQ and product
 function createRFQ() {
 
     $('.is-invalid').removeClass('is-invalid');
@@ -289,23 +422,31 @@ function createRFQ() {
     data.final_value = $('.final_value').text();
     data.discount_type = $('#discount_type').val();
     data.discount_value = $('#add_discount').val();
+    if($('#amc').val()!=undefined)
+    {
+        data.amc = $('#amc').val();
+    }
+    else
+    {
+        data.amc =0;
+    }
     data.rowLen = $('#tbl_pdts >tbody >tr').length;
     console.log("countRows=" + data.rowLen);
     data.mul_quantity = [];
     data.mul_pdt_name = [];
     data.mul_units = [];
-    data.mul_selling_price = [];
+    data.mul_actual_price = [];
     data.mul_subtotal = [];
     for (var i = 1; i <= data.rowLen; i++) {
-        mul_pdt_name = $('#product_name-' + [i]).val();
+        mul_pdt_name = $('#product_id-' + [i]).val();
         mul_quantity = $('#quantity-' + [i]).val();
         mul_units = $('#units-' + [i]).val();
-        mul_selling_price = $('#selling_price-' + [i]).val();
+        mul_actual_price = $('#actual_price-' + [i]).val();
         mul_subtotal = $('#subtotal-' + [i]).val();
         data.mul_quantity.push(mul_quantity);
         data.mul_pdt_name.push(mul_pdt_name);
         data.mul_units.push(mul_units);
-        data.mul_selling_price.push(mul_selling_price);
+        data.mul_actual_price.push(mul_actual_price);
         data.mul_subtotal.push(mul_subtotal);
     }
     console.log("qunatity" + data.mul_quantity);
@@ -344,17 +485,14 @@ function createRFQ() {
         $('#address').addClass('is-invalid');
         err++;
     }
+
+
     if ($("#quantity-1").val() == '') {
         $('#quantity-1').addClass('is-invalid');
         err++;
     }
-
-    if ($(".rfq_quantity").val() == '') {
-        $('.rfq_quantity').addClass('is-invalid');
-        err++;
-    }
-    if ($(".rfq_Product_name").val() == '') {
-        $('.rfq_Product_name').addClass('is-invalid');
+    if ($("#product_name-1").val() == '') {
+        $('#product_name-1').addClass('is-invalid');
         err++;
     }
     if (err > 0) {
@@ -367,6 +505,7 @@ function createRFQ() {
         $('.is-invalid').removeClass('is-invalid');
     }
     data.id = $('#editRFQID').val();
+    data.editDis = $('#editDis').val();
     data.lead_id = $('#lead_id').val();
     console.log("data.lead_id" + data.lead_id);
     $.ajax({
@@ -392,7 +531,7 @@ function createRFQ() {
             } else if (data.status == 3) { //name exist already
                 $.growl({
                     title: "",
-                    message: "Entered Business name already exist",
+                    message: "Entered Email already exist",
                     duration: "3000",
                     location: "tr",
                     style: "error"
@@ -454,6 +593,8 @@ $(document).on("click", "#viewSingleRFQ", function (e) {
             $('#popup_customer_name').text(RFQList.customer_name);
             $('#popup_contact_name').text(RFQList.contact_name);
             $('#popup_email').text(RFQList.email);
+            $('#popup_discount_value').text(RFQList.discount_value);
+            $('#popup_amc').text(RFQList.amc);
             $('#popup_phone').text(RFQList.phone);
             $('#address').text(RFQList.address);
             $('#description').text(RFQList.description);
@@ -464,7 +605,7 @@ $(document).on("click", "#viewSingleRFQ", function (e) {
             rows = rows + '<thead><tr><th class="wd-35p lightBlue">Product Name</th>';
             rows = rows + '<th class="wd-35p lightBlue">Quantity</th>';
             rows = rows + '<th class="wd-35p lightBlue">Units</th>';
-            rows = rows + '<th class="wd-35p lightBlue">Selling Price</th>';
+            rows = rows + '<th class="wd-35p lightBlue">Actual Price</th>';
             rows = rows + '<th class="wd-35p lightBlue">Subtotal</th>';
             rows = rows + '</tr></thead><tbody>';
             $.each(RFQProducts, function (key, value) {
@@ -472,7 +613,7 @@ $(document).on("click", "#viewSingleRFQ", function (e) {
                 rows = rows + '<td>' + value.product_name + '</td>';
                 rows = rows + '<td>' + value.quantity + '</td>';
                 rows = rows + '<td>' + value.units + '</td>';
-                rows = rows + '<td>' + value.selling_price + '</td>';
+                rows = rows + '<td>' + value.actual_price + '</td>';
                 rows = rows + '<td>' + value.subtotal + '</td>';
                 rows = rows + '</tr>';
             });
@@ -487,16 +628,8 @@ $(document).on("click", "#viewSingleRFQ", function (e) {
     });
 
 });
-$(document).on("click", "#editSingleRFQ", function (e) {
-    console.log("EDIT");
-    $('#editPreselectProducts').show();
-    $('.hideProposalVal').show();
-    $('.hideTotPdt').show();
-    $('.hideFinalVal').show();
 
-});
 //DELETE RFQ
-
 $(document).on("click", "#confirmRFQDelete", function (e) {
     console.log("DELETE");
     var id = $(this).data('id');
@@ -559,15 +692,14 @@ function searchRFQ() {
     data.to = $('#to').val();
     if ($("#from").val() != '') {
         if ($("#to").val() == '') {
-        $('#to').addClass('is-invalid');
-        err++;
+            $('#to').addClass('is-invalid');
+            err++;
         }
     }
     if (err > 0) {
         return false;
     }
-    else
-    {
+    else {
         $('.load-search-RFQs').show();
         $('.load-search-RFQs').html(loading_icon);
         $('.searchRFQs').hide(); //Button name
@@ -601,18 +733,16 @@ function searchRFQ() {
             else {
                 $.each(data.allRFQs, function (key, pt) {
                     var formattedDate = formatDate(pt.created_at);
-                    if(pt.last_tracked_date!=null)
-                    {
+                    if (pt.last_tracked_date != null) {
                         var last_tracked_date = formatDate(pt.last_tracked_date);
                     }
-                    else
-                    {
-                        var last_tracked_date ='';
+                    else {
+                        var last_tracked_date = '';
                     }
 
-                    
+
                     console.log(formattedDate);
-                    var pg = 'http://applab.codenatives.com/apco/edit-RFQ/' + btoa(pt.id);
+                    var pg = host + '/edit-RFQ/' + btoa(pt.id);
                     rows = rows + '<tr">';
                     rows = rows + '<td>' + pt.customer_name + '</td>';
                     rows = rows + '<td>' + pt.contact_name + '</td>';
@@ -621,7 +751,7 @@ function searchRFQ() {
                     rows = rows + '<td>' + pt.final_value + '</td>';
                     rows = rows + '<td>' + last_tracked_date + '</td>';
                     rows = rows + '<td>' + formattedDate + '</td>';
-                    rows = rows + '<td><a href="#" class="btn btn-secondary btn-sm mb-2 mb-xl-0 getRFQname" data-toggle="modal" id="viewSingleRFQ" data-target="#viewRFQ" data-id="'+btoa(pt.id)+'" data-RFQName="'+pt.customer_name+'"><i class="fa fa-eye"></i></a>&nbsp;&nbsp;<a href="'+pg+'" class="ubtn'+btoa(pt.id) +' btn btn-primary btn-sm mb-2 mb-xl-0" data-toggle="tooltip" id="editSingleRFQ" data-original-title="Edit"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp; <a id="confirmRFQDelete" data-id="'+btoa(pt.id)+'"class="ubtn'+ btoa(pt.id)+' btn btn-danger btn-sm mb-2 mb-xl-0" data-toggle="tooltip" data-original-title="Delete"><i class="fa fa-trash"></i></a>&nbsp;&nbsp;<span class="delrfq'+btoa(pt.id)+'"></span>';'</td>';
+                    rows = rows + '<td><a href="#" class="btn btn-secondary btn-sm mb-2 mb-xl-0 getRFQname" data-toggle="modal" id="viewSingleRFQ" data-target="#viewRFQ" data-id="' + btoa(pt.id) + '" data-RFQName="' + pt.customer_name + '"><i class="fa fa-eye"></i></a>&nbsp;&nbsp;<a href="' + pg + '" class="ubtn' + btoa(pt.id) + ' btn btn-primary btn-sm mb-2 mb-xl-0" data-toggle="tooltip" id="editSingleRFQ" data-original-title="Edit"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp; <a id="confirmRFQDelete" data-id="' + btoa(pt.id) + '"class="ubtn' + btoa(pt.id) + ' btn btn-danger btn-sm mb-2 mb-xl-0" data-toggle="tooltip" data-original-title="Delete"><i class="fa fa-trash"></i></a>&nbsp;&nbsp;<span class="delrfq' + btoa(pt.id) + '"></span>'; '</td>';
                     rows = rows + '</tr>';
                 });
             }

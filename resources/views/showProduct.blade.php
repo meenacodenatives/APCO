@@ -137,7 +137,7 @@
                     <div class="table-responsive">
                         <div class="span12 text-center load-search-product">
                         </div>
-                        <table id="data-table3" class="table table-striped table-bordered text-nowrap w-100">
+                        <table id="productDataTable" class="table table-striped table-bordered text-nowrap w-100">
 
                             <thead>
 
@@ -153,9 +153,7 @@
                                 </tr>
 
                             </thead>
-                            <tbody id="showPdt" style="display:none;">
-
-                            </tbody>
+                            
                             <tbody id="hidePdt">
                                 @if($allProducts->count() > 0 )
                                 @foreach($allProducts as $pt)
@@ -193,6 +191,9 @@
                                     <td>No Records Found</td>
                                 </tr>
                                 @endif
+                            </tbody>
+                            <tbody id="showPdt" style="display:none;">
+
                             </tbody>
                         </table>
 

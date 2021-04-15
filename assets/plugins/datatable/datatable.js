@@ -41,7 +41,23 @@ $(function(e) {
 	$("#table-sortable").DataTable({
 		"order": [],
 			'columnDefs': [ {
-				'targets': [2,3,4,5,6,7], /* column index */
+				'targets': [2,3,4,5,6], /* Not need sortable column index */
+				'orderable': false, /* true or false */
+			 }]
+
+    }); 
+	$("#RFQDataTable").DataTable({
+		"order": [],
+			'columnDefs': [ {
+				'targets': [2,3,4,5,6,7], /* Not need sortable column index */
+				'orderable': false, /* true or false */
+			 }]
+
+    }); 
+	$("#productDataTable").DataTable({
+		"order": [],
+			'columnDefs': [ {
+				'targets': [2,3,4,5,6,7], /* Not need sortable column index */
 				'orderable': false, /* true or false */
 			 }]
 
