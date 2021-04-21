@@ -2,8 +2,6 @@ $(function (e) {
     "use strict";
     var today = moment().day();
     var schedules = JSON.parse($('#all_schedules').val());
-    console.log("schedules="+JSON.stringify(schedules));
-
     $('#calendar1').fullCalendar({
         header: {
             left: 'prev,next today',
@@ -14,7 +12,6 @@ $(function (e) {
         eventRender: function (event, element) {
             element.attr('href', 'javascript:void(0);');
             element.click(function() {
-                console.log("event="+event.id);
                 var title='Edit Schedule';
                 $('.showTitle').text(title);
                  $('#delDiv').show();
@@ -28,7 +25,6 @@ $(function (e) {
                     type: 'GET',
                     dataType: 'JSON',
                     success: function (data) {
-                        console.log("GOOD");
                        var result=data.scheduler;
                        $('.load-schedular').hide();
                        var title='Edit Schedule - ' +data.titleLeadName;

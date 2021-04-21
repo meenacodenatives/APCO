@@ -2,9 +2,7 @@ var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 var loading_icon = '<img class="load-icon" src=' + base_url + '/assets/images/brand/loader.gif>';
 var host = window.location.host;
 var pathname = window.location.pathname.split("/");
-console.log("pathname" + pathname);
-console.log("pathname[2]" + pathname[2]);
-
+//Recurring - AMC
 $('#recurring').click(function () {
     if ($(this).is(':checked')) {
         $("#amc").removeAttr("disabled");
@@ -13,7 +11,16 @@ $('#recurring').click(function () {
         $("#amc").attr("disabled", "disabled");
     }
 });
-if (pathname[2] == 'edit-RFQ') {
+//Discount - Type
+$('#discount_type').click(function () {
+    if ($(this).find("option:selected").text()!='Select') {
+        $("#add_discount").removeAttr("disabled");
+    }
+    else {
+        $("#add_discount").attr("disabled", "disabled");
+    }
+});
+if (pathname[1] == 'edit-RFQ') {
     console.log("edit" + pathname);
     //Filter - Select 2 
     //END
@@ -23,7 +30,7 @@ if (pathname[2] == 'edit-RFQ') {
     $('.hideFinalVal').show();
     $("#quantity-1").removeAttr("disabled", "disabled");
 }
-if (pathname[2] == 'add-RFQ') {
+if (pathname[1] == 'add-RFQ') {
     var actual_p = '';
     actual_p = actual_p + '<option value="">Select</option>';
     $("#actual_price-1").attr("disabled", "disabled");
@@ -47,8 +54,7 @@ $('#rfqSearch').click(function () {
 $(function () {
     //To display the select 2 drop down
     var rowCnt = $('#sno').val();
-    if (pathname[2] == 'edit-RFQ') {
-        console.log("rowCnt" + rowCnt);
+    if (pathname[1] == 'edit-RFQ') {
         if (rowCnt) {
             for (var i = 1; i <= rowCnt + 1; i++) {
                 $('#product_name-' + i).select2({
@@ -64,7 +70,6 @@ $(function () {
     var err = 0;
     //MARGIN and Disocunt - Validation
     $("#margin").bind("keypress", function (e) {
-        console.log("s=");
         var keyCode = e.keyCode || e.which;
         //Regex for Valid Characters i.e. Numbers.
         var regex = /^[%0-9]+$/;
@@ -80,7 +85,6 @@ $(function () {
         }
     });
     $("#add_discount").bind("keypress", function (e) {
-        console.log("disc=");
         var keyCode = e.keyCode || e.which;
         //Regex for Valid Characters i.e. Numbers.
         var regex = /^[%0-9]+$/;
@@ -115,11 +119,9 @@ $(document).delegate(".chkQuantitybyPrice", "change", function (e) {
                 var product_id_c = $("#product_id-1").val(product_id);
                 var lengthPri = $("#cntPrice-1").val(priceLen);
                 var qunPrice = $("#compareQuantity-1").val(result);
-                console.log("first=" + product_id);
             }
             else {
                 var product_id_c = $("#product_id-" + rowID).val(product_id);
-                console.log("second=" + product_id);
                 var lengthPri = $("#cntPrice-" + rowID).val(priceLen);
                 var qunPrice = $("#compareQuantity-" + rowID).val(result);
             }
@@ -134,7 +136,6 @@ $(document).delegate(".chkQuantitybyPrice", "change", function (e) {
 $(document).delegate(".rfq_quantity", "change", function (e) {
     var err = 0;
     var quantity = $(this).val();
-    console.log("id=" + quantity);
     var rowID = $(this).attr('data-id');
     if (rowID == '') {
         var cntPriceLen= $("#cntPrice-1").val();
@@ -150,16 +151,13 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
         var  stock= $("#compareQuantity-" + rowID).val();
         var qty = $('#quantity-' + rowID).val();
         var price = $('#actual_price-' + rowID).val();
-        console.log("qty=" + qty);
-        console.log("price=" + price);
         var r_price = price.replace("Rs.", "");
         var subTotal = parseInt(qty, 10) * parseFloat(r_price);
         $("#subtotal-" + rowID).val('Rs.' + subTotal.toFixed(2));
-        console.log("subtotal=" + subTotal);
     }
     //Error Message for quantity and stock - scenario
     if (quantity != '') {
-        if (cntPriceLen > 1 && stock < quantity) {
+        if (cntPriceLen > 1 && quantity > stock) { 
             var stockLeft = 'Out Of stock Please choose another price';
             $.growl({
                 title: "",
@@ -177,7 +175,7 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
             }
             return false;
         }
-        if (cntPriceLen == 1 && stock < quantity) {
+        if (cntPriceLen == 1 && quantity > stock) { 
             var stockLeft = 'Out Of stock';
             $.growl({
                 title: "",
@@ -195,6 +193,17 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
             }
             return false;
         }
+        if(stock > quantity && cntPriceLen >= 1)
+        {
+            if (rowID == '') {
+                $('#quantity-1').removeClass('is-invalid');
+                err++;
+            }
+            else {
+                $('#quantity-' + rowID).removeClass('is-invalid');
+                err++;
+            } 
+        }
     }
     if (!isNaN(subTotal)) {
         $('.hideTotPdt').show();
@@ -206,25 +215,26 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
         });
         $('.grdtot').text('Rs. ' + grandTotal.toFixed(2));
     }
-    if (rowID == '') {
-        $('#quantity-1').removeClass('is-invalid');
-        err++;
-    }
-    else {
-        $('#quantity-' + rowID).removeClass('is-invalid');
-    }
+    
+    $('#labour_charge').val('');
+    $('#transport_charge').val('');
+    $('#margin').val('');
+    $('#discount_type').val('');
+    $('#add_discount').val('');
+    $('#amc').val('');
+    $('.hideProposalVal').hide();
+    $('.hideFinalVal').hide();
+    $("#add_discount").attr("disabled", "disabled");
 });
 //END
 //Proposal val
 $('.proposed_val_change').on('input', function (e) {
     var grdtot = $('.grdtot').text();
-    console.log("grdtot=" + grdtot);
     var labour_charge = $('#labour_charge').val();
     var transport_charge = $('#transport_charge').val();
     var margin = $('#margin').val();
     var r_gTotal = grdtot.replace("Rs.", "");
     var totalExpenses = parseFloat(r_gTotal) + parseFloat(labour_charge) + parseFloat(transport_charge);
-    console.log("tExp=" + totalExpenses);
     var r_margin = margin.replace("%", "");
     var marginProposalVal = (r_margin / 100) * totalExpenses;
     var proposalVal = parseFloat(marginProposalVal) + parseFloat(totalExpenses);
@@ -238,7 +248,6 @@ $(document).delegate(".final_val_change", "change", function (e) {
     var type = $('#discount_type').val();
     var proposalVal = $('.proposal_value').text();
     var r_proposalVal = proposalVal.replace("Rs.", "");
-    console.log("f=" + r_proposalVal);
     var add_discount = $(this).val()
 
     if (type == 'Flat') {
@@ -252,15 +261,12 @@ $(document).delegate(".final_val_change", "change", function (e) {
     if (!isNaN(final_value)) {
         $('.hideFinalVal').show();
         $('.final_value').text('Rs.' + final_value.toFixed(2));
-        console.log("final_value=" + final_value);
     }
 });
 //Product name - get price,units
 $(document).delegate(".rfq_Product_name", "change", function (e) {
     var product_code = $(this).val();
-    console.log("id=" + product_code);
     var rowID = $(this).attr('data-id');
-    console.log("countRows=" + rowID);
     $("#hid_product_code").val(product_code);
 
 
@@ -287,7 +293,6 @@ $(document).delegate(".rfq_Product_name", "change", function (e) {
         dataType: 'JSON',
         success: function (data) {
             var result = data.allProducts;
-            console.log("pdt=" + JSON.stringify(result));
             if (rowID == '') {
                 $('.load-mul-product1').html("");
                 $('.load-mul-product1').hide();
@@ -320,7 +325,6 @@ $(document).delegate(".rfq_Product_name", "change", function (e) {
             }
             var priceLen = data.cntAp;
             var lengthPri = $("#cntPrice").val(priceLen);
-            console.log("result=" + priceLen);
             $('#actual_price-' + rowID).html(actual_p);
 
         }
@@ -365,8 +369,6 @@ $(document).delegate("a.add-record", "click", function (e) {
 //DELETE Rcord in product grid data
 $(document).delegate('a.delete-record', 'click', function () {
     var id = jQuery(this).attr('data-id');
-    console.log("xx===" + id);
-
     swal({
         title: "",
         text: "Are you really want to delete ?",
@@ -381,8 +383,6 @@ $(document).delegate('a.delete-record', 'click', function () {
             var size = $('#tbl_pdts >tbody >tr').length;
             if (size > 1) {
                 $('#rec-' + id).remove();
-                console.log("rec=" + size);
-
             }
             else {
                 $.growl({
@@ -407,7 +407,6 @@ $(document).delegate('a.delete-record', 'click', function () {
 
 //To REset search Form
 function RFQresetForm() {
-    console.log("ID");
     $('#customer_name').val('');
     $('#contact_name').val('');
     $('#email').val('');
@@ -420,6 +419,10 @@ function RFQresetForm() {
 function createRFQ() {
 
     $('.is-invalid').removeClass('is-invalid');
+    $('.users-invalid').removeClass('users-invalid');
+
+    //Validation
+    var err = 0;
     var data = {}
     data.customer_name = $('#customer_name').val();
     data.contact_name = $('#contact_name').val();
@@ -443,8 +446,6 @@ function createRFQ() {
     else {
         data.amc = 0;
     }
-    console.log("data.amc=" + data.amc);
-
     data.rowLen = $('#tbl_pdts >tbody >tr').length;
     data.mul_quantity = [];
     data.mul_pdt_name = [];
@@ -462,11 +463,25 @@ function createRFQ() {
         data.mul_units.push(mul_units);
         data.mul_actual_price.push(mul_actual_price);
         data.mul_subtotal.push(mul_subtotal);
+        if ($("#quantity-" + [i]).val() == '') {
+            $('#quantity-' + [i]).addClass('is-invalid');
+            err++;
+        }
+        if ($("#product_name-" + [i]).val() == '') {
+            $('.select2').addClass('users-invalid');
+            err++;
+        }
+        if ($("#actual_price-" + [i]).val() == '') {
+            $('#actual_price-' + [i]).addClass('is-invalid');
+            err++;
+        }
     }
-    console.log("qunatity" + data.mul_quantity);
-    console.log("pdtname" + data.mul_pdt_name);
-    //Validation
-    var err = 0;
+   
+    if ($("#customer_name").val() == '') {
+        $('#customer_name').addClass('is-invalid');
+        err++;
+    }
+    
     if ($("#customer_name").val() == '') {
         $('#customer_name').addClass('is-invalid');
         err++;
@@ -499,30 +514,20 @@ function createRFQ() {
         $('#address').addClass('is-invalid');
         err++;
     }
-
-
-    if ($("#quantity-1").val() == '') {
-        $('#quantity-1').addClass('is-invalid');
-        err++;
-    }
-    if ($("#product_name-1").val() == '') {
-        $('#product_name-1').addClass('is-invalid');
-        err++;
-    }
     if (err > 0) {
         return false;
+
     } else {
-        console.log("RFQ" + JSON.stringify(data));
-        console.log("mul_quantity" + JSON.stringify(mul_quantity));
-        // $('.RFQSave').hide();
-        // $('#load-RFQ').html(loading_icon);
+        $('.RFQSave').hide();
+        $('#load-RFQ').html(loading_icon);
         $('.is-invalid').removeClass('is-invalid');
+        $('.users-invalid').removeClass('users-invalid');
+       
     }
 
     data.id = $('#editRFQID').val();
     data.editDis = $('#editDis').val();
     data.lead_id = $('#lead_id').val();
-    console.log("data.lead_id" + data.lead_id);
     $.ajax({
         url: base_url + '/storeRFQ',
         type: 'POST',
@@ -585,11 +590,9 @@ function formatDate(dateObject) {
     return date;
 }
 $(document).on("click", "#viewSingleRFQ", function (e) {
-    console.log("GOOD");
     $('.load-view-singleRFQ').show();
     $('.load-view-singleRFQ').html(loading_icon);
     var id = $(this).data('id');
-    console.log("id=" + id);
     $("#viewProduct").modal("show");
     var title = 'View Product ';
     $('.showTitle').text(title);
@@ -637,8 +640,6 @@ $(document).on("click", "#viewSingleRFQ", function (e) {
             $("div.row.viewMultiplePdts").html(rows);
 
             $('.load-view-singleRFQ').html('');
-            console.log("ss" + JSON.stringify(RFQList));
-            console.log("RFQProducts" + JSON.stringify(RFQProducts));
         }
     });
 
@@ -646,7 +647,6 @@ $(document).on("click", "#viewSingleRFQ", function (e) {
 
 //DELETE RFQ
 $(document).on("click", "#confirmRFQDelete", function (e) {
-    console.log("DELETE");
     var id = $(this).data('id');
     swal({
         title: "",
@@ -722,7 +722,6 @@ function searchRFQ() {
         $('.is-invalid').removeClass('is-invalid');
 
     }
-    console.log("data12=" + JSON.stringify(data));
 
     $.ajax({
         url: base_url + '/RFQsearchResults',
@@ -733,7 +732,6 @@ function searchRFQ() {
         },
         dataType: 'JSON',
         success: function (data) {
-            console.log("RESULT=" + JSON.stringify(data.allRFQs));
             $('#hideRFQs').hide();
             $('#showRFQs').show();
             $('.searchRFQs').show();
@@ -755,9 +753,7 @@ function searchRFQ() {
                         var last_tracked_date = '';
                     }
 
-
-                    console.log(formattedDate);
-                    var pg = host + '/edit-RFQ/' + btoa(pt.id);
+                   var pg = host + '/edit-RFQ/' + btoa(pt.id);
                     rows = rows + '<tr">';
                     rows = rows + '<td>' + pt.customer_name + '</td>';
                     rows = rows + '<td>' + pt.contact_name + '</td>';

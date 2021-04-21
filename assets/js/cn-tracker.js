@@ -108,7 +108,6 @@ $(document).ready(function() {
         $('#assignTo').multipleSelect('refresh');
         var leadID = $(this).attr('data-id');
         $('.showContactName').text(leadName);
-        console.log("leadName"+leadName);
         $('#trac_lead_id').val(leadID);
         $('#scheduler_lead_name').val(leadName);
         var data = {}
@@ -197,7 +196,6 @@ $('.saveScheduler').on('click', function() {
     if (err > 0) {
         return false;
     } else {
-        console.log("scheduler" + JSON.stringify(data));
         $('.saveScheduler').hide();
         $('.openScheduler').hide();
         $('#cancelScheduler').hide();
@@ -206,7 +204,6 @@ $('.saveScheduler').on('click', function() {
         $('#load-schedule').show();
         //End
     }
-    console.log("INPUT"+JSON.stringify(data));
     //start of Load Track History
     $('.load-track-history').html(loading_icon);
     $('.load-track-history').show();
@@ -221,7 +218,6 @@ $('.saveScheduler').on('click', function() {
         },
         dataType: 'JSON',
         success: function(data) {
-            console.log
             if (data.status == 1) { //success login
                 $.growl({
                     title: "",
@@ -286,8 +282,6 @@ $('.saveTracker').on('click', function() {
         $('#load-track').show();
         //End
     }
-    console.log("INPUTTRACKER"+JSON.stringify(data));
-
     //start of Load Track History
     $('.load-track-history').html(loading_icon);
     $('.load-track-history').show();
@@ -328,11 +322,8 @@ $('.saveTracker').on('click', function() {
 });
 $(document).on("click", ".getLeadname", function (e) {
     $('.load-single-lead').html(loading_icon);
-
     $('.load-single-lead').show();
-
     var id = $(this).data('id');
-    console.log("TEST" + id);
     $("#mytracker").modal("show");
    
     $('.hideForm').hide();
@@ -359,17 +350,12 @@ $(document).on("click", ".getLeadname", function (e) {
             var lastTrackedDate = formatDate(result.last_tracked_date);
             $('#lastTrackedDate').text(lastTrackedDate);
             $('.load-single-lead').html('');
-            console.log("all" + JSON.stringify(data.lead));
-
         }
     });
 
 });
 //Row displayed in view tracked history
 function table_data_row(data, data1, view) {
-    console.log("data1=" + JSON.stringify(data1));
-    console.log("data=" + JSON.stringify(data));
-
     var rows = '';
     if (data == 0) {
         $('#notFound').text('No Tracks Found');

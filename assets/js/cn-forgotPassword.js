@@ -38,8 +38,6 @@ function sendPassword() {
         data: { _token: CSRF_TOKEN, data: data },
         dataType: 'JSON',
         success: function (data) {
-            console.log("data"+JSON.stringify(data.status.value));
-
             if (data.status.value == 1) { //success login
                 $.growl({
                     title: "",

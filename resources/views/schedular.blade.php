@@ -152,7 +152,7 @@
         </div>
     </div>
     <input type="hidden" id="schedular_id" value="">
-    <input type="text" id="type_id" value="">
+    <input type="hidden" id="type_id" value="">
     <input type="hidden" id="all_schedules" value='<?= $schedules ?>'>
     <input type="hidden" id="hidAssignTo" value="">
 

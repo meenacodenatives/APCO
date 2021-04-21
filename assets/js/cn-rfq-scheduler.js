@@ -16,7 +16,6 @@ $('#openSchedule').click(function () {
         filter: true
     })
     
-    console.log("current");
     $('.ms-choice span').text('Select');
 });
 
@@ -46,8 +45,6 @@ function createScheduler() {
     } else {
         data.sassignTo = $('#hidAssignTo').val();
     }
-    console.log("sassignTo=" + sassignTo);
-
     $('.is-invalid').removeClass('is-invalid');
     $('.users-invalid').removeClass('users-invalid');
     var err = 0;
@@ -86,7 +83,6 @@ function createScheduler() {
         $('#load-scheduler').html(loading_icon);
         $('#delDiv').hide();
     }
-    console.log("INPUT=" + JSON.stringify(data));
     $.ajax({
         url: base_url + '/createScheduler',
         type: 'POST',

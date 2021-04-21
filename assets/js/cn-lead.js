@@ -26,7 +26,6 @@ function formatDate(dateObject) {
     return date;
 }
 function leadresetForm() {
-    console.log("nowreset");
     $('#leadName').val('');
     $('#leadcontactName').val('');
     $('#leadEmail').val('');
@@ -257,8 +256,6 @@ function searchLead() {
         $('#hidelead').hide(); //all lead div
         $('.is-invalid').removeClass('is-invalid');
     }
-    console.log("data=" + JSON.stringify(data));
-
     $.ajax({
         url: base_url + '/leadSearchResults',
         type: 'POST',
@@ -268,7 +265,6 @@ function searchLead() {
         },
         dataType: 'JSON',
         success: function (data) {
-            console.log("RESULT=" + JSON.stringify(data.result.lead));
             $('#hideLead').hide();
             $('#showLead').show();
             $('.searchlead').show();
@@ -284,7 +280,6 @@ function searchLead() {
             {
             $.each(data.result.lead, function (key, le) {
                 var formattedDate=formatDate(le.created_date);
-                console.log(formattedDate);
                 var pg=host+'/edit-lead/'+btoa(le.id);
                 rows = rows + '<tr">';
                 rows = rows + '<td>' + le.name + '</td>';

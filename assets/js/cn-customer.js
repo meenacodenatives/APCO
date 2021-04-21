@@ -4,7 +4,6 @@ var regex_email = /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]
 var regex_website = /^(http|https)?:\/\/[a-zA-Z0-9-\.]+\.[a-z]{2,4}/;
 //Customer - Create and edit 
 function createCustomer() {
-    console.log("GO");
     var data = {}
 
     data.location = $('#location-dropdown').val();

@@ -40,11 +40,8 @@ Query:
 3.One lead (email) have multiple RFQ - when new insertion check email id and phone
 
 ISSUE:
-Flat
-Validation
-compare qunatity and price cnt edit- partially error fixed
 change quantity and chk the stock
-if quantity change disabled the charges
+loading icon for Actual price
 
 git push origin master
 git push origin <branch name>

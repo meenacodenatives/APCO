@@ -8,6 +8,22 @@ $('.closeModal').click(function () {
 $('#pdtSearch').click(function () {
     $('#searchForm').toggle();
 });
+//View Single Product
+function formatDate(dateObject) {
+    var d = new Date(dateObject);
+    var day = d.getDate();
+    var month = d.toLocaleString('default', { month: 'short' });
+    var year = d.getFullYear();
+    if (day < 10) {
+        day = "0" + day;
+    }
+    if (month < 10) {
+        month = "0" + month;
+    }
+    var date = month + " " + day + ", " + year;
+
+    return date;
+}
 function resetForm() {
     $('#category').val('');
     $('#select2-category-container').text('Select');
@@ -46,7 +62,6 @@ $(function () {
 
 });
 function createProduct() {
-    console.log("createPDT");
     var data = {}
     data.category = $('#category').val();
     data.quantity = $('#quantity').val();
@@ -63,8 +78,6 @@ function createProduct() {
     data.expiry_date = $('#expiry_date').val();
     data.gst = $('#gst').val();
     data.id = $('#editPdtID').val();
-    console.log("id==" + data.id);
-
     $('.is-invalid').removeClass('is-invalid');
     //Validation
     var err = 0;
@@ -121,7 +134,6 @@ function createProduct() {
     if (err > 0) {
         return false;
     } else {
-        console.log("CATE" + JSON.stringify(data));
        $('.productSave').hide();
        $('#load-product').html(loading_icon);
     }
@@ -152,7 +164,6 @@ function createProduct() {
                     {
                         $('.productSave').show();
                         $('#load-product').html('');
-                        console.log("TEST");  
                     }
                 });
             } else if (data.status == 3) { //name exist already
@@ -212,7 +223,6 @@ function addProduct() {
         },
         dataType: 'JSON',
         success: function (data) {
-            console.log("datadata"+JSON.stringify(data));
             if (data.status == 1) {
                 $.growl({
                     title: "",
@@ -248,9 +258,7 @@ function formatDate(dateObject) {
 $(document).on("click", "#viewSingleProduct", function (e) {
     $('.load-edit-product').show();
     $('.load-edit-product').html(loading_icon);
-
     var id = $(this).data('id');
-    console.log("TEST" + id);
     $("#viewProduct").modal("show");
     var title = 'View Product ';
     $('.showTitle').text(title);
@@ -268,19 +276,16 @@ $(document).on("click", "#viewSingleProduct", function (e) {
             $('#batchNumber').text(result.batch_number);
             $('#actualPrice').text(result.actual_price);
             $('#productName').text(result.product_name);
-            var mfdDate = $.date(result.mfg_date);
+            var mfdDate = formatDate(result.mfg_date);
             $('#mfgDate').text(mfdDate);
-            var expDate = $.date(result.expiry_date);
+            var expDate = formatDate(result.expiry_date);
             $('#expiryDate').text(expDate);
             $('#sellingPrice').text(result.selling_price);
             $('#productType').text(result.product_type);
             $('#units').text(result.units);
             $('#gst').text(result.gst);
             $('#quantity').text(result.quantity);
-
             $('.load-edit-product').html('');
-            console.log("all" + JSON.stringify(data.allProducts));
-
         }
     });
 
@@ -348,8 +353,6 @@ function searchProduct() {
     data.mfg_date = $('#mfg_date').val();
     data.expiry_date = $('#expiry_date').val();
     data.product_type = $('#product_type').val();
-    console.log("data=" + JSON.stringify(data));
-
     $.ajax({
         url: base_url + '/searchResults',
         type: 'POST',
@@ -359,7 +362,6 @@ function searchProduct() {
         },
         dataType: 'JSON',
         success: function (data) {
-            console.log("RESULT=" + JSON.stringify(data.allProducts));
             $('#hidePdt').hide();
             $('#showPdt').show();
             $('.searchpdt').show();
@@ -375,7 +377,6 @@ function searchProduct() {
             {
             $.each(data.allProducts, function (key, pt) {
                 var formattedDate=formatDate(pt.created_at);
-                console.log(formattedDate);
                 var pg=host+'/edit-product/'+btoa(pt.id);
                 rows = rows + '<tr">';
                 rows = rows + '<td>' + pt.name + '</td>';

@@ -141,7 +141,7 @@
                                 <input type="text" class="form-control rfq_quantity" name="Quantity"
                                         placeholder="Quantity" id="quantity-1" maxlength="3"
                                         onkeypress='return event.charCode >= 48 && event.charCode <= 57'
-                                        value="@if($RFQProducts!=''){{$quantityFirst }} @endif" data-id=""></td>
+                                        value="@if($RFQProducts!=''){{$quantityFirst}}@endif" data-id=""></td>
                                <td><input type="text" class="form-control hidetd1" name="units" placeholder="Units"
                                         id="units-1" value="@if($RFQProducts!=''){{$unitsFirst}}@endif" readonly>
                                 </td>
@@ -269,7 +269,7 @@ disabled onkeypress='return event.charCode >= 48 && event.charCode <= 57' value=
                         <tr>
                             <td class="wd-10p">Add Discount</td>
                             <td class="wd-25p">
-                                <input type="text" class="form-control final_val_change" name="add_discount"
+                                <input type="text" disabled="disabled" class="form-control final_val_change" name="add_discount"
                                     placeholder="Discount" id="add_discount"
                                     value="@if($product!=''){{$product->discount_value}}@endif">
                             </td>

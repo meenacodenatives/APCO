@@ -38,12 +38,12 @@ class RFQController extends Controller
         ->where('product.actual_price','=', $price)
         ->where('product.product_code','=', $product_code)
         ->first();
-              
         //Check Number of prices per product
         $productPrice =ProductModel::select('*')
         ->where('product.product_code','=', $product_code)
         ->get()
         ->sortByDesc("id");
+        
         $cntAP=count($productPrice);
         $chkStock=$product['quantity'];
         $pdt_id=$product['id'];
@@ -256,24 +256,19 @@ class RFQController extends Controller
     {
         DB::enableQueryLog();
         $de_id=base64_decode($id);
+        //Drop down
         $productList =DB::table('product')->select( DB::raw('DISTINCT on(product_name)product_name,id,product_code,actual_price') )->where('product_type','Service')->orderBy('product_name','desc')
         ->orderBy('id','desc')
         ->orderBy('product_code','desc')
         ->orderBy('actual_price','desc')
         ->get(['product_name','id','product_code','actual_price']);
+        //To get lead or RFQ information
         $product = RFQModel::findOrFail($de_id);
-        
+        //To get product grid data
         $RFQProducts =RFQProductsModel::join('product', 'rfq_products.product_id', '=', 'product.id')
         ->where('rfq_products.rfq_id','=', $de_id)
         ->get(['rfq_products.*', 'product.*']);
-        // $product =ProductModel::whereactual_price($price)
-        //         ->first();
-        // $productPrice =ProductModel::select('*')
-        // ->where('product.product_code','=', $product->product_code)
-        // ->get()
-        // ->sortByDesc("id");
-        $compareQuantityFirst=4;
-        $cntPriceFirst=2;
+
         //   $query = DB::getQueryLog();
         //               $query = end($query);
         //               print_r($query);
@@ -285,13 +280,37 @@ class RFQController extends Controller
                     $unitsFirst=$RFQProducts[0]->units;
                     $actual_priceFirst=$RFQProducts[0]->actual_price;
                     $subtotalFirst=$RFQProducts[0]->subtotal;
+                    //Actual price and quantiy and code
+                    $productQuaFirst =ProductModel::select('*')
+                    ->where('product.actual_price','=', $actual_priceFirst)
+                    ->where('product.product_code','=', $product_idFirst)
+                    ->first();
+                    //Check Number of prices per product
+                    $productPriceFirst =ProductModel::select('*')
+                    ->where('product.product_code','=', $product_idFirst)
+                    ->get()
+                    ->sortByDesc("id");
+                    $compareQuantityFirst=$productQuaFirst;
+                    $cntPriceFirst=count($productPriceFirst);
                     $j=2;
                     $selected='selected';
                     $notselected='';
                     for ($i=1; $i<=count($RFQProducts)-1;$i++) { 
                         $pdt_id=$RFQProducts[$i]->product_code;
                         $actual_price=$RFQProducts[$i]->actual_price;
-                      
+                        //Actual price and quantiy and code
+                        $productQua =ProductModel::select('*')
+                        ->where('product.actual_price','=', $actual_price)
+                        ->where('product.product_code','=', $pdt_id)
+                        ->first();
+                        //Check Number of prices per product
+                        $productPriceMultiple =ProductModel::select('*')
+                        ->where('product.product_code','=', $pdt_id)
+                        ->get()
+                        ->sortByDesc("id");
+                        $cntAP=count($productPriceMultiple);
+                        $chkStock=$productQua['quantity'];
+                        
                    $preselectProducts.='
                    <tr id="rec-'.$j.'"><td>'.$j.'<input type="hidden" name="sno" id="sno" value="'.$j.'"></td><td><select class="form-control rfq_Product_name custom-select " id="product_name-'.$j.'" data-id="'.$j.'">
                                     <option value="">Select</option>';
@@ -317,8 +336,8 @@ class RFQController extends Controller
                             $preselectProducts .= '<option value="' . $actual_price . '" '.$sel.' >' . $actual_price . '</option>';
                             $preselectProducts .= '</select>
                             <input type="hidden" class="form-control" name="product_id-" id="product_id-'.$j.'"  value="' . $RFQProducts[$i]->id . '"  data-id="'.$j.'">
-                                <input type="hidden" class="form-control" name="compareQuantity" id="compareQuantity-'.$j.'"  value="4"  data-id="'.$j.'">
-                                <input type="hidden" class="form-control" name="cntPrice" id="cntPrice-'.$j.'"  value="2"  data-id="'.$j.'">
+                                <input type="hidden" class="form-control" name="compareQuantity" id="compareQuantity-'.$j.'"  value="'.$chkStock.'"  data-id="'.$j.'">
+                                <input type="hidden" class="form-control" name="cntPrice" id="cntPrice-'.$j.'"  value="'.$cntAP.'"  data-id="'.$j.'">
                             </td>
                             <td><input type="text" class="form-control subtotal" name="subtotal" placeholder="Subtotal"
                                     id="subtotal-'.$j.'" value="' . $RFQProducts[$i]->subtotal . '" readonly></td>
