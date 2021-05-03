@@ -57,8 +57,10 @@ Route::group(['middleware' => 'usersession'], function () {
     Route::get('/viewSingleRFQ/{id}', 'RFQController@viewSingleRFQ');
     //View Product Grid data - Actual Price
      Route::get('/viewProductGridData/{product_code}', 'RFQController@viewProductGridData');
-     //Grid Data - Quantity
+    //Grid Data - Quantity
      Route::get('/compareStockQuantity/{price}/product_code/{code}', 'RFQController@compareStockQuantity');
+     //Update RFQ status
+     Route::post('/quotationStatus', 'RFQController@quotationStatus');
     
     //delete RFQsearchResultsRFQ
     Route::post('/delete-RFQ', 'RFQController@destroyRFQ');

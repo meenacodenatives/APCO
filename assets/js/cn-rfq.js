@@ -2,55 +2,7 @@ var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 var loading_icon = '<img class="load-icon" src=' + base_url + '/assets/images/brand/loader.gif>';
 var host = window.location.host;
 var pathname = window.location.pathname.split("/");
-//Recurring - AMC
-$('#recurring').click(function () {
-    if ($(this).is(':checked')) {
-        $("#amc").removeAttr("disabled");
-    }
-    else {
-        $("#amc").attr("disabled", "disabled");
-    }
-});
-//Discount - Type
-$('#discount_type').click(function () {
-    if ($(this).find("option:selected").text()!='Select') {
-        $("#add_discount").removeAttr("disabled");
-    }
-    else {
-        $("#add_discount").attr("disabled", "disabled");
-    }
-});
-if (pathname[1] == 'edit-RFQ') {
-    console.log("edit" + pathname);
-    //Filter - Select 2 
-    //END
-    $('#editPreselectProducts').show();
-    $('.hideProposalVal').show();
-    $('.hideTotPdt').show();
-    $('.hideFinalVal').show();
-    $("#quantity-1").removeAttr("disabled", "disabled");
-}
-if (pathname[1] == 'add-RFQ') {
-    var actual_p = '';
-    actual_p = actual_p + '<option value="">Select</option>';
-    $("#actual_price-1").attr("disabled", "disabled");
-    $("#units-1").attr("disabled", "disabled");
-    $(".subtotal").attr("disabled", "disabled");
-    $('#quantity-1').attr("disabled", "disabled");
-    $('#actual_price-1').html(actual_p);
-}
-$('.closeModal').click(function () {
-    $('#viewProduct').modal("hide");
-});
-
-$('#cancelPopupScheduler').click(function () {
-    $('#viewProduct').modal("hide");
-});
-
-$('#rfqSearch').click(function () {
-    $('#searchForm').toggle();
-});
-
+//On page load - select 2 and validation
 $(function () {
     //To display the select 2 drop down
     var rowCnt = $('#sno').val();
@@ -101,12 +53,105 @@ $(function () {
     });
     //END
 });
+//Close Quotation and Generate Quotation in View popup
+$('.quotationBut').click(function(){
+    var data={}
+    data.status = $(this).attr('data-value'); 
+    data.id = btoa($('#rowID').val()); 
+    console.log("data="+JSON.stringify(data));
+    $.ajax({
+        url: base_url + '/quotationStatus',
+        type: 'POST',
+        data: {
+            _token: CSRF_TOKEN,
+            data: data
+        },
+        dataType: 'JSON',
+        success: function (data) {
+            console.log("data"+JSON.stringify(data.result));
+            var res = data.result;
+            console.log("ts"+res.status);
+            if(res.status=='close'){
+                $.growl({
+                    title: "",
+                    message: 'Quotation has been closed',
+                    duration: "3000",
+                    location: "tr",
+                    style: "warning"
+                });
+                $('#viewProduct').modal("hide");
+            }
+            else{
+            $.growl({
+                title: "",
+                message: 'Quotation has been sent',
+                duration: "3000",
+                location: "tr",
+                style: "warning"
+            });
+            $('#viewProduct').modal("hide");
+            }
+        }
+    });
+});
+//Recurring - AMC
+$('#recurring').click(function () {
+    if ($(this).is(':checked')) {
+        $("#amc").removeAttr("disabled");
+    }
+    else {
+        $("#amc").attr("disabled", "disabled");
+        $("#amc").val('');
+    }
+});
+//Discount - Type
+$('#discount_type').click(function () {
+    if ($(this).find("option:selected").text()!='Select') {
+        $("#add_discount").removeAttr("disabled");
+    }
+    else {
+        $("#add_discount").attr("disabled", "disabled");
+    }
+});
+//On page load show/hide buttons - pathname will change
+if (pathname[1] == 'edit-RFQ') {
+    $('#editPreselectProducts').show();
+    $('.hideProposalVal').show();
+    $('.hideTotPdt').show();
+    $('.hideFinalVal').show();
+    $("#quantity-1").removeAttr("disabled", "disabled");
+}
+//On page load show/hide buttons - pathname will change
+if (pathname[1] == 'add-RFQ') {
+    var actual_p = '';
+    actual_p = actual_p + '<option value="">Select</option>';
+    $("#actual_price-1").attr("disabled", "disabled");
+    $("#units-1").attr("disabled", "disabled");
+    $(".subtotal").attr("disabled", "disabled");
+    $('#quantity-1').attr("disabled", "disabled");
+    $('#actual_price-1').html(actual_p);
+}
+//Close modal
+$('.closeModal').click(function () {
+    $('#viewProduct').modal("hide");
+});
+
+//Cancel Scheduler
+$('#cancelPopupScheduler').click(function () {
+    $('#viewProduct').modal("hide");
+});
+
+//RFQ Search Form
+$('#rfqSearch').click(function () {
+    $('#searchForm').toggle();
+});
+
+
 //compare Stock with quantity
 $(document).delegate(".chkQuantitybyPrice", "change", function (e) {
     var price = $(this).val();
     var rowID = $(this).attr('data-id');
     var code = $("#hid_product_code").val();
-
     $.ajax({
         url: base_url + '/compareStockQuantity/' + price+'/product_code/'+ code,
         type: 'GET',
@@ -135,7 +180,7 @@ $(document).delegate(".chkQuantitybyPrice", "change", function (e) {
 //QUANTITY - calculation
 $(document).delegate(".rfq_quantity", "change", function (e) {
     var err = 0;
-    var quantity = $(this).val();
+    var quantity = parseInt($(this).val());
     var rowID = $(this).attr('data-id');
     if (rowID == '') {
         var cntPriceLen= $("#cntPrice-1").val();
@@ -157,8 +202,8 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
     }
     //Error Message for quantity and stock - scenario
     if (quantity != '') {
-        if (cntPriceLen > 1 && quantity > stock) { 
-            var stockLeft = 'Out Of stock Please choose another price';
+        if (cntPriceLen > 1 && quantity > stock) {
+            var stockLeft = 'Only '+stock+' Stocks are available.Please choose another price';
             $.growl({
                 title: "",
                 message: stockLeft,
@@ -168,33 +213,48 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
             });
             if (rowID == '') {
                 $('#quantity-1').addClass('is-invalid');
+                $("#actual_price-1").removeAttr("disabled", "disabled");
+                $("#subtotal-1").val('');
+                $('.grdtot').text('');
                 err++;
             }
             else {
                 $('#quantity-' + rowID).addClass('is-invalid');
+                $("#actual_price-"+ rowID).removeAttr("disabled", "disabled");
+                $("#subtotal-" + rowID).val('');
+                $('.grdtot').text('');
+                err++;
             }
             return false;
         }
-        if (cntPriceLen == 1 && quantity > stock) { 
-            var stockLeft = 'Out Of stock';
+        if (cntPriceLen == 1 && quantity > stock) {
+            console.log("OUT="+quantity);
+            var stockLeft ='Only '+stock+' Stocks are available.';
             $.growl({
                 title: "",
                 message: stockLeft,
                 duration: "3000",
                 location: "tr",
-                style: "error"
+                style: "warning"
             });
             if (rowID == '') {
                 $('#quantity-1').addClass('is-invalid');
+                $("#actual_price-1").removeAttr("disabled", "disabled");
+                $("#subtotal-1").val('');
+                $('.grdtot').text('');
                 err++;
             }
             else {
                 $('#quantity-' + rowID).addClass('is-invalid');
+                $("#actual_price-"+ rowID).removeAttr("disabled", "disabled");
+                $("#subtotal-" + rowID).val('');
+                $('.grdtot').text('');
+                err++;
             }
             return false;
         }
-        if(stock > quantity && cntPriceLen >= 1)
-        {
+        if(stock >= quantity && cntPriceLen >= 1)
+        { 
             if (rowID == '') {
                 $('#quantity-1').removeClass('is-invalid');
                 err++;
@@ -202,18 +262,18 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
             else {
                 $('#quantity-' + rowID).removeClass('is-invalid');
                 err++;
-            } 
+            }
+            if (!isNaN(subTotal)) {
+                $('.hideTotPdt').show();
+                var grandTotal = 0;
+                $(".subtotal").each(function () {
+                    var r_subtotal = $(this).val().replace("Rs.", "");
+                    var stval = parseFloat(r_subtotal);
+                    grandTotal += isNaN(stval) ? 0 : stval;
+                });
+                $('.grdtot').text('Rs. ' + grandTotal.toFixed(2));
+            }
         }
-    }
-    if (!isNaN(subTotal)) {
-        $('.hideTotPdt').show();
-        var grandTotal = 0;
-        $(".subtotal").each(function () {
-            var r_subtotal = $(this).val().replace("Rs.", "");
-            var stval = parseFloat(r_subtotal);
-            grandTotal += isNaN(stval) ? 0 : stval;
-        });
-        $('.grdtot').text('Rs. ' + grandTotal.toFixed(2));
     }
     
     $('#labour_charge').val('');
@@ -248,35 +308,44 @@ $(document).delegate(".final_val_change", "change", function (e) {
     var type = $('#discount_type').val();
     var proposalVal = $('.proposal_value').text();
     var r_proposalVal = proposalVal.replace("Rs.", "");
-    var add_discount = $(this).val()
-
+    var add_discount = $('#add_discount').val();
+    var amcVal = $('#amc').val();
     if (type == 'Flat') {
-        var final_value = (r_proposalVal - add_discount);
+        $("#add_discount").attr('maxlength','4');
+        var final_value_wout_awc = (r_proposalVal - add_discount);
     }
     else {
+        $("#add_discount").attr('maxlength','3');
         var r_add_discount = add_discount.replace("%", "");
         var disFinalValue = r_add_discount / 100 * r_proposalVal;
-        var final_value = (r_proposalVal - disFinalValue);
+        var final_value_wout_awc = (r_proposalVal - disFinalValue);
+    }
+    if(amcVal!='')
+    {    
+      var final_value = parseFloat(final_value_wout_awc) + parseFloat(amcVal);
+    }
+    else
+    {
+      var final_value = final_value_wout_awc;
     }
     if (!isNaN(final_value)) {
         $('.hideFinalVal').show();
         $('.final_value').text('Rs.' + final_value.toFixed(2));
     }
+    
+    
 });
 //Product name - get price,units
 $(document).delegate(".rfq_Product_name", "change", function (e) {
     var product_code = $(this).val();
     var rowID = $(this).attr('data-id');
     $("#hid_product_code").val(product_code);
-
-
-    if (rowID == '') {
+     if (rowID == '') {
         $('.load-mul-product1').html(loading_icon);
         $('.load-mul-product1').show();
         $("#quantity-1").attr("disabled", "disabled");
         $("#actual_price-1").attr("disabled", "disabled");
         $("#units-1").attr("disabled", "disabled");
-
     }
     else {
         $('.load-mul-product' + rowID).html(loading_icon);
@@ -326,11 +395,9 @@ $(document).delegate(".rfq_Product_name", "change", function (e) {
             var priceLen = data.cntAp;
             var lengthPri = $("#cntPrice").val(priceLen);
             $('#actual_price-' + rowID).html(actual_p);
-
         }
     });
 });
-
 //Add row - product grid
 $(document).delegate("a.add-record", "click", function (e) {
     $('#editPreselectProducts').hide();
@@ -400,9 +467,7 @@ $(document).delegate('a.delete-record', 'click', function () {
             });
             return true;
         }
-
     });
-
 });
 
 //To REset search Form
@@ -417,10 +482,8 @@ function RFQresetForm() {
 
 //To Store data in RFQ and product
 function createRFQ() {
-
     $('.is-invalid').removeClass('is-invalid');
     $('.users-invalid').removeClass('users-invalid');
-
     //Validation
     var err = 0;
     var data = {}
@@ -476,7 +539,6 @@ function createRFQ() {
             err++;
         }
     }
-   
     if ($("#customer_name").val() == '') {
         $('#customer_name').addClass('is-invalid');
         err++;
@@ -522,9 +584,7 @@ function createRFQ() {
         $('#load-RFQ').html(loading_icon);
         $('.is-invalid').removeClass('is-invalid');
         $('.users-invalid').removeClass('users-invalid');
-       
     }
-
     data.id = $('#editRFQID').val();
     data.editDis = $('#editDis').val();
     data.lead_id = $('#lead_id').val();
@@ -541,13 +601,13 @@ function createRFQ() {
                 $.growl({
                     title: "",
                     message: "RFQ has been saved successfully",
-                    duration: "3000",
+                    duration: "1000",
                     location: "tr",
                     style: "notice"
                 });
                 setTimeout(function () {
                     window.location.href = base_url + '/showRFQ';
-                }, 2000);
+                }, 1000);
             } else if (data.status == 3) { //name exist already
                 $.growl({
                     title: "",
@@ -589,9 +649,12 @@ function formatDate(dateObject) {
 
     return date;
 }
+//View Single RFQ
 $(document).on("click", "#viewSingleRFQ", function (e) {
     $('.load-view-singleRFQ').show();
     $('.load-view-singleRFQ').html(loading_icon);
+    $("div.row.viewMultiplePdts").html('')
+    $('.quotationBut').hide();
     var id = $(this).data('id');
     $("#viewProduct").modal("show");
     var title = 'View Product ';
@@ -602,11 +665,13 @@ $(document).on("click", "#viewSingleRFQ", function (e) {
         type: 'GET',
         dataType: 'JSON',
         success: function (data) {
+            $('.quotationBut').show();
             var RFQProducts = data.RFQProducts;
             var RFQList = data.RFQList;
             var rows = '';
             $('.load-view-singleRFQ').hide();
             $('.hideForm').show();
+            $('#rowID').val(RFQList.id);
             $('.showBusinessName').text(RFQList.customer_name);
             $('#popup_customer_name').text(RFQList.customer_name);
             $('#popup_contact_name').text(RFQList.contact_name);

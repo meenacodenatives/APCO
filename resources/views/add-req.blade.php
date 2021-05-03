@@ -126,7 +126,7 @@
                                 </td>
                                 <td>
                                     <select class="form-control rfq_Product_name custom-select" id="product_name-1"
-                                        data-id="">
+                                        data-id="" style="width: 250px;">
                                         <option value="">Select</option>
                                         @foreach($productList as $pt)
                                         <option value="{{$pt->product_code}}" @if($RFQProducts!='' )
@@ -139,7 +139,7 @@
                                 </td>
                                 <td>
                                 <input type="text" class="form-control rfq_quantity" name="Quantity"
-                                        placeholder="Quantity" id="quantity-1" maxlength="3"
+                                        placeholder="Quantity" id="quantity-1" maxlength="10"
                                         onkeypress='return event.charCode >= 48 && event.charCode <= 57'
                                         value="@if($RFQProducts!=''){{$quantityFirst}}@endif" data-id=""></td>
                                <td><input type="text" class="form-control hidetd1" name="units" placeholder="Units"
@@ -189,7 +189,7 @@
 
                             </td>
                             <td><input type="text" data-id="" class="form-control rfq_quantity" name="quantity"
-                                    placeholder="Quantity" id="quantity-" maxlength="3"
+                                    placeholder="Quantity" id="quantity-" maxlength="10"
 disabled onkeypress='return event.charCode >= 48 && event.charCode <= 57' value=""
                                      ></td>
                             <td><input type="text" class="form-control" name="units" id="units-" placeholder="Units"
@@ -274,19 +274,20 @@ disabled onkeypress='return event.charCode >= 48 && event.charCode <= 57' value=
                                     value="@if($product!=''){{$product->discount_value}}@endif">
                             </td>
                         </tr>
+                        
+                        <tr>
+                            <td>AMC
+                                <input type="checkbox" name="" id="recurring" value="" class="final_val_change">
+                            </td>
+                            <td class="wd-25p">
+                                <input type="text" class="form-control final_val_change" disabled="disabled" placeholder="AMC" id="amc"
+                                    value="@if($product!=''){{$product->amc}}@endif">
+                            </td>
+                        </tr>
                         <tr class="wd-25p p-10 lightBlue text-capitalize hideFinalVal" style="display:none;">
                             <td class="wd-10p">Final Value</td>
                             <td class="wd-25p hideFinalVal" style="display:none;"><span
                                     class="final_value">@if($product!=''){{$product->final_value}}@endif</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>AMC
-                                <input type="checkbox" name="" id="recurring" value="">
-                            </td>
-                            <td class="wd-25p">
-                                <input type="text" class="form-control" disabled="disabled" placeholder="AMC" id="amc"
-                                    value="@if($product!=''){{$product->amc}}@endif">
                             </td>
                         </tr>
                     </tbody>

@@ -31,7 +31,7 @@ class RFQModel extends Model
         'discount_value',
         'parent_id',
         'amc',
-        'is_child',
+        'status',
         'created_at',
         'created_by',
         'is_active',

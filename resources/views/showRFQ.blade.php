@@ -69,7 +69,7 @@
                                 </div>
                             </div>
                             <div class="col-sm-4">
-                              
+
 
                                 <div class="form-group">
                                     <label class="form-label text-left">Updated Date - From</label>
@@ -84,11 +84,11 @@
                                 </div>
                             </div>
                             <div class="col-sm-4">
-                                    <div class="form-group ">
-                                        <label class="form-label text-left">Updated Date - To</label>
-                                        <input type="text" class="form-control to" name="to" id="to" placeholder="To"
-                                            value="">
-                                    </div>
+                                <div class="form-group ">
+                                    <label class="form-label text-left">Updated Date - To</label>
+                                    <input type="text" class="form-control to" name="to" id="to" placeholder="To"
+                                        value="">
+                                </div>
                             </div>
                         </div>
                         <div class="span12 text-center load-search-RFQs">
@@ -130,7 +130,7 @@
                                 </tr>
 
                             </thead>
-                            
+
                             <tbody id="hideRFQs">
                                 @if($RFQList->count() > 0 )
                                 @foreach($RFQList as $pt)
@@ -228,6 +228,8 @@
                                         <div class="row hideForm" style="width:700px;">
                                             <div class="col">
                                                 <div class="form-group">
+                                                <input type="hidden" name="rfqID" value="" id="rowID">
+
                                                     <label class="form-label lightBlue text-capitalize">Business Name
                                                     </label>
                                                     <span id="popup_customer_name"></span>
@@ -291,9 +293,13 @@
                                                 <span id="lastTrakedComment"></span>
                                             </div>
                                         </div>
-
                                         <div class="row viewMultiplePdts">
 
+                                        </div>
+                                        <div class="col-xs-9 pb-4 text-right">
+                                        <button type="button" class="btn btn-primary quotationBut" data-value="close">Close</button>
+                                        <button type="button" class="btn btn-primary quotationBut" data-value="generateQuote">Generate
+                                        Quotation</button>
                                         </div>
                                     </div>
 
@@ -508,8 +514,8 @@ echo date('h.i A', $endTime); ?>
                                             <div class="col-8 text-right p-3 pr-6">
                                                 <button type="button" class="btn btn-primary schedulerSave"
                                                     onclick="createRFQScheduler()">Save</button>
-                                                    <a href="javascript:;" class="btn btn-danger schedulerSave"
-                                                        id="cancelPopupScheduler">Cancel</a>
+                                                <a href="javascript:;" class="btn btn-danger schedulerSave"
+                                                    id="cancelPopupScheduler">Cancel</a>
                                                 <span id="load-scheduler"></span>
                                             </div>
                                         </div>
