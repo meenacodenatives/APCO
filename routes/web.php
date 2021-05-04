@@ -28,6 +28,10 @@ Route::post('/update-password', 'PasswordResetController@changePwd');
 Route::group(['middleware' => 'usersession'], function () {
        Route::get('/logout', 'DashboardController@doLogout');
     Route::get('/dashboard', 'DashboardController@showDashboard');
+    //Sales - view
+  Route::get('/showSales','RFQController@showSales');
+     //Add Sales
+     Route::get('/add-sales', 'RFQController@addSales');
     // Product -View
     Route::get('/searchProduct','ProductController@searchProduct');
  // Route::post('showProduct', ['as' => 'showProduct', 'uses' => 'ProductController@showProduct']);

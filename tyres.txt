@@ -1,0 +1,21 @@
+RIMSIZE = 55 and price = 67
+Dont show Already exist. - remove - count (*) - colname
+if()
+{
+    already exist
+    add previous + new value
+    parseFloat(prev) + parseFloat(new)
+}
+
+select price from tablename where rimsize='rimsize' and id ='1'
+
+67
+".$row->rimsize."
+'rimprice'.$row->rimsize
+
+get_var(select count(*) from tablename where rimsize=55)
+if($SelQuery>0)
+{
+
+    
+}

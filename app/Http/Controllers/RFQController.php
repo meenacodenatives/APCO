@@ -92,6 +92,22 @@ class RFQController extends Controller
         $rfq_discount = app('App\Http\Models\EmployeeModel')->getLookup('rfq_discount');
      return view('add-req', compact('product','lead','RFQProducts','preselectProducts','rfq_discount','productList'));
     }
+     //Add Sales
+     public function addSales(RFQModel $RFQ)
+     {
+         DB::enableQueryLog();
+         $product='';$RFQProducts='';$preselectProducts=''; $lead=''; 
+         $productList =DB::table('product')->select( DB::raw('DISTINCT on(product_name)product_name,id,product_code') )->where('product_type','Service')->orderBy('product_name','desc')
+         ->orderBy('id','desc')
+         ->orderBy('product_code','desc')
+         ->get(['product_name','id','product_code']);
+          // $query = DB::getQueryLog();
+         //               $query = end($query);
+         //               print_r($query);exit;
+         $rfq_discount = app('App\Http\Models\EmployeeModel')->getLookup('rfq_discount');
+
+      return view('add-sales', compact('product','lead','RFQProducts','preselectProducts','rfq_discount','productList'));
+     }
     //CREATE RFQ
     public function storeRFQ(Request $request,RFQModel $RFQ)
     {
@@ -273,6 +289,21 @@ class RFQController extends Controller
                ->sortByDesc("id");
                
         return view('showRFQ',compact('allRFQs','RFQList','users','contactType')); 
+    }
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\RFQ  $RFQ
+     * @return \Illuminate\Http\Response
+     */
+    public function showSales(Request $request)
+    {
+        DB::enableQueryLog();
+        $SalesList = RFQModel::select("*")
+        ->where('rfq.status','=', 'generateQuote')
+        ->get()
+        ->sortByDesc("id");
+        return view('showSales',compact('SalesList')); 
     }
     /*
      * Show the form for editing the specified resource.
