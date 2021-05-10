@@ -213,16 +213,16 @@ disabled onkeypress='return event.charCode >= 48 && event.charCode <= 57' value=
                         </tr>
                     </table>
                 </div>
-                <table class="col-md-12 col-sm-12 w-40 pull-right">
+                <table class="col-md-12 col-sm-12 w-30 pull-right">
                     <tbody>
                         <tr class="wd-25p pb-10 lightBlue text-capitalize hideTotPdt" style="display:none;">
                             <td class="wd-10p">Total Amount</td>
-                            <td class="wd-25p hideTotPdt" style="display:none;"><span
+                            <td class="wd-20p hideTotPdt" style="display:none;"><span
                                     class="grdtot">@if($product!=''){{$product->total_pdt_price}}@endif</span></td>
                         </tr>
                         <tr>
                             <td class="wd-10p">Labour Charge</td>
-                            <td class="wd-25p">
+                            <td class="wd-20p">
                                 <input type="text" class="form-control proposed_val_change" name="labour_charge"
                                     placeholder="Labour Charge"
                                     onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="labour_charge"
@@ -240,7 +240,7 @@ disabled onkeypress='return event.charCode >= 48 && event.charCode <= 57' value=
 
                         </tr>
                         <tr>
-                            <td>Margin</td>
+                            <td>Margin (%)</td>
                             <td><input type="text" maxlength="10" class="form-control proposed_val_change margin"
                                     name="margin" placeholder="Margin" id="margin"
                                     value="@if($product!=''){{$product->margin}}@endif">

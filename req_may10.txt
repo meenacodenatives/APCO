@@ -1,0 +1,23 @@
+1.change the loading icon
+2.Text change - only 10 stocks available with this price.Please choose another price for further
+remaining requirement.
+3.change the width of text box.
+4.Margin - add(%) .
+5.change the menus to DB. 
+a) Referred the table. 
+  Controller,link and name
+b) level - 1 Difference the level - menu_parent , created_by,updated_by,created_on,updated_on
+c) Menu icon - Used class name
+d) load the menu from menu table.
+6.remove the unwanted column 
+-userProfile - username,country
+country - Bydefault - India. Set the global varaible.
+Region - Kerala -
+How relieve_date and relieve_reason
+remove customer and customer_contact
+7.Menu Mapping
+User Access Preivileges. - Will do later
+8.Employee Group:
+Create group - 
+group name - once created,list all users with checkbox.
+9.RFQ realted tables.

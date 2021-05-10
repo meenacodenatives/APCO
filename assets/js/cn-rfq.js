@@ -36,6 +36,18 @@ $(function () {
             $('.is-invalid').removeClass('is-invalid');
         }
     });
+
+    $( "div" )
+  .find( ".featured_story_img" )
+  if($(this).is(':visible')){
+    alert("This image is visible");
+      $( this ).addClass( "hilite" );
+    }
+    else
+    {
+        $( this ).removeClass('hilite');
+
+    }
     $("#add_discount").bind("keypress", function (e) {
         var keyCode = e.keyCode || e.which;
         //Regex for Valid Characters i.e. Numbers.
@@ -203,7 +215,7 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
     //Error Message for quantity and stock - scenario
     if (quantity != '') {
         if (cntPriceLen > 1 && quantity > stock) {
-            var stockLeft = 'Only '+stock+' Stocks are available.Please choose another price';
+            var stockLeft = 'Only '+stock+' Stocks available with this price.Please choose another price for futher remaining requirement.';
             $.growl({
                 title: "",
                 message: stockLeft,
@@ -229,7 +241,7 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
         }
         if (cntPriceLen == 1 && quantity > stock) {
             console.log("OUT="+quantity);
-            var stockLeft ='Only '+stock+' Stocks are available.';
+            var stockLeft ='Only '+stock+' Stocks available with this price.';
             $.growl({
                 title: "",
                 message: stockLeft,

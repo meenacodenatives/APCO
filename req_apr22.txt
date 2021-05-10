@@ -7,7 +7,7 @@ Error display all the items which visted at the latest
 The following new tasks are added in RFQ Module :
 1. Close and Generate Quotation buttons in Detailed view popup.
 2. Create new column called status in rfq table.
-3. If it is close change the column is_active "false".
+3. If it is close change the column status "close".
 4. else Generate Quotion insert data to customer table with status "Quotation".
 5. PDF for generate quotation
 
