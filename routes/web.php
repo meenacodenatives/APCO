@@ -28,13 +28,20 @@ Route::post('/update-password', 'PasswordResetController@changePwd');
 Route::group(['middleware' => 'usersession'], function () {
        Route::get('/logout', 'DashboardController@doLogout');
     Route::get('/dashboard', 'DashboardController@showDashboard');
+  //Menu - view
+  Route::get('/showMenu','MenuController@showMenu');
+    // Menu -Add
+  Route::post('/storeMenu','MenuController@storeMenu');
+ //Delete Menu
+Route::post('/delete-menu', 'MenuController@destroyMenu');
+//edit Menu
+Route::get('/edit-menu/{id}', 'MenuController@editMenu');
     //Sales - view
   Route::get('/showSales','RFQController@showSales');
      //Add Sales
      Route::get('/add-sales', 'RFQController@addSales');
     // Product -View
     Route::get('/searchProduct','ProductController@searchProduct');
- // Route::post('showProduct', ['as' => 'showProduct', 'uses' => 'ProductController@showProduct']);
   Route::post('/searchResults','ProductController@searchResults');
 
          // Product -Store
@@ -138,4 +145,3 @@ Route::group(['middleware' => 'usersession'], function () {
 
 });
 Route::get('/{page}', 'AdminController@index');
-

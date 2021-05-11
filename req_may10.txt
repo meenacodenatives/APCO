@@ -21,3 +21,22 @@ User Access Preivileges. - Will do later
 Create group - 
 group name - once created,list all users with checkbox.
 9.RFQ realted tables.
+
+
+CREATE TABLE public.menu (
+	menu_id serial NOT NULL,
+	menu_name varchar(150) NOT NULL,
+	menu_controller varchar(150) NOT NULL,
+	menu_type varchar(150) NOT NULL,
+	menu_icon varchar(150) NULL,
+	menu_order int NOT NULL,
+	menu_level int NOT NULL,
+	menu_link int NULL,
+	menu_parent int NOT NULL,
+	menu_status varchar(100) NOT NULL,
+	menu_created_by varchar(150) NULL,
+	menu_created_date timestamp(0) NULL,
+	menu_modified_by varchar(150) NULL,
+	menu_updated_at timestamp(0) NULL,
+	CONSTRAINT menu_pk PRIMARY KEY (menu_id)
+);
