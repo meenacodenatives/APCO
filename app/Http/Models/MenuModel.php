@@ -26,6 +26,10 @@ class MenuModel extends Model
         'menu_modified_by',
         'updated_at'
     ];
+    public function childs() {
+        DB::enableQueryLog();
+        return $this->hasMany('App\Http\Models\MenuModel','menu_parent','id') ;
+    }
 }
 
 

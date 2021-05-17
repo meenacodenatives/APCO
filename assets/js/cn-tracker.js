@@ -91,12 +91,7 @@ $(document).ready(function() {
         $('#assignTo').multipleSelect({
                 filter: true
             })
-        
-        //Start of Scheduler
-        // $('#region').hide();
-        // $('.load-region').html(loading_icon);
-        // $('.load-region').show();
-        //End
+       
         $('#comment').val('');
         $('#contact_type').val('');
         $('#notify_users').val('');

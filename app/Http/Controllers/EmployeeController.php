@@ -18,6 +18,15 @@ class Employeecontroller extends Controller {
         
     }
 
+     //Get category - Menu and employees group - May 17
+     public function getUserCategory() {
+        $result = DB::select("select * from user_category where user_category_status = 'Active");
+        if (count($result) > 0) {
+            return $result;
+        }
+        return array();
+    }
+
     public function showEmployees(Request $request) {
         $employee_model = new EmployeeModel();
         $res['employees'] = $employee_model->getEmployees();
@@ -43,6 +52,7 @@ class Employeecontroller extends Controller {
         $res['category'] = $employee_model->getLookup('user_category');
         $res['status'] = $employee_model->getLookup('user_status');
         $res['country'] = $employee_model->getCountry();
+        $res['usersCategory']= $this->getUserCategory();
         return \View::make('add-employee')->with(["data" => $res]);
     }
 

@@ -1,5 +1,46 @@
 var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 var loading_icon = '<img class="load-icon" src=' + base_url + '/assets/images/brand/loader.gif>';
+var host = window.location.host;
+$(function () {
+  
+    $('#load-sidebar').html(loading_icon);
+    $.ajax({
+        url: base_url + '/showSidebar',
+        type: 'GET',
+        dataType: 'JSON',
+        success: function(data) {
+            $('#load-sidebar').html('');
+            $('#load-sidebar').hide();
+            var parentresult = data.MenuList;
+            var menuList = '';
+            $.each(parentresult, function (key, value) {
+                var pg = '/apco/'+ value.menu_link;
+                if(value.menu_parent==0)
+                {
+                menuList = menuList + '<li>';
+                menuList = menuList +'<a class="side-menu__item" href="' + pg + '">';
+                menuList = menuList +'<i class="'+ value.menu_icon +'"></i> &nbsp;&nbsp;';
+                menuList = menuList + value.menu_name;
+                menuList = menuList +'</a>';
+                menuList = menuList + '</li>';
+                }
+                else
+                {
+                menuList = menuList + '<li class="slide">';
+                menuList = menuList +'<a class="side-menu__item" href="' + pg + '">';
+                menuList = menuList +'<i class="'+ value.menu_icon +'"></i> &nbsp;&nbsp;';
+                menuList = menuList + '<span class="side-menu__label">'+ value.menu_name +'</span>';
+                menuList = menuList +'</a>';
+                menuList = menuList + '</li>';
+                }
+            });
+            $('#showChildMenu').html(menuList);
+        }
+    });
+    $('#pMenu').select2({
+        filter: true
+    })
+    });
 $('#menuPopup').click(function() {
     $('.showTitle').text('New Menu');
     $('#menuName').val('');
@@ -12,14 +53,75 @@ $('#menuPopup').click(function() {
 $('.closeModal').click(function(){
     $('#addMenu').modal("hide");
 });
+
+function savemenuUsers()
+{
+    var data = {}
+    data.menu_id = $('#menuID').val();
+    data.id=$('#menuID').val();
+    var user_id = [];
+    $.each($("input[name='user_id']:checked"), function () {
+        user_id.push($(this).val());
+    });
+    data.user_id = user_id;
+    console.log("user_id="+user_id);
+    $('.is-invalid').removeClass('is-invalid');
+    //Validation
+    var err = 0;
+    if ($("#user_id").val() == '') {
+        $('#user_id').addClass('is-invalid');
+        err++;
+    }
+    if (err > 0) {
+        return false;
+    } else {
+        $('.menuUsersSave').hide();
+        $('#load-menuUsers').html(loading_icon);
+    }
+    $.ajax({
+        url: base_url + '/storeMenuUsers',
+        type: 'POST',
+        data: {
+            _token: CSRF_TOKEN,
+            data: data
+        },
+        dataType: 'JSON',
+        success: function (data) {
+            $("#showUsers").modal("hide");
+            if (data.status == 1) { //success login
+                $.growl({
+                    title: "",
+                    message: "Menu Users has been saved successfully",
+                    duration: "3000",
+                    location: "tr",
+                    style: "notice"
+                });
+                setTimeout(function () {
+                    window.location.href = base_url + '/showMenu';
+                }, 1000);
+            } else { //error
+                $.growl({
+                    title: "",
+                    message: "Error! Please try again",
+                    duration: "3000",
+                    location: "tr",
+                    style: "error"
+                });
+                $('.menuUsersSave').show();
+                $('#load-menuUsers').html('');
+            }
+        }
+    });
+}
 //Create Menu
 function createMenu() {
     var data = {}
     data.menuName = $('#menuName').val();
+    data.controllerName = $('#controllerName').val();
     data.pMenu = $('#pMenu').val();
     data.menuLink = $('#menuLink').val();
     data.id=$('#menu_id').val();
-    console.log("id==" + data.id);
+    console.log("data==" +JSON.stringify(data));
 
     $('.is-invalid').removeClass('is-invalid');
     //Validation
@@ -29,10 +131,6 @@ function createMenu() {
         err++;
     }
     
-    if ($("#menuLink").val() == '') {
-        $('#menuLink').addClass('is-invalid');
-        err++;
-    }
     if (err > 0) {
         return false;
     } else {
@@ -87,8 +185,55 @@ function createMenu() {
 
     });
 }
+$(document).on("click", "#confirmMenuAssignUser", function (e) {
+    $('.load-edit-Menu').show();
+    $('.load-edit-Menu').html(loading_icon);
+    var id = $(this).data('id');
+    $("#showUsers").modal("show");
+    var title = 'Edit Users Group';
+    $('.showTitle').text(title);
+    $('.hideForm').hide();
+    $.ajax({
+        url: base_url + '/edit-menu/' + id,
+        type: 'GET',
+        dataType: 'JSON',
+        success: function (data) {
+            var result = data.menu;
+            $('.load-edit-Menu').hide();
+            $('.hideForm').show();
+            $("#menuID").val(result.id);
+            var userRes = data.res;
+            var usersList = data.users;
+            var userIDList = '';
+            userIDList = userIDList + '<table class="table  text-nowrap w-70">';
+            userIDList = userIDList +'<tr>';
+            $.each(usersList, function (index, value) {
+                for (var i=0;i<data.res.length;i++) {
+                    if (value.id == userRes[i].user_id) {
+                        var checked = 'checked';
+                    }
+                }
+                console.log("index="+index);
+                userIDList = userIDList +'<td class="border border-dark">';
+                userIDList = userIDList + ' <input type="checkbox" name="user_id" value="'+ value.id +'" id="user_id" ' + checked + '>&nbsp;';
+                userIDList = userIDList +  value.firstname + ' ' + value.lastname;
+                if(index>2)
+                {
+                    userIDList = userIDList +'</td></tr>';
+                }
+             });
+            userIDList = userIDList +'</table>';
+            $('#showchkBoxes').html(userIDList);
+            $('#hidechkBoxes').hide();
+            $('#showchkBoxes').show();
+            $('.menuUsersSave').show();
+            $('.load-edit-Menu').html('');
+        }
+    });
+});
 //Edit Menu
 $(document).on("click", "#confirmMenuEdit", function(e) {
+   
     $('.load-edit-Menu').show();
     $('.load-edit-Menu').html(loading_icon);
     var id = $(this).data('id');
@@ -96,6 +241,8 @@ $(document).on("click", "#confirmMenuEdit", function(e) {
     var title = 'Edit Menu';
     $('.showTitle').text(title);
     $('.hideForm').hide();
+    $('#hideparentMenuList').hide();
+
     $.ajax({
         url: base_url + '/edit-menu/' +id,
         type: 'GET',
@@ -106,8 +253,23 @@ $(document).on("click", "#confirmMenuEdit", function(e) {
             $('.hideForm').show();
                 $('#menu_id').val(result.id);
                 $("#menuName").val(result.menu_name);
+                $("#controllerName").val(result.menu_controller);
                 $("#menuLink").val(result.menu_link);
-                $("#pMenu").val(result.menu_parent);
+                var parentMenuList=data.parentMenu;
+                console.log("parentMenuList"+JSON.stringify(parentMenuList));
+                var parentIDList = '';
+                parentIDList = parentIDList + '<label class="form-label">Parent Menu</label>';
+                parentIDList = parentIDList + '<select name="pMenu" id="pMenu" class="form-control" style="width: 360px;">';
+                parentIDList = parentIDList +'<option value="">Select</option>';
+                $.each(parentMenuList, function (index, value) {
+                    if (value.id == result.menu_parent) {
+                        var selected = 'selected';
+                    }
+                parentIDList = parentIDList + '<option value="' + value.id + '" '+selected+'>' + value.menu_name + '</option>';
+             });
+             parentIDList = parentIDList +'</select>';
+                $('#showEditParentList').html(parentIDList);
+                $('#showEditParentList').show();
                 $('.menuSave').show();
                 $('.load-edit-Menu').html('');
         }

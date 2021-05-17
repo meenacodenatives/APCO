@@ -37,17 +37,6 @@ $(function () {
         }
     });
 
-    $( "div" )
-  .find( ".featured_story_img" )
-  if($(this).is(':visible')){
-    alert("This image is visible");
-      $( this ).addClass( "hilite" );
-    }
-    else
-    {
-        $( this ).removeClass('hilite');
-
-    }
     $("#add_discount").bind("keypress", function (e) {
         var keyCode = e.keyCode || e.which;
         //Regex for Valid Characters i.e. Numbers.

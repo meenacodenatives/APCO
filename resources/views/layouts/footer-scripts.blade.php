@@ -41,6 +41,7 @@
 		<!-- CUSTOM JS -->
 		<script src="{{URL::asset('assets/js/custom.js')}}"></script>
 		<!-- APCO -->
+		<script src="{{URL::asset('assets/js/cn-employeeGrp.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-menu.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-forgotPassword.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-rfq.js')}}"></script>

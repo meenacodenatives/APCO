@@ -13,7 +13,45 @@ class MenuController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-   
+    public function storeMenuUsers(Request $request)
+    {
+        if($_POST['data']['id']!='')
+        {
+             DB::table('menu_access')
+            ->where('menu_id', $_POST['data']['id'])
+            ->delete();
+            for($i=0;$i<count($_POST['data']['user_id']);$i++)
+            {
+            $user_id=$_POST['data']['user_id'][$i]; 
+            $param = array(
+                'menu_id'=>$_POST['data']['menu_id'],
+                'user_id'=>$user_id,
+                'menu_access_status'=>'Active'
+                );
+                $param['menu_access_modified_by'] = Session::get('user-id');
+                $param['updated_at'] = date('Y-m-d H:i:s');
+                DB::table("menu_access")->insert($param);
+            }
+            $result=1;
+        }
+        else
+        {   
+            for($i=0;$i<count($_POST['data']['user_id']);$i++)
+            {
+            $user_id=$_POST['data']['user_id'][$i]; 
+            $param = array(
+                'menu_id'=>$_POST['data']['menu_id'],
+                'user_id'=>$user_id,
+                'menu_access_status'=>'Active'
+                );
+                $param['menu_access_created_by'] = Session::get('user-id');
+                $param['created_date'] = date('Y-m-d H:i:s');
+                DB::table("menu_access")->insert($param);
+            }
+            $result=1;
+        }
+        return response()->json(array('status' => $result), 200);
+    }
     public function storeMenu(Request $request)
     {
         $p_menu=$_POST['data']['pMenu'];
@@ -30,6 +68,8 @@ class MenuController extends Controller
         $param = array(
             'menu_name'=>$_POST['data']['menuName'],
             'menu_link'=>$_POST['data']['menuLink'],
+            'menu_controller'=>$_POST['data']['controllerName'],
+            'menu_type'=>'User',
             'menu_parent'=>$p_id,
             'menu_status'=>'Active'
             );
@@ -63,7 +103,6 @@ class MenuController extends Controller
             }  
         }
         
-        
         return response()->json(array('status' => $result), 200);
     }
 
@@ -71,20 +110,44 @@ class MenuController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\category  $category
+     * @param  \App\Models\menu  $menu
      * @return \Illuminate\Http\Response
      */
     public function showMenu()
     {
         DB::enableQueryLog();
-
-        $MenuList = MenuModel::all()->sortByDesc("id");
+        $MenuList = MenuModel::all()->sortBy("menu_order");
         $Menus = MenuModel::where('menu_parent','=', 0)->get()
-        ->sortByDesc("id");
-        // echo '<pre>';
-        // print_r($categories);
-        // echo '</pre>'; exit;
-        return view('showMenu',compact('MenuList','Menus')); 
+         ->sortByDesc("id"); //Drop Down - Add/edit
+        //  $MenuList =DB::table('menu_access')
+        // ->rightjoin('menu', 'menu.id', '=', 'menu_access.menu_id')
+        // ->select('menu.*',DB::raw("COUNT(menu_access.menu_id) as count_row"))
+        // ->groupBy(DB::raw("menu.id"))
+        // ->orderByDesc("menu.menu_order")
+        // ->get();
+        $usersCategory= app('App\Http\Models\EmployeeController')->getUserCategory();
+        $users= app('App\Http\Models\TrackerModel')->getUsers();
+        return view('showMenu',compact('MenuList','Menus','users')); 
+    }
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\menu  $menu
+     * @return \Illuminate\Http\Response
+     */
+    public function showSidebar()
+    {
+        DB::enableQueryLog();
+        $s_user_id=session('user-id');
+       // $MenuList = MenuModel::all()->sortBy("menu_order");
+        $Menus = MenuModel::where('menu_parent','=', 0)->get()
+        ->sortByDesc("id"); 
+         $MenuList =DB::table('menu_access')
+        ->join('menu', 'menu.id', '=', 'menu_access.menu_id')
+        ->select('menu.*')
+        ->where('menu_access.user_id','=',$s_user_id)
+        ->get();
+        return response()->json(array('MenuList'=>$MenuList,'menu'=>$Menus), 200);
     }
     /**
      * Show the form for editing the specified resource.
@@ -95,12 +158,17 @@ class MenuController extends Controller
     public function editMenu($id)
     {
         $de_id=base64_decode($id);
-        $menu = MenuModel::findOrFail($de_id);
-        return response()->json(array('menu' => $menu), 200);
-
+        $menu = MenuModel::findOrFail($de_id); //To get particular id menu
+        $cntUsers = DB::table("menu_access")
+	    ->select('user_id')
+        ->where("menu_id", '=',$de_id)
+	    ->get(); //To get users in checkboxes
+        $parentMenu = DB::table("menu")
+	    ->select('id','menu_name')
+	    ->get(); //To get all parent menu in drop down
+        $users= app('App\Http\Models\TrackerModel')->getUsers(); //To get all users
+        return response()->json(array('menu' => $menu,'users'=>$users,'parentMenu'=>$parentMenu,'res'=>$cntUsers), 200);
     }
-    
-
     /**
      * Remove the specified resource from storage.
      *

@@ -23,20 +23,16 @@ group name - once created,list all users with checkbox.
 9.RFQ realted tables.
 
 
-CREATE TABLE public.menu (
-	menu_id serial NOT NULL,
-	menu_name varchar(150) NOT NULL,
-	menu_controller varchar(150) NOT NULL,
-	menu_type varchar(150) NOT NULL,
-	menu_icon varchar(150) NULL,
-	menu_order int NOT NULL,
-	menu_level int NOT NULL,
-	menu_link int NULL,
-	menu_parent int NOT NULL,
-	menu_status varchar(100) NOT NULL,
-	menu_created_by varchar(150) NULL,
-	menu_created_date timestamp(0) NULL,
-	menu_modified_by varchar(150) NULL,
-	menu_updated_at timestamp(0) NULL,
-	CONSTRAINT menu_pk PRIMARY KEY (menu_id)
+CREATE TABLE public.user_group_map (
+	id serial NOT NULL,
+	group_id varchar(150) NOT NULL,
+	user_id varchar(150) NOT NULL,
+	group_map_status varchar(100) NOT NULL,
+	group_map_created_by varchar(150) NULL,
+	created_date timestamp(0) NULL,
+	group_map_modified_by varchar(150) NULL,
+	updated_at timestamp(0) NULL,
+	CONSTRAINT user_group_map_pk PRIMARY KEY (id)
 );
+
+$ git branch APC-38andAPC-46 master

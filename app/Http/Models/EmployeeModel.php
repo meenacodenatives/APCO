@@ -39,6 +39,7 @@ class EmployeeModel extends Model {
         }
         return array();
     }
+   
 
     public function getSingleEmployee($id) {
         $result = DB::select("select * from user_profile where is_active = true and id = " . $id);

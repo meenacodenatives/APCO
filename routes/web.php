@@ -28,8 +28,22 @@ Route::post('/update-password', 'PasswordResetController@changePwd');
 Route::group(['middleware' => 'usersession'], function () {
        Route::get('/logout', 'DashboardController@doLogout');
     Route::get('/dashboard', 'DashboardController@showDashboard');
+  //Group - view
+  Route::get('/showEmployeesGroup','EmployeeGroupController@showEmployeesGroup');
+    // Group -Add
+  Route::post('/storeEmpGroup','EmployeeGroupController@storeEmpGroup');
+      // Group Users-Add 
+      Route::post('/storeEmpGroupUsers','EmployeeGroupController@storeEmpGroupUsers');
+ //Delete Group
+Route::post('/delete-EmpGroup', 'EmployeeGroupController@destroyEmpGroup');
+//edit Group
+Route::get('/edit-EmpGroup/{id}', 'EmployeeGroupController@editEmpGroup');
+      //Menu - view sidebar
+  Route::get('/showSidebar','MenuController@showSidebar');
   //Menu - view
   Route::get('/showMenu','MenuController@showMenu');
+        // Menu Users-Add 
+        Route::post('/storeMenuUsers','MenuController@storeMenuUsers');
     // Menu -Add
   Route::post('/storeMenu','MenuController@storeMenu');
  //Delete Menu

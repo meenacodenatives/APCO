@@ -28,7 +28,6 @@ $('#cat').click(function() {
 });
 
 $('.closeModal').click(function(){
-    console.log("TEST TEST TEST MM");
     $('#addCat').modal("hide");
 });
 //URL Validation
