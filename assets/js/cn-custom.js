@@ -98,39 +98,39 @@ $(function () {
     });
 
     if ($('#dropdownTrigger').val() == 1) { //trigger location for country in user profile edit
-        getLocation($('#country').val(), 'edituser');
+        getUserLocation($('#country').val(), 'edituser');
     }
 
     $('#country').change(function () {
-        getLocation(this.value, 'adduser');
+        getUserLocation(this.value, 'adduser');
     });
 });
 
-function getLocation(country, type) {
-    var data = {}
-    data.country = country;
-    $('.location').hide();
-    $('.load-location').show();
-    $('.load-location').html(loading_icon);
-    $.ajax({
-        url: base_url + '/get-country-location',
-        type: 'POST',
-        data: {_token: CSRF_TOKEN, data: data},
-        dataType: 'HTML',
-        success: function (data) {
-            $('.location').show();
-            $('.load-location').hide();
-            if (data != 0) { //success 
-                $('#location').html(data);
-                if (type == 'edituser') {
-                    $('#location').val($('#editLocation').val());
-                }
-            } else { //incorrect credentials
-                $('#location').html('<option value="">Select</option>');
-            }
-        }
-    });
-}
+// function getUserLocation(country, type) {
+//     var data = {}
+//     data.country = country;
+//     $('.location').hide();
+//     $('.load-location').show();
+//     $('.load-location').html(loading_icon);
+//     $.ajax({
+//         url: base_url + '/get-country-location',
+//         type: 'POST',
+//         data: {_token: CSRF_TOKEN, data: data},
+//         dataType: 'HTML',
+//         success: function (data) {
+//             $('.location').show();
+//             $('.load-location').hide();
+//             if (data != 0) { //success 
+//                 $('#location').html(data);
+//                 if (type == 'edituser') {
+//                     $('#location').val($('#editLocation').val());
+//                 }
+//             } else { //incorrect credentials
+//                 $('#location').html('<option value="">Select</option>');
+//             }
+//         }
+//     });
+// }
 
 function saveEmployee() {
     var data = {}
@@ -195,14 +195,14 @@ function saveEmployee() {
         $('#address').addClass('is-invalid');
         err++;
     }
-    if (data.country == '') {
-        $('#country').addClass('is-invalid');
-        err++;
-    }
-    if (data.location == '') {
-        $('#location').addClass('is-invalid');
-        err++;
-    }
+    // if (data.country == '') {
+    //     $('#country').addClass('is-invalid');
+    //     err++;
+    // }
+    // if (data.location == '') {
+    //     $('#location').addClass('is-invalid');
+    //     err++;
+    // }
     if (data.category == '') {
         $('#category').addClass('is-invalid');
         err++;

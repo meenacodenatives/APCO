@@ -4,7 +4,7 @@ use App\Http\Models\EmployeeGroupModel;
 use Illuminate\Http\Request;
 use Session;
 use DB;
-
+use Illuminate\Support\Str;
 class EmployeeGroupController extends Controller
 {
     /**
@@ -23,9 +23,11 @@ class EmployeeGroupController extends Controller
             for($i=0;$i<count($_POST['data']['user_id']);$i++)
             {
             $user_id=$_POST['data']['user_id'][$i]; 
+            $user_id_category=explode('_',$user_id); 
             $param = array(
                 'group_id'=>$_POST['data']['group_id'],
-                'user_id'=>$user_id,
+                'user_id'=>$user_id_category[1],
+                'user_category'=>$user_id_category[0],
                 'group_map_status'=>'Active'
                 );
                 $param['modified_by'] = Session::get('user-id');
@@ -39,9 +41,12 @@ class EmployeeGroupController extends Controller
             for($i=0;$i<count($_POST['data']['user_id']);$i++)
             {
             $user_id=$_POST['data']['user_id'][$i]; 
+            $user_id_category=explode('_',$user_id); 
+
             $param = array(
                 'group_id'=>$_POST['data']['group_id'],
-                'user_id'=>$user_id,
+                'user_id'=>$user_id_category[1],
+                'user_category'=>$user_id_category[0],
                 'group_map_status'=>'Active'
                 );
                 $param['created_by'] = Session::get('user-id');
@@ -54,6 +59,7 @@ class EmployeeGroupController extends Controller
     }
     public function storeEmpGroup(Request $request)
     {
+        DB::enableQueryLog();
           $param = array(
             'group_name'=>$_POST['data']['groupName'],
             'group_code'=>$_POST['data']['groupCode'],
@@ -87,6 +93,9 @@ class EmployeeGroupController extends Controller
             $param['created_at'] = date('Y-m-d H:i:s');
             DB::table("user_group")->insert($param);
             $grpID=DB::getPdo()->lastInsertId();
+// $query = DB::getQueryLog();
+// $query = end($query);
+// print_r($query);
             $result=1;
             }  
         }
@@ -104,13 +113,21 @@ class EmployeeGroupController extends Controller
     {
         DB::enableQueryLog();
         $employeesGrpList =DB::table('user_group_map')
-        ->join('user_group', 'user_group.id', '=', 'user_group_map.group_id')
+        ->rightjoin('user_group', 'user_group.id', '=', 'user_group_map.group_id')
         ->select('user_group.*',DB::raw("COUNT(user_group_map.group_id) as count_row"))
         ->groupBy(DB::raw("user_group.id"))
         ->orderByDesc("user_group.id")
         ->get();
-       $users= app('App\Http\Models\TrackerModel')->getUsers();
-        return view('showEmployeesGroup',compact('employeesGrpList','users')); 
+        $usersCategory =DB::table('user_profile')
+        ->join('user_category', 'user_category.id', '=', 'user_profile.user_category')
+        ->select('user_category.id as cat_id','user_category.category_name as category_name',DB::raw("ARRAY_TO_STRING(ARRAY_AGG (user_profile.firstname || ' ' || user_profile.lastname), '|') as fullname"),DB::raw("ARRAY_TO_STRING(ARRAY_AGG (user_profile.id), '|') as user_p_id"))
+        ->where('user_category.user_category_status','=','Active')
+        ->groupBy(DB::raw("user_category.id"))
+        ->get();
+      //  $usersCategory=json_decode($test);
+        // $query = DB::getQueryLog();
+        // $query = end($query);
+        return view('showEmployeesGroup',compact('employeesGrpList','usersCategory')); 
     }
     /**
      * Show the form for editing the specified resource.
@@ -120,14 +137,24 @@ class EmployeeGroupController extends Controller
      */
     public function editEmpGroup($id)
     {
+        DB::enableQueryLog();
         $de_id=base64_decode($id);
         $employee = EmployeeGroupModel::findOrFail($de_id);
-        $cntUsers = DB::table("user_group_map")
-	    ->select('user_id')
-        ->where("group_id", '=',$de_id)
-	    ->get();
-        $users= app('App\Http\Models\TrackerModel')->getUsers();
-        return response()->json(array('employee' => $employee,'users'=>$users,'res'=>$cntUsers), 200);
+        $cntUsers =DB::table('user_group_map')
+        ->join('user_category', 'user_category.id', '=', 'user_group_map.user_category')
+        ->join('user_profile', 'user_group_map.user_id', '=', 'user_profile.id')
+        ->select('user_category.id as cat_id','user_category.category_name as category_name',DB::raw("ARRAY_TO_STRING(ARRAY_AGG (user_profile.firstname || ' ' || user_profile.lastname), '|') as fullname"),DB::raw("ARRAY_TO_STRING(ARRAY_AGG (user_profile.id), '|') as user_p_id"))
+        ->where('user_category.user_category_status','=','Active')
+        ->where("user_group_map.group_id", '=',$de_id)       
+        ->groupBy(DB::raw("user_category.id"))
+        ->get();
+        $allUsers =DB::table('user_profile')
+        ->join('user_category', 'user_category.id', '=', 'user_profile.user_category')
+        ->select('user_category.id as cat_id','user_category.category_name as category_name',DB::raw("ARRAY_TO_STRING(ARRAY_AGG (user_profile.firstname || ' ' || user_profile.lastname), '|') as fullname"),DB::raw("ARRAY_TO_STRING(ARRAY_AGG (user_profile.id), '|') as user_p_id"))
+        ->where('user_category.user_category_status','=','Active')
+        ->groupBy(DB::raw("user_category.id"))
+        ->get();
+        return response()->json(array('employee' => $employee,'res'=>$cntUsers,'all'=>$allUsers), 200);
     }
     /**
      * Remove the specified resource from storage.

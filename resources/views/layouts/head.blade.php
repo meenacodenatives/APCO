@@ -7,6 +7,7 @@
                 <base href="<?php echo URL::to('/'); ?>">
                 <script>
                     var base_url = "<?php echo URL::to('/'); ?>";
+
                 </script>
 
 		<!-- BOOTSTRAP CSS -->

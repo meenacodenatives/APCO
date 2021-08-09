@@ -11,7 +11,7 @@ use App\Http\Models\EmployeeModel;
 use Illuminate\Http\Request;
 use Session;
 use App\Http\Models\CronModel;
-
+use DB;
 class Employeecontroller extends Controller {
 
     public function __construct() {
@@ -20,13 +20,20 @@ class Employeecontroller extends Controller {
 
      //Get category - Menu and employees group - May 17
      public function getUserCategory() {
-        $result = DB::select("select * from user_category where user_category_status = 'Active");
+        $result = DB::select("select * from user_category where user_category_status = 'Active'");
         if (count($result) > 0) {
             return $result;
         }
         return array();
     }
-
+        //Get Location - location - May 17
+        public function getLocation() {
+            $result = DB::select("select * from location where is_active = true");
+            if (count($result) > 0) {
+                return $result;
+            }
+            return array();
+        }
     public function showEmployees(Request $request) {
         $employee_model = new EmployeeModel();
         $res['employees'] = $employee_model->getEmployees();
@@ -45,13 +52,11 @@ class Employeecontroller extends Controller {
             $type = 'edit';
             $res['employee'] = $employee_model->getSingleEmployee($page);
         }
-
-
         $res['type'] = $type;
         $res['gender'] = $employee_model->getLookup('user_gender');
-        $res['category'] = $employee_model->getLookup('user_category');
         $res['status'] = $employee_model->getLookup('user_status');
         $res['country'] = $employee_model->getCountry();
+        $res['location'] = $this->getLocation();
         $res['usersCategory']= $this->getUserCategory();
         return \View::make('add-employee')->with(["data" => $res]);
     }
@@ -74,13 +79,14 @@ class Employeecontroller extends Controller {
 
     public function saveProfile(Request $request) {
         $employee_model = new EmployeeModel();
-        if ($_POST['data']['country'] > 0) {
+       // if ($_POST['data']['country'] == 'India') {
             $param = array(
                 'firstname' => $_POST['data']['fname'],
+                'username' => $_POST['data']['fname'],
                 'lastname' => $_POST['data']['lname'],
-                'category' => $_POST['data']['category'],
+                'user_category' => $_POST['data']['category'],
                 'phone' => $_POST['data']['phone'],
-                'country' => $_POST['data']['country'],
+                'country' => 91,
                 'location' => $_POST['data']['location'],
                 'dob' => $_POST['data']['dob'],
                 'joining_date' => $_POST['data']['doj'],
@@ -106,7 +112,7 @@ class Employeecontroller extends Controller {
             }
             $result = $employee_model->saveProfile($param, $_POST['data']['id']);
             return response()->json(array('status' => $result), 200);
-        }
+       // }
         return response()->json(array('status' => 0), 200);
     }
 

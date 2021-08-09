@@ -38,7 +38,8 @@ class LeadController extends Controller
         if ($_POST['data']['country'] > 0) {
         $param = array(
         'country'=> 1,
-        'region'=> 1,
+        'region'=> $_POST['data']['region'],
+        'state'=> $_POST['data']['state'],
         'name'=> $_POST['data']['leadName'],
         'email'=> $_POST['data']['leadEmail'],
         'phone'=>$_POST['data']['leadPhone'],

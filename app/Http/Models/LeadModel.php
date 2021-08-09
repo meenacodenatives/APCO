@@ -21,19 +21,7 @@ class LeadModel extends Model {
         return array();
     }
 
-    // public function getRegionFromCountries($ctrycode)
-    // {
-    //      $check =DB::table('country')
-    //     ->join('region', 'region.country_code', '=', 'country.code')
-    //     ->select('region.name as regName','region.id as regID')
-    //     ->where('region.country_code','=',$ctrycode)
-    //     ->get();
-
-    //     if (count($check) > 0) {
-    //         return $check;
-    //     }
-    //     return array();
-    // }
+    
     public function getAllLead() {
         $result =DB::table('lead')->select('*')->where('is_active', '=', true)
         ->orderby('created_date','desc')
@@ -50,7 +38,14 @@ class LeadModel extends Model {
         return array();
     }
     public function viewSingleLeadInfo($id) {
-        $result = DB::select("select * from lead where is_active = true and id = " . $id);
+        $result =DB::table('lead')
+        ->join('state', 'state.id', '=', 'lead.state')
+        ->join('region', 'region.id', '=', 'lead.region')
+        ->join('location', 'location.id', '=', 'lead.location')
+        ->select('*')
+        ->where('lead.is_active','=',true)
+        ->where('lead.id','=',$id)
+        ->get();
         if (count($result) > 0) {
             return $result;
         }
@@ -104,7 +99,7 @@ class LeadModel extends Model {
 
     public function deleteLead($id) {
         $param = array('is_active' => false);
-        $res = app('App\Http\Models\LeadModel')->singleSelectLead($id);
+        $res = $this->singleSelectLead($id);
         $modified_date = date('d-m-Y h:i A');
         $message=$res['0']->name.' has been deleted on '.$modified_date.' by ';     
 

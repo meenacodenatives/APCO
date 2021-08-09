@@ -128,26 +128,24 @@
                     <div class="col-lg-6 col-md-12">
                         <div class="form-group">
                             <label for="exampleInputname">Primary Country</label>
-                            <select class="form-control" id="country">
-                                <option value="">Select</option>
-                                <?php foreach ($data['country'] as $country): ?>
-                                <option value="<?= $country->code ?>" <?php
-                                            if ($data['type'] == 'edit') {
-                                                if ($data['employee'][0]->country == $country->code) {
-                                                    echo 'selected';
-                                                }
-                                            }
-                                            ?>><?= $country->name ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
+                            <input type="text" class="form-control" id="country" placeholder="Country" value="India" disabled>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-12">
                         <div class="form-group ">
                             <label for="exampleInputname1">Location</label>
-                            <select class="form-control location" id="location">
+                            <select class="form-control" id="location">
                                 <option value="">Select</option>
+                                <?php foreach ($data['location'] as $loc): ?>
+                                <option value="<?= $loc->id ?>" <?php
+                                            if ($data['type'] == 'edit') {
+                                                if ($data['employee'][0]->location == $loc->id) {
+                                                    echo 'selected';
+                                                }
+                                            }
+                                            ?>><?= $loc->name ?>
+                                </option>
+                                <?php endforeach; ?>
                             </select>
                             <div class="form-group load-location" style="display: none">
                             </div>
@@ -161,14 +159,14 @@
                             <label for="exampleInputname">Category</label>
                             <select class="form-control" id="category">
                                 <option value="">Select</option>
-                                <?php foreach ($data['category'] as $cat): ?>
-                                <option value="<?= $cat->code ?>" <?php
+                                <?php foreach ($data['usersCategory'] as $cat): ?>
+                                <option value="<?= $cat->id ?>" <?php
                                             if ($data['type'] == 'edit') {
-                                                if ($data['employee'][0]->category == $cat->code) {
+                                                if ($data['employee'][0]->user_category == $cat->id) {
                                                     echo 'selected';
                                                 }
                                             }
-                                            ?>><?= $cat->code ?>
+                                            ?>><?= $cat->category_name ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>

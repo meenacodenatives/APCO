@@ -2,7 +2,7 @@
 <tr style="color:#000 !important">
     <td>-- {{$child->menu_name }}</td>
     @if($child->menu_link!='')
-    <td><a href="/apco/{{$child->menu_link}}">{{$child->menu_name}}</a></td>
+    <td><a href="{{ env('MENU_PATH') }}{{$child->menu_link}}">{{$child->menu_name}}</a></td>
     @else
     <td>{{$child->menu_name}}</td>
     @endif

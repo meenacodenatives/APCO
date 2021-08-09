@@ -283,7 +283,7 @@ function searchLead() {
             $.each(data.result.lead, function (key, le) {
                 var formattedDate=formatDate(le.created_date);
                 console.log(formattedDate);
-                var pg='http://applab.codenatives.com/apco/edit-lead/'+btoa(le.id);
+                var pg=base_url +'/edit-lead/'+btoa(le.id);
                 rows = rows + '<tr">';
                 rows = rows + '<td>' + le.name + '</td>';
                 rows = rows + '<td>' + le.contact_name + '</td>';

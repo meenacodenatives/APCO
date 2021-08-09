@@ -1,6 +1,5 @@
 @extends('layouts.master')
 @section('css')
-<link href="{{URL::asset('assets/css/treeView.css')}}" rel="stylesheet" />
 
 <link href="{{URL::asset('assets/plugins/datatable/dataTables.bootstrap4.min.css')}}" rel="stylesheet" />
 <link href="{{URL::asset('assets/plugins/datatable/responsivebootstrap4.min.css')}}" rel="stylesheet" />
@@ -55,7 +54,8 @@
                             <tr style="color:blue !important">
                                 <td>{{$me->menu_name}}</td>
                                 <td>
-                                    <a href="/apco/{{$me->menu_link}}">{{$me->menu_name}}</a>
+                                
+                                    <a href="{{ env('MENU_PATH') }}{{$me->menu_link}}">{{$me->menu_name}}</a>
                                 </td>
                                 <td>{{$me->menu_controller}}</td>
                                 <td>{{date('M d, Y', strtotime($me->created_at))}}</td>
@@ -179,18 +179,31 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group has-success" id="hidechkBoxes">
-                                <table class="table  text-nowrap w-70">
+                            <table class="table  text-nowrap w-70">
+                                    @foreach($usersCategory as $key=>$us)
                                     <tr>
-                                        <?php $index = 0; foreach ($users as $key=>$us){ ?>
-                                        <td class="border border-dark">
-                                            <input type="checkbox" name="user_id" id="user_id" value="<?= $us->id ?>">
-                                            <?= $us->firstname ?>
-                                            <?= $us->lastname ?>
-                                            <?php if($index>2)
-                                {?>
+                                        <td>
+                                            {{$us->category_name}}
                                         </td>
                                     </tr>
-                                    <?php $index++; } } ?>
+                                    <tr>
+                                        @foreach(explode('|', $us->user_p_id) as $key1=>$infoID)
+                                        <td class="border border-dark">
+                                        <input type="checkbox" name="user_id" id="user_id" value="<?= $us->cat_id.
+                                        '_'.$infoID ?>">
+                                        @foreach(explode('|', $us->fullname) as $key=>$info)
+                                        {{$key1}}{{$info}}{{$key}}
+
+                                        @if($key1==$key)
+                                         {{$key1}}{{$info}}{{$key}}
+                                         @endif
+                                         @endforeach
+                                        </td>
+                                        @endforeach
+                                    </tr>
+                                    @endforeach
+
+
                                 </table>
                             </div>
                             <div class="form-group has-success" id="showchkBoxes" style="display:none;"></div>

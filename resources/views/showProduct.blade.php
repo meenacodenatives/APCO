@@ -169,20 +169,20 @@
                                         {{$pt->quantity}}  {{$pt->units}}
                                     </td>
                                    
-                                    <td>{{date('M d, Y', strtotime($pt->created_at))}}</td>
+                                    <td>{{date('M d, Y', strtotime($pt->pdtcreated_at))}}</td>
                                     <td>
                                         <a href="#" class="btn btn-secondary btn-sm mb-2 mb-xl-0" data-toggle="modal"
-                                            id="viewSingleProduct" data-target="#viewProduct" data-id="<?= $pt->id; ?>">
+                                            id="viewSingleProduct" data-target="#viewProduct" data-id="<?= $pt->pdtID; ?>">
                                             <i class="fa fa-eye"></i></a>&nbsp;&nbsp;
-                                        <a href="{{url('/' . $page='edit-product')}}/<?= base64_encode($pt->id); ?>"
-                                            class="ubtn<?= base64_encode($pt->id); ?> btn btn-primary btn-sm mb-2 mb-xl-0"
+                                        <a href="{{url('/' . $page='edit-product')}}/<?= base64_encode($pt->pdtID); ?>"
+                                            class="ubtn<?= base64_encode($pt->pdtID); ?> btn btn-primary btn-sm mb-2 mb-xl-0"
                                             data-toggle="tooltip" data-original-title="Edit"><i
                                                 class="fa fa-pencil"></i></a>&nbsp;&nbsp;
-                                        <a id="confirmPdtDelete" data-id="<?= $pt->id; ?>"
-                                            class="ubtn<?= $pt->id; ?> btn btn-danger btn-sm mb-2 mb-xl-0"
+                                        <a id="confirmPdtDelete" data-id="<?= $pt->pdtID; ?>"
+                                            class="ubtn<?= $pt->pdtID; ?> btn btn-danger btn-sm mb-2 mb-xl-0"
                                             data-toggle="tooltip" data-original-title="Delete"><i
                                                 class="fa fa-trash"></i></a>&nbsp;&nbsp;
-                                        <span class="delpdt<?= $pt->id; ?>"></span>
+                                        <span class="delpdt<?= $pt->pdtID; ?>"></span>
                                     </td>
                                 </tr>
                                 @endforeach

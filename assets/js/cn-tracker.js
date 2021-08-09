@@ -342,8 +342,13 @@ $(document).on("click", ".getLeadname", function (e) {
             $('#description').text(result.description);
             $('#remarks').text(result.remarks);
             $('#lastTrakedComment').text(result.last_tracked_comment);
-            var lastTrackedDate = formatDate(result.last_tracked_date);
-            $('#lastTrackedDate').text(lastTrackedDate);
+            if (result.last_tracked_comment == null) {
+                var lastTrackedDate = '';
+            }
+            else {
+                var lastTrackedDate = formatDate(result.last_tracked_comment);
+                $('#lastTrackedDate').text(lastTrackedDate);
+            }
             $('.load-single-lead').html('');
         }
     });

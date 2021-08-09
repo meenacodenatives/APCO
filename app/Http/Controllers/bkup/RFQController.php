@@ -7,10 +7,9 @@ use App\Http\Models\RFQProductsModel;
 use App\Http\Models\LeadModel;
 use App\Http\Models\LeadRFQMappingModel;
 use Illuminate\Http\Request;
-
-
 use Session;
 use DB;
+use PDF;
 
 class RFQController extends Controller
 {
@@ -20,6 +19,7 @@ class RFQController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    
     //To display product data in grid table - product code
     public function viewProductGridData($product_code,ProductModel $Product)
     {
@@ -28,25 +28,53 @@ class RFQController extends Controller
                 ->where('product.product_code','=', $de_product_code)
                 ->get()
                 ->sortByDesc("id");
-        $cntAP=count($product);
-             return response()->json(array('allProducts' => $product,'cntAp'=>$cntAP), 200);
+             return response()->json(array('allProducts' => $product), 200);
     }
-    //To check data -
-    public function compareStockQuantity($price,ProductModel $Product)
+    //Generate and Close Quotation Scenario - View Single RFQ
+    public function quotationStatus(Request $request,RFQModel $RFQ)
+    {
+        DB::enableQueryLog(); $param['status'] = $_POST['data']['status'];
+        $de_id=base64_decode($_POST['data']['id']);
+        RFQModel::whereId($de_id)->update($param);
+        $query = DB::getQueryLog();
+        $query = end($query);
+        if($_POST['data']['status']=='generateQuote')
+        {
+            $res=$this->viewSingleRFQ($_POST['data']['id']);
+            $pdfRes=$res->original;
+            // $data = [
+            //     'title' => 'Product Information',
+            //     'author' => "Meena"
+            // ];
+              
+            // $pdf = PDF::loadView('generate-quote-file', $data);
+        
+            // return $pdf->download('test.pdf');
+        }
+        else
+        {
+            $pdfRes='';   
+        }
+        return response()->json(array('result' => $param,'pdfRes'=>$pdfRes), 200);
+
+    }
+    //To check data - qunatity and price
+    public function compareStockQuantity($price,$product_code,ProductModel $Product)
     {
         DB::enableQueryLog();
-        $product =ProductModel::whereactual_price($price)
-                ->first();
-                // $query = DB::getQueryLog();
-                //       $query = end($query);
-                //       print_r($query);exit;
+        $product =ProductModel::select('*')
+        ->where('product.actual_price','=', $price)
+        ->where('product.product_code','=', $product_code)
+        ->first();
+        //Check Number of prices per product
         $productPrice =ProductModel::select('*')
-        ->where('product.product_code','=', $product->product_code)
+        ->where('product.product_code','=', $product_code)
         ->get()
         ->sortByDesc("id");
+        
         $cntAP=count($productPrice);
-        $chkStock=$product->quantity;
-        $pdt_id=$product->id;
+        $chkStock=$product['quantity'];
+        $pdt_id=$product['id'];
         return response()->json(array('compareQuantity' => $chkStock,'product_id'=>$pdt_id,'cntAp'=>$cntAP), 200);
     }
     //Add RFQ
@@ -56,7 +84,8 @@ class RFQController extends Controller
         $product='';$RFQProducts='';$preselectProducts=''; $lead=''; 
         $productList =DB::table('product')->select( DB::raw('DISTINCT on(product_name)product_name,id,product_code') )->where('product_type','Service')->orderBy('product_name','desc')
         ->orderBy('id','desc')
-        ->orderBy('product_code','desc')
+        //->orderBy('product_code','desc')
+        //->limit(10)
         ->get(['product_name','id','product_code']);
          // $query = DB::getQueryLog();
         //               $query = end($query);
@@ -64,6 +93,22 @@ class RFQController extends Controller
         $rfq_discount = app('App\Http\Models\EmployeeModel')->getLookup('rfq_discount');
      return view('add-req', compact('product','lead','RFQProducts','preselectProducts','rfq_discount','productList'));
     }
+     //Add Sales
+     public function addSales(RFQModel $RFQ)
+     {
+         DB::enableQueryLog();
+         $product='';$RFQProducts='';$preselectProducts=''; $lead=''; 
+         $productList =DB::table('product')->select( DB::raw('DISTINCT on(product_name)product_name,id,product_code') )->where('product_type','Service')->orderBy('product_name','desc')
+         ->orderBy('id','desc')
+         ->orderBy('product_code','desc')
+         ->get(['product_name','id','product_code']);
+          // $query = DB::getQueryLog();
+         //               $query = end($query);
+         //               print_r($query);exit;
+         $rfq_discount = app('App\Http\Models\EmployeeModel')->getLookup('rfq_discount');
+
+      return view('add-sales', compact('product','lead','RFQProducts','preselectProducts','rfq_discount','productList'));
+     }
     //CREATE RFQ
     public function storeRFQ(Request $request,RFQModel $RFQ)
     {
@@ -82,7 +127,7 @@ class RFQController extends Controller
             'final_value'=>$_POST['data']['final_value'],
             'discount_type'=>$_POST['data']['discount_type'],
             'discount_value'=>$_POST['data']['discount_value'],
-            'amc'=>$_POST['data']['amc'],
+           // 'amc'=>$_POST['data']['amc'],
             'is_active'=>true
             );
             DB::enableQueryLog();
@@ -246,6 +291,21 @@ class RFQController extends Controller
                
         return view('showRFQ',compact('allRFQs','RFQList','users','contactType')); 
     }
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\RFQ  $RFQ
+     * @return \Illuminate\Http\Response
+     */
+    public function showSales(Request $request)
+    {
+        DB::enableQueryLog();
+        $SalesList = RFQModel::select("*")
+        ->where('rfq.status','=', 'generateQuote')
+        ->get()
+        ->sortByDesc("id");
+        return view('showSales',compact('SalesList')); 
+    }
     /*
      * Show the form for editing the specified resource.
      *
@@ -256,16 +316,20 @@ class RFQController extends Controller
     {
         DB::enableQueryLog();
         $de_id=base64_decode($id);
+        //Drop down
         $productList =DB::table('product')->select( DB::raw('DISTINCT on(product_name)product_name,id,product_code,actual_price') )->where('product_type','Service')->orderBy('product_name','desc')
         ->orderBy('id','desc')
         ->orderBy('product_code','desc')
         ->orderBy('actual_price','desc')
         ->get(['product_name','id','product_code','actual_price']);
+        //To get lead or RFQ information
         $product = RFQModel::findOrFail($de_id);
-        
+        //To get product grid data
         $RFQProducts =RFQProductsModel::join('product', 'rfq_products.product_id', '=', 'product.id')
         ->where('rfq_products.rfq_id','=', $de_id)
+        ->orwhere('rfq_products.rfq_id','=', $product->parent_id)
         ->get(['rfq_products.*', 'product.*']);
+
         //   $query = DB::getQueryLog();
         //               $query = end($query);
         //               print_r($query);
@@ -277,13 +341,37 @@ class RFQController extends Controller
                     $unitsFirst=$RFQProducts[0]->units;
                     $actual_priceFirst=$RFQProducts[0]->actual_price;
                     $subtotalFirst=$RFQProducts[0]->subtotal;
+                    //Actual price and quantiy and code
+                    $productQuaFirst =ProductModel::select('*')
+                    ->where('product.actual_price','=', $actual_priceFirst)
+                    ->where('product.product_code','=', $product_idFirst)
+                    ->first();
+                    //Check Number of prices per product
+                    $productPriceFirst =ProductModel::select('*')
+                    ->where('product.product_code','=', $product_idFirst)
+                    ->get()
+                    ->sortByDesc("id");
+                    $compareQuantityFirst=$quantityFirst;
+                    $cntPriceFirst=count($productPriceFirst);
                     $j=2;
                     $selected='selected';
                     $notselected='';
                     for ($i=1; $i<=count($RFQProducts)-1;$i++) { 
                         $pdt_id=$RFQProducts[$i]->product_code;
                         $actual_price=$RFQProducts[$i]->actual_price;
-
+                        //Actual price and quantiy and code
+                        $productQua =ProductModel::select('*')
+                        ->where('product.actual_price','=', $actual_price)
+                        ->where('product.product_code','=', $pdt_id)
+                        ->first();
+                        //Check Number of prices per product
+                        $productPriceMultiple =ProductModel::select('*')
+                        ->where('product.product_code','=', $pdt_id)
+                        ->get()
+                        ->sortByDesc("id");
+                        $cntAP=count($productPriceMultiple);
+                        $chkStock=$productQua['quantity'];
+                        
                    $preselectProducts.='
                    <tr id="rec-'.$j.'"><td>'.$j.'<input type="hidden" name="sno" id="sno" value="'.$j.'"></td><td><select class="form-control rfq_Product_name custom-select " id="product_name-'.$j.'" data-id="'.$j.'">
                                     <option value="">Select</option>';
@@ -297,17 +385,20 @@ class RFQController extends Controller
                                         {
                                         $sel ='';
                                         }
-                                        $preselectProducts .= '<option value="' . $pt->product_code . '" '.$sel.' >' . $pt->product_name . '</option>';
+                                        $preselectProducts .= '<option value="' . $pt->product_code . '" '.$sel.' >' . $pt->product_name.'</option>';
                                     }
                                     $preselectProducts .= '</select>
                                 <span class="wd-10p load-mul-product"></span>
-                                <input type="hidden" class="form-control" name="product_id-" id="product_id-'.$j.'" maxlength="3" value="' . $RFQProducts[$i]->product_id . '"  data-id="'.$j.'" >
+                                <input type="hidden" class="form-control" name="product_id-" id="product_id-'.$j.'" maxlength="3" value="' . $RFQProducts[$i]->id . '"  data-id="'.$j.'" >
                             </td>
-                            <td><input type="text" class="form-control rfq_quantity" name="quantity"placeholder="Quantity" id="quantity-'.$j.'" maxlength="3" value="' . $RFQProducts[$i]->quantity . '"  data-id="'.$j.'" ></td>
+                            <td><input type="text" class="form-control rfq_quantity" name="quantity"placeholder="Quantity" id="quantity-'.$j.'" maxlength="10" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="' . $RFQProducts[$i]->quantity . '"  data-id="'.$j.'" ></td>
                             <td><input type="text" class="form-control" name="units" id="units-'.$j.'" placeholder="Units" value="' . $RFQProducts[$i]->units . '"  readonly></td>
                             <td><select class="form-control custom-select chkQuantitybyPrice" id="actual_price-'.$j.'" data-id="'.$j.'" disabled>';
                             $preselectProducts .= '<option value="' . $actual_price . '" '.$sel.' >' . $actual_price . '</option>';
                             $preselectProducts .= '</select>
+                            <input type="hidden" class="form-control" name="product_id-" id="product_id-'.$j.'"  value="' . $RFQProducts[$i]->id . '"  data-id="'.$j.'">
+                                <input type="hidden" class="form-control" name="compareQuantity" id="compareQuantity-'.$j.'"  value="'.$chkStock.'"  data-id="'.$j.'">
+                                <input type="hidden" class="form-control" name="cntPrice" id="cntPrice-'.$j.'"  value="'.$cntAP.'"  data-id="'.$j.'">
                             </td>
                             <td><input type="text" class="form-control subtotal" name="subtotal" placeholder="Subtotal"
                                     id="subtotal-'.$j.'" value="' . $RFQProducts[$i]->subtotal . '" readonly></td>
@@ -322,22 +413,17 @@ class RFQController extends Controller
                    
         $rfq_discount = app('App\Http\Models\EmployeeModel')->getLookup('rfq_discount');
         $lead='';           
-        return view('add-req', compact('lead','product','preselectProducts','RFQProducts','unitsFirst','actual_priceFirst','product_id1First','rfq_discount','subtotalFirst','quantityFirst','product_idFirst','productList'));
+        return view('add-req', compact('lead','product','preselectProducts','RFQProducts','unitsFirst','actual_priceFirst','product_id1First','compareQuantityFirst','cntPriceFirst','rfq_discount','subtotalFirst','quantityFirst','product_idFirst','productList'));
     }
-    public function viewSingleRFQ($id,RFQModel $RFQ,RFQProductsModel $RFQProduct)
+    public function viewSingleRFQ($id)
     {
-        DB::enableQueryLog();
-
         $de_id=base64_decode($id);
         $RFQList = RFQModel::findOrFail($de_id);
         $RFQProducts =RFQProductsModel::join('product', 'rfq_products.product_id', '=', 'product.id')
         ->where('rfq_products.rfq_id','=', $de_id)
-        ->orwhere('rfq_products.parent_id','=', $de_id)
+        ->orwhere('rfq_products.rfq_id','=', $RFQList->parent_id)
         ->get(['rfq_products.*', 'product.product_name']);
-        // $query = DB::getQueryLog();
-        //               $query = end($query);
-        //               print_r($query);
-        //               exit;
+        
         return response()->json(array('RFQProducts' => $RFQProducts,'RFQList' => $RFQList), 200);
     }
     public function editLeadRFQ($id,LeadModel $Lead)

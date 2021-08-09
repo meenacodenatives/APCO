@@ -25,7 +25,6 @@ function saveempGrpUsers() {
         user_id.push($(this).val());
     });
     data.user_id = user_id;
-    console.log("user_id="+user_id);
     $('.is-invalid').removeClass('is-invalid');
     //Validation
     var err = 0;
@@ -39,6 +38,8 @@ function saveempGrpUsers() {
         $('.empGrpUsersSave').hide();
         $('#load-empGrpUsers').html(loading_icon);
     }
+    console.log("data=" + JSON.stringify(data));
+
     $.ajax({
         url: base_url + '/storeEmpGroupUsers',
         type: 'POST',
@@ -164,26 +165,39 @@ $(document).on("click", "#confirmEmpGroupAssignUser", function (e) {
             $("#grpID").val(result.id);
             $('#emp_group_id').val(result.id);
             var userRes = data.res;
-            var usersList = data.users;
+            var allUsers =data.all;
             var userIDList = '';
             userIDList = userIDList + '<table class="table  text-nowrap w-70">';
-            userIDList = userIDList +'<tr>';
-            $.each(usersList, function (index, value) {
+            $.each(allUsers, function (index, value) { //All 3 tables -user_group_map,user_category,user_profile
+                var fullname = value.fullname.split('|');
+                var user_p_id = value.user_p_id.split('|');
+                userIDList = userIDList + '<tr>';
+                userIDList = userIDList + '<td>';
+                userIDList = userIDList + value.category_name;
+                userIDList = userIDList + '</td>';
+                userIDList = userIDList + '</tr>';
+                userIDList = userIDList + '<tr>';
                 for (var i=0;i<data.res.length;i++) {
-                    if (value.id == userRes[i].user_id) {
+                    if (value.user_p_id == userRes[i].user_p_id) {
                         var checked = 'checked';
                     }
                 }
-                console.log("index="+index);
-                userIDList = userIDList +'<td class="border border-dark">';
-                userIDList = userIDList + ' <input type="checkbox" name="user_id" value="'+ value.id +'" id="user_id" ' + checked + '>&nbsp;';
-                userIDList = userIDList +  value.firstname + ' ' + value.lastname;
-                if(index>2)
-                {
-                    userIDList = userIDList +'</td></tr>';
+                for (var i = 0; i < user_p_id.length; i++) {
+                    userIDList = userIDList + '<td class="border border-dark">';
+                    userIDList = userIDList + ' <input type="checkbox" name="user_id" value="' + value.cat_id + '_' + user_p_id[i] + '" id="user_id" ' + checked + '>&nbsp;';
+                    for (var j = 0; j < fullname.length; j++) {
+                        if(i==j)
+                    {
+                            userIDList = userIDList + fullname[j];
+                    }
+                    }
+                    userIDList = userIDList + '</td>';
+                    if (i % 3 == 0) {
+                        userIDList =userIDList + '</tr>';
+                    }
                 }
-             });
-            userIDList = userIDList +'</table>';
+            });
+            userIDList = userIDList + '</table>';
             $('#showchkBoxes').html(userIDList);
             $('#hidechkBoxes').hide();
             $('#showchkBoxes').show();
@@ -214,26 +228,43 @@ $(document).on("click", "#confirmEmpGroupEdit", function (e) {
             $('#emp_group_id').val(result.id);
             $("#grpID").val(result.id);
             var userRes = data.res;
-            var usersList = data.users;
+            var allUsers =data.all;
             var userIDList = '';
+
             userIDList = userIDList + '<table class="table  text-nowrap w-70">';
-            userIDList = userIDList +'<tr>';
-            $.each(usersList, function (index, value) {
-                for (var i=0;i<data.res.length;i++) {
-                    if (value.id == userRes[i].user_id) {
+            $.each(allUsers, function (index, value) { //All 3 tables -user_group_map,user_category,user_profile
+                var fullname = value.fullname.split('|');
+                console.log("fullname"+fullname);
+
+                var user_p_id = value.user_p_id.split('|');
+                userIDList = userIDList + '<tr>';
+                userIDList = userIDList + '<td>';
+                userIDList = userIDList + value.category_name;
+                userIDList = userIDList + '</td>';
+                userIDList = userIDList + '</tr>';
+                userIDList = userIDList + '<tr>';
+                for (var k=0;k<data.res.length;k++) {
+                    if (user_p_id == userRes[k].user_p_id) {
                         var checked = 'checked';
                     }
                 }
-                console.log("index="+index);
-                userIDList = userIDList +'<td class="border border-dark">';
-                userIDList = userIDList + ' <input type="checkbox" name="user_id" value="'+ value.id +'" id="user_id" ' + checked + '>&nbsp;';
-                userIDList = userIDList +  value.firstname + ' ' + value.lastname;
-                if(index>2)
-                {
-                    userIDList = userIDList +'</td></tr>';
+                for (var i = 0; i < user_p_id.length; i++) {
+                    userIDList = userIDList + '<td class="border border-dark">';
+                    userIDList = userIDList + ' <input type="checkbox" name="user_id" value="' + value.cat_id + '_' + user_p_id[i] + '" id="user_id" ' + checked + '>&nbsp;';
+                    for (var j = 0; j < fullname.length; j++) {
+                        if(i==j)
+                    {
+                            userIDList = userIDList + fullname[j];
+                    }
+                    }
+                    userIDList = userIDList + '</td>';
+                    if (i % 3 == 0) {
+                        userIDList =userIDList + '</tr>';
+                    }
                 }
-             });
-            userIDList = userIDList +'</table>';
+            });
+            userIDList = userIDList + '</table>';
+            console.log("result" + JSON.stringify(result));
             $('#showchkBoxes').html(userIDList);
             $('#hidechkBoxes').hide();
             $('#showchkBoxes').show();

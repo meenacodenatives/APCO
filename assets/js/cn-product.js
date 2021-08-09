@@ -79,10 +79,12 @@ function createProduct() {
     data.gst = $('#gst').val();
     data.id = $('#editPdtID').val();
     $('.is-invalid').removeClass('is-invalid');
+    $('.users-invalid').removeClass('users-invalid');
+
     //Validation
     var err = 0;
     if ($("#category").val() == '') {
-        $('#category').addClass('is-invalid');
+        $('.select2').addClass('users-invalid');
         err++;
     }
     if ($("#quantity").val() == '') {
@@ -132,10 +134,12 @@ function createProduct() {
 
 
     if (err > 0) {
+        console.log("data"+JSON.stringify(data));
+
         return false;
     } else {
-       $('.productSave').hide();
-       $('#load-product').html(loading_icon);
+        $('.productSave').hide();
+        $('#load-product').html(loading_icon);
     }
     $.ajax({
         url: base_url + '/chkProductPrice',
@@ -147,7 +151,7 @@ function createProduct() {
         dataType: 'JSON',
         success: function (data) {
             if (data.status == 2) { //success login
-                
+
                 swal({
                     title: "",
                     text: "Do you want to add product with different price ",
@@ -158,10 +162,9 @@ function createProduct() {
                     cancelButtonText: 'Cancel'
                 }, function (isConfirm) {
                     if (isConfirm) {
-                       addProduct();
+                        addProduct();
                     }
-                    else
-                    {
+                    else {
                         $('.productSave').show();
                         $('#load-product').html('');
                     }
@@ -213,7 +216,8 @@ function addProduct() {
     data.gst = $('#gst').val();
     data.id = $('#editPdtID').val();
     $('.productSave').hide();
-                $('#load-product').html(loading_icon);
+    $('#load-product').html(loading_icon);
+    console.log("data=="+JSON.stringify(data));
     $.ajax({
         url: base_url + '/storeProduct',
         type: 'POST',
@@ -269,6 +273,7 @@ $(document).on("click", "#viewSingleProduct", function (e) {
         dataType: 'JSON',
         success: function (data) {
             var result = data.allProducts[0];
+            console.log("resultresult"+JSON.stringify(result));
             $('.load-edit-product').hide();
             $('.hideForm').show();
             $('#cat_id').text(result.name);
@@ -276,10 +281,20 @@ $(document).on("click", "#viewSingleProduct", function (e) {
             $('#batchNumber').text(result.batch_number);
             $('#actualPrice').text(result.actual_price);
             $('#productName').text(result.product_name);
-            var mfdDate = formatDate(result.mfg_date);
-            $('#mfgDate').text(mfdDate);
-            var expDate = formatDate(result.expiry_date);
-            $('#expiryDate').text(expDate);
+            if (result.mfg_date == null) {
+                var mfdDate = '';
+            }
+            else {
+                var mfdDate = formatDate(result.mfg_date);
+                $('#mfgDate').text(mfdDate);
+            }
+            if (result.expiry_date == null) {
+                var expDate = '';
+            }
+            else {
+                var expDate = formatDate(result.expiry_date);
+                $('#expiryDate').text(expDate);
+            }
             $('#sellingPrice').text(result.selling_price);
             $('#productType').text(result.product_type);
             $('#units').text(result.units);
@@ -373,24 +388,23 @@ function searchProduct() {
                 rows = rows + '<td colspan="8" class="span12 text-center">No Products Found</td>';
                 rows = rows + '</tr>';
             }
-            else
-            {
-            $.each(data.allProducts, function (key, pt) {
-                var formattedDate=formatDate(pt.created_at);
-                var pg=host+'/edit-product/'+btoa(pt.id);
-                rows = rows + '<tr">';
-                rows = rows + '<td>' + pt.name + '</td>';
-                rows = rows + '<td>' + pt.product_name + '</td>';
-                rows = rows + '<td>' + pt.product_code + '</td>';
-                rows = rows + '<td>' + pt.product_type + '</td>';
-                rows = rows + '<td>' + pt.quantity + '</td>';
-                rows = rows + '<td>' + pt.units + '</td>';
-                rows = rows + '<td>' + formattedDate + '</td>';
-                rows = rows + '<td><a href="#" class="btn btn-secondary btn-sm mb-2 mb-xl-0" data-toggle="modal" id="viewSingleProduct" data-target="#viewProduct" data-id='+pt.id+'><i class="fa fa-eye"></i></a>&nbsp;&nbsp;<a href="'+pg+'" class="ubtn'+pt.id+'btn btn-primary btn-sm mb-2 mb-xl-0" data-toggle="tooltip"  data-original-title="Edit"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;<a id="confirmPdtDelete" data-id='+pt.id+' class="ubtn'+pt.id+' btn btn-danger btn-sm mb-2 mb-xl-0" data-toggle="tooltip" data-original-title="Delete"><i class="fa fa-trash"></i></a>&nbsp;&nbsp; <span class="delpdt'+pt.id+'"></span>';
-                '</td>';
-                rows = rows + '</tr>';
-            });
-        }
+            else {
+                $.each(data.allProducts, function (key, pt) {
+                    var formattedDate = formatDate(pt.created_at);
+                    var pg = '/edit-product/' + btoa(pt.id);
+                    rows = rows + '<tr">';
+                    rows = rows + '<td>' + pt.name + '</td>';
+                    rows = rows + '<td>' + pt.product_name + '</td>';
+                    rows = rows + '<td>' + pt.product_code + '</td>';
+                    rows = rows + '<td>' + pt.product_type + '</td>';
+                    rows = rows + '<td>' + pt.quantity + '</td>';
+                    rows = rows + '<td>' + pt.units + '</td>';
+                    rows = rows + '<td>' + formattedDate + '</td>';
+                    rows = rows + '<td><a href="#" class="btn btn-secondary btn-sm mb-2 mb-xl-0" data-toggle="modal" id="viewSingleProduct" data-target="#viewProduct" data-id=' + pt.id + '><i class="fa fa-eye"></i></a>&nbsp;&nbsp;<a href="' + pg + '" class="btn btn-primary btn-sm mb-2 mb-xl-0" data-toggle="tooltip"  data-original-title="Edit"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;<a id="confirmPdtDelete" data-id=' + pt.id + ' class="ubtn' + pt.id + ' btn btn-danger btn-sm mb-2 mb-xl-0" data-toggle="tooltip" data-original-title="Delete"><i class="fa fa-trash"></i></a>&nbsp;&nbsp; <span class="delpdt' + pt.id + '"></span>';
+                    '</td>';
+                    rows = rows + '</tr>';
+                });
+            }
             $('#showPdt').html(rows);
 
         }

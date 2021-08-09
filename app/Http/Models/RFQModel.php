@@ -36,7 +36,8 @@ class RFQModel extends Model
         'created_by',
         'is_active',
         'modified_by',
-        'updated_at'
+        'updated_at',
+        'quote_id'
     ];
 }
 

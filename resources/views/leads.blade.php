@@ -163,12 +163,12 @@
                                 </td>
                                 <td>
                                     <a data-toggle="modal" data-target="#mytracker" id="button1"
-                                        class="ubtn<?= $le->id; ?> btn btn-primary btn-sm mb-2 mb-xl-0 getLeadname"
+                                        class="btn btn-primary btn-sm mb-2 mb-xl-0 getLeadname"
                                         data-id=<?= $le->id ?> data-leadName="<?= $le->name ?>">
                                         <i class="fa fa-eye" data-toggle="tooltip" title="ion-plus-circled"></i>
                                     </a>
                                     <a href="{{url('/' . $page='edit-lead')}}/<?= base64_encode($le->id); ?>"
-                                        class="ubtn<?= $le->id; ?> btn btn-primary btn-sm mb-2 mb-xl-0"
+                                        class="btn btn-primary btn-sm mb-2 mb-xl-0"
                                         data-toggle="tooltip" data-original-title="Edit"><i
                                             class="fa fa-pencil"></i></a>&nbsp;&nbsp;
                                     <a id="confirmUserDelete" data-id="<?= $le->id; ?>"

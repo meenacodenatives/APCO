@@ -33,7 +33,11 @@ class EmployeeModel extends Model {
     }
 
     public function getEmployees() {
-        $result = DB::select("select * from user_profile where is_active = true");
+        $result =DB::table('user_category')
+        ->join('user_profile', 'user_profile.user_category', '=', 'user_category.id')
+        ->select('user_profile.*','user_profile.id as profID','user_category.*')
+        ->where('user_profile.is_active','=',true)
+        ->get();
         if (count($result) > 0) {
             return $result;
         }
@@ -50,18 +54,18 @@ class EmployeeModel extends Model {
     }
 
     public function getCountryLocation($country) {
-        $set = DB::select("select * from region where country_code = " . $country . " AND is_active = true");
-        if (count($set) > 0) {
-            $set_id = $set[0]->id;
-            if ($set_id > 0) {
-                $result = DB::select("select * from location where region = '" . $set_id . "'");
+        // $set = DB::select("select * from region where country_id = " . $country . " AND is_active = true");
+        // if (count($set) > 0) {
+        //     // $set_id = $set[0]->id;
+        //     // if ($set_id > 0) {
+                $result = DB::select("select * from location where is_active = true");
                 if (count($result) > 0) {
                     return $result;
                 }
-                return array();
-            }
-            return array();
-        }
+              //  return array();
+           // }
+           // return array();
+        //}
         return array();
     }
 

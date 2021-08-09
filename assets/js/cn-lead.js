@@ -69,6 +69,10 @@ function createLead() {
     data.status = $('#status').val();
     data.address = $('#address').val();
     data.remarks = $('#remarks').val();
+    data.state = $('#state').val();
+    data.region = $('#region').val();
+    data.location = $('#location').val();
+
     data.description = $('#description').val();
     data.id = $('#lead_id').val();
 
@@ -91,6 +95,18 @@ function createLead() {
     }
     if ($("#status").val() == '') {
         $('#status').addClass('is-invalid');
+        err++;
+    }
+    if ($("#state").val() == '') {
+        $('.select2').addClass('users-invalid');
+        err++;
+    }
+    if ($("#region").val() == '') {
+        $('.select2').addClass('users-invalid');
+        err++;
+    }
+    if ($("#location").val() == '') {
+        $('.select2').addClass('users-invalid');
         err++;
     }
     if ($("#leadEmail").val() == '') {
@@ -169,10 +185,7 @@ function createLead() {
 }
 //Edit
 
-if ($('#dropdownTrigger').val() == 1) { //trigger location for country in lead edit
-    getReg($('.leadCountry').val());
-    getLoc($('#editReg').val());
-}
+
 
 
 //DELETE LEAD
@@ -280,7 +293,7 @@ function searchLead() {
             {
             $.each(data.result.lead, function (key, le) {
                 var formattedDate=formatDate(le.created_date);
-                var pg=host+'/edit-lead/'+btoa(le.id);
+                var pg='/edit-lead/'+btoa(le.id);
                 rows = rows + '<tr">';
                 rows = rows + '<td>' + le.name + '</td>';
                 rows = rows + '<td>' + le.contact_name + '</td>';
@@ -294,7 +307,7 @@ function searchLead() {
                 });
                 '</td>';
                 rows = rows + '<td>' + formattedDate + '</td>';
-                rows = rows + '<td><a href="#" class="btn btn-secondary btn-sm mb-2 mb-xl-0" data-toggle="modal" id="viewSingleLead" data-target="#mytracker" data-id='+le.id+'><i class="fa fa-eye"></i></a>&nbsp;&nbsp;<a href="'+pg+'" class="ubtn'+le.id+'btn btn-primary btn-sm mb-2 mb-xl-0" data-toggle="tooltip"  data-original-title="Edit"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;<a id="confirmUserDelete" data-id='+le.id+' class="ubtn'+le.id+' btn btn-danger btn-sm mb-2 mb-xl-0" data-toggle="tooltip" data-original-title="Delete"><i class="fa fa-trash"></i></a>&nbsp;&nbsp; <span class="dellead'+le.id+'"></span>';
+                rows = rows + '<td><a href="#" class="btn btn-secondary btn-sm mb-2 mb-xl-0" data-toggle="modal" id="viewSingleLead" data-target="#mytracker" data-id='+le.id+'><i class="fa fa-eye"></i></a>&nbsp;&nbsp;<a href="'+pg+'" class="btn btn-primary btn-sm mb-2 mb-xl-0" data-toggle="tooltip"  data-original-title="Edit"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;<a id="confirmUserDelete" data-id='+le.id+' class="ubtn'+le.id+' btn btn-danger btn-sm mb-2 mb-xl-0" data-toggle="tooltip" data-original-title="Delete"><i class="fa fa-trash"></i></a>&nbsp;&nbsp; <span class="deluser'+le.id+'"></span>';
                 '</td>';
                 rows = rows + '</tr>';
             });

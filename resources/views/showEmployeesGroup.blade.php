@@ -60,7 +60,7 @@
                                         class="ubtn<?= base64_encode($me->id); ?> btn btn-primary btn-sm mb-2 mb-xl-0"
                                         data-toggle="tooltip" data-original-title="Edit"><i
                                             class="fa fa-pencil"></i></a>&nbsp;&nbsp;
-                                            <a id="confirmEmpGroupAssignUser" data-id="<?= base64_encode($me->id); ?>"
+                                    <a id="confirmEmpGroupAssignUser" data-id="<?= base64_encode($me->id); ?>"
                                         class="ubtn<?= base64_encode($me->id); ?> btn btn-primary btn-sm mb-2 mb-xl-0"
                                         data-toggle="tooltip" data-original-title="Assign User"><i
                                             class="fa fa-plus"></i></a>&nbsp;&nbsp;
@@ -153,25 +153,39 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group has-success" id="hidechkBoxes">
-                            <table class="table  text-nowrap w-70">
-                            <tr>
-                                <?php $index = 0; foreach ($users as $key=>$us){ ?>
-                                    <td class="border border-dark">
-                                <input type="checkbox" name="user_id" id="user_id" value="<?= $us->id ?>">
-                                <?= $us->firstname ?>
-                                <?= $us->lastname ?>
-                                <?php if($index>2)
-                                {?>
-                                </td></tr>
-                                <?php $index++; } } ?>
-                            </table></div>
+                                <table class="table  text-nowrap w-70">
+                                    @foreach($usersCategory as $key=>$us)
+                                    <tr>
+                                        <td>
+                                            {{$us->category_name}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        @foreach(explode('|', $us->user_p_id) as $key1=>$infoID)
+                                        <td class="border border-dark">
+                                        <input type="checkbox" name="user_id" id="user_id" value="<?= $us->cat_id.
+                                        '_'.$infoID ?>">
+                                        @foreach(explode('|', $us->fullname) as $key=>$info)
+                                        @if($key1==$key)
+                                         {{$info}}
+                                         @endif
+                                         @endforeach
+                                        </td>
+                                        @endforeach
+                                    </tr>
+                                    @endforeach
+
+
+                                </table>
+                            </div>
                             <div class="form-group has-success" id="showchkBoxes" style="display:none;"></div>
                         </div>
                         <div class="col-12 text-right p-3 pr-6">
                             <button type="button" class="btn btn-primary empGrpUsersSave"
                                 onclick="saveempGrpUsers()">Save</button>
-                                <input type="hidden" id="grpID" value="">
-                            <button type="button" class="btn btn-secondary empGrpUsersSave closeModal" data-dismiss="modal">
+                            <input type="hidden" id="grpID" value="">
+                            <button type="button" class="btn btn-secondary empGrpUsersSave closeModal"
+                                data-dismiss="modal">
                                 Close
                             </button>
                             <span id="load-empGrpUsers"></span>

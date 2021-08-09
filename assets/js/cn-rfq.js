@@ -177,6 +177,7 @@ $(document).delegate(".chkQuantitybyPrice", "change", function (e) {
     });
     $(".subtotal").attr("disabled", "disabled");
     $('.hideTotPdt').hide();
+    $('.hideTotLabour').hide();
 });
 //QUANTITY - calculation
 $(document).delegate(".rfq_quantity", "change", function (e) {
@@ -288,6 +289,17 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
     $("#add_discount").attr("disabled", "disabled");
 });
 //END
+//Labour charge
+$('.labour_val_change').on('input', function (e) {
+    var labours = $('#labours').val();
+    var rate = $('#rate').val();
+    var hours = $('#hours').val();
+    var labourCharge = parseFloat(labours) * parseFloat(rate) * parseFloat(hours);
+    if (!isNaN(labourCharge)) {
+        $('.hideTotLabour').show();
+        $('.labour_value').text('Rs.' + labourCharge.toFixed(2));
+    }
+});
 //Proposal val
 $('.proposed_val_change').on('input', function (e) {
     var grdtot = $('.grdtot').text();
@@ -323,7 +335,7 @@ $(document).delegate(".final_val_change", "change", function (e) {
     }
     if(amcVal!='')
     {    
-      var final_value = parseFloat(final_value_wout_awc) + parseFloat(amcVal);
+      var final_value =  parseFloat(amcVal) * parseFloat(r_proposalVal);
     }
     else
     {
@@ -333,8 +345,7 @@ $(document).delegate(".final_val_change", "change", function (e) {
         $('.hideFinalVal').show();
         $('.final_value').text('Rs.' + final_value.toFixed(2));
     }
-    
-    
+   
 });
 //Product name - get price,units
 $(document).delegate(".rfq_Product_name", "change", function (e) {
@@ -357,6 +368,7 @@ $(document).delegate(".rfq_Product_name", "change", function (e) {
     }
     $(".subtotal").attr("disabled", "disabled");
     $('.hideTotPdt').hide();
+    $('.hideTotLabour').hide();
     $.ajax({
         url: base_url + '/viewProductGridData/' + btoa(product_code),
         type: 'GET',
@@ -668,8 +680,10 @@ $(document).on("click", "#viewSingleRFQ", function (e) {
         success: function (data) {
             $('.quotationBut').show();
             var RFQProducts = data.RFQProducts;
+            var RFQHistoryProducts = data.RFQHistoryProducts;
             var RFQList = data.RFQList;
             var rows = '';
+            var historyRows = '';
             $('.load-view-singleRFQ').hide();
             $('.hideForm').show();
             $('#rowID').val(RFQList.id);
@@ -678,6 +692,11 @@ $(document).on("click", "#viewSingleRFQ", function (e) {
             $('#popup_contact_name').text(RFQList.contact_name);
             $('#popup_email').text(RFQList.email);
             $('#popup_discount_value').text(RFQList.discount_value);
+            $('#labour_charge').text(RFQList.labourcharge);
+            $('#transport_charge').text(RFQList.transportcharge);
+            $('#margin').text(RFQList.margin);
+            $('#proposed_value').text(RFQList.proposed_value);
+            $('#final_value').text(RFQList.final_value);
             $('#popup_amc').text(RFQList.amc);
             $('#popup_phone').text(RFQList.phone);
             $('#address').text(RFQList.address);
@@ -692,6 +711,14 @@ $(document).on("click", "#viewSingleRFQ", function (e) {
             rows = rows + '<th class="wd-35p lightBlue">Actual Price</th>';
             rows = rows + '<th class="wd-35p lightBlue">Subtotal</th>';
             rows = rows + '</tr></thead><tbody>';
+
+            historyRows = historyRows + '<table class="table table-striped table-bordered text-nowrap w-100">';
+            historyRows = historyRows + '<thead><tr><th class="wd-35p lightBlue">Product Name</th>';
+            historyRows = historyRows + '<th class="wd-35p lightBlue">Quantity</th>';
+            historyRows = historyRows + '<th class="wd-35p lightBlue">Units</th>';
+            historyRows = historyRows + '<th class="wd-35p lightBlue">Actual Price</th>';
+            historyRows = historyRows + '<th class="wd-35p lightBlue">Subtotal</th>';
+            historyRows = historyRows + '</tr></thead><tbody>';
             $.each(RFQProducts, function (key, value) {
                 rows = rows + '<tr>';
                 rows = rows + '<td>' + value.product_name + '</td>';
@@ -703,13 +730,25 @@ $(document).on("click", "#viewSingleRFQ", function (e) {
             });
             rows = rows + '</tbody></table>';
 
-            $("div.row.viewMultiplePdts").html(rows);
+            $.each(RFQHistoryProducts, function (key, value) {
+                historyRows = historyRows + '<tr>';
+                historyRows = historyRows + '<td>' + value.product_name + '</td>';
+                historyRows = historyRows + '<td>' + value.quantity + '</td>';
+                historyRows = historyRows + '<td>' + value.units + '</td>';
+                historyRows = historyRows + '<td>' + value.actual_price + '</td>';
+                historyRows = historyRows + '<td>' + value.subtotal + '</td>';
+                historyRows = historyRows + '</tr>';
+            });
+            historyRows = historyRows + '</tbody></table>';
 
+            $("div.row.viewMultiplePdts").html(rows);
+            $("div.row.viewHistoryPdts").html(historyRows);
             $('.load-view-singleRFQ').html('');
         }
     });
 
 });
+
 
 //DELETE RFQ
 $(document).on("click", "#confirmRFQDelete", function (e) {
@@ -819,7 +858,7 @@ function searchRFQ() {
                         var last_tracked_date = '';
                     }
 
-                   var pg = host + '/edit-RFQ/' + btoa(pt.id);
+                   var pg = '/edit-RFQ/' + btoa(pt.id);
                     rows = rows + '<tr">';
                     rows = rows + '<td>' + pt.customer_name + '</td>';
                     rows = rows + '<td>' + pt.contact_name + '</td>';
@@ -828,7 +867,7 @@ function searchRFQ() {
                     rows = rows + '<td>' + pt.final_value + '</td>';
                     rows = rows + '<td>' + last_tracked_date + '</td>';
                     rows = rows + '<td>' + formattedDate + '</td>';
-                    rows = rows + '<td><a href="#" class="btn btn-secondary btn-sm mb-2 mb-xl-0 getRFQname" data-toggle="modal" id="viewSingleRFQ" data-target="#viewRFQ" data-id="' + btoa(pt.id) + '" data-RFQName="' + pt.customer_name + '"><i class="fa fa-eye"></i></a>&nbsp;&nbsp;<a href="' + pg + '" class="ubtn' + btoa(pt.id) + ' btn btn-primary btn-sm mb-2 mb-xl-0" data-toggle="tooltip" id="editSingleRFQ" data-original-title="Edit"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp; <a id="confirmRFQDelete" data-id="' + btoa(pt.id) + '"class="ubtn' + btoa(pt.id) + ' btn btn-danger btn-sm mb-2 mb-xl-0" data-toggle="tooltip" data-original-title="Delete"><i class="fa fa-trash"></i></a>&nbsp;&nbsp;<span class="delrfq' + btoa(pt.id) + '"></span>'; '</td>';
+                    rows = rows + '<td><a href="#" class="btn btn-secondary btn-sm mb-2 mb-xl-0 getRFQname" data-toggle="modal" id="viewSingleRFQ" data-target="#viewRFQ" data-id="' + btoa(pt.id) + '" data-RFQName="' + pt.customer_name + '"><i class="fa fa-eye"></i></a>&nbsp;&nbsp;<a href="' + pg + '" class="ubtn' + btoa(pt.id) + ' btn btn-primary btn-sm mb-2 mb-xl-0" data-toggle="tooltip" id="editSingleRFQ" data-original-title="Edit"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp; <a id="confirmRFQDelete" data-id="' + pt.id + '"class="ubtn' + pt.id + ' btn btn-danger btn-sm mb-2 mb-xl-0" data-toggle="tooltip" data-original-title="Delete"><i class="fa fa-trash"></i></a>&nbsp;&nbsp;<span class="delrfq' + pt.id + '"></span>'; '</td>';
                     rows = rows + '</tr>';
                 });
             }

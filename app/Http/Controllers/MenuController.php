@@ -23,9 +23,12 @@ class MenuController extends Controller
             for($i=0;$i<count($_POST['data']['user_id']);$i++)
             {
             $user_id=$_POST['data']['user_id'][$i]; 
+            $user_id_category=explode('_',$user_id); 
+
             $param = array(
                 'menu_id'=>$_POST['data']['menu_id'],
-                'user_id'=>$user_id,
+                'user_id'=>$user_id_category[1],
+                'user_category'=>$user_id_category[0],
                 'menu_access_status'=>'Active'
                 );
                 $param['menu_access_modified_by'] = Session::get('user-id');
@@ -39,9 +42,12 @@ class MenuController extends Controller
             for($i=0;$i<count($_POST['data']['user_id']);$i++)
             {
             $user_id=$_POST['data']['user_id'][$i]; 
+            $user_id_category=explode('_',$user_id); 
+
             $param = array(
                 'menu_id'=>$_POST['data']['menu_id'],
-                'user_id'=>$user_id,
+                'user_id'=>$user_id_category[1],
+                'user_category'=>$user_id_category[0],
                 'menu_access_status'=>'Active'
                 );
                 $param['menu_access_created_by'] = Session::get('user-id');
@@ -116,18 +122,24 @@ class MenuController extends Controller
     public function showMenu()
     {
         DB::enableQueryLog();
-        $MenuList = MenuModel::all()->sortBy("menu_order");
+        $MenuList = MenuModel::all()->sortBy("menu_name");
         $Menus = MenuModel::where('menu_parent','=', 0)->get()
-         ->sortByDesc("id"); //Drop Down - Add/edit
+        ->sortBy("menu_name"); //Drop Down - Add/edit
         //  $MenuList =DB::table('menu_access')
         // ->rightjoin('menu', 'menu.id', '=', 'menu_access.menu_id')
         // ->select('menu.*',DB::raw("COUNT(menu_access.menu_id) as count_row"))
         // ->groupBy(DB::raw("menu.id"))
         // ->orderByDesc("menu.menu_order")
         // ->get();
-        $usersCategory= app('App\Http\Models\EmployeeController')->getUserCategory();
+        $usersCategory =DB::table('user_profile')
+        ->join('user_category', 'user_category.id', '=', 'user_profile.user_category')
+        ->select('user_category.id as cat_id','user_category.category_name as category_name',DB::raw("ARRAY_TO_STRING(ARRAY_AGG (user_profile.firstname || ' ' || user_profile.lastname), '|') as fullname"),DB::raw("ARRAY_TO_STRING(ARRAY_AGG (user_profile.id), '|') as user_p_id"))
+        ->where('user_category.user_category_status','=','Active')
+        ->where('user_profile.is_active','=',true)
+        ->groupBy(DB::raw("user_category.id"))
+        ->get();
         $users= app('App\Http\Models\TrackerModel')->getUsers();
-        return view('showMenu',compact('MenuList','Menus','users')); 
+        return view('showMenu',compact('MenuList','Menus','users','usersCategory')); 
     }
     /**
      * Display the specified resource.
@@ -139,14 +151,17 @@ class MenuController extends Controller
     {
         DB::enableQueryLog();
         $s_user_id=session('user-id');
-       // $MenuList = MenuModel::all()->sortBy("menu_order");
         $Menus = MenuModel::where('menu_parent','=', 0)->get()
-        ->sortByDesc("id"); 
+        ->sortBy("menu_name"); 
          $MenuList =DB::table('menu_access')
         ->join('menu', 'menu.id', '=', 'menu_access.menu_id')
         ->select('menu.*')
-        ->where('menu_access.user_id','=',$s_user_id)
-        ->get();
+        ->where('menu_access.user_id','=',$s_user_id)->
+        orderBy('menu.menu_name','asc')->get();
+        // $query = DB::getQueryLog();
+        // $query = end($query);
+        // print_r($query);
+        // exit;
         return response()->json(array('MenuList'=>$MenuList,'menu'=>$Menus), 200);
     }
     /**
@@ -159,15 +174,31 @@ class MenuController extends Controller
     {
         $de_id=base64_decode($id);
         $menu = MenuModel::findOrFail($de_id); //To get particular id menu
-        $cntUsers = DB::table("menu_access")
-	    ->select('user_id')
-        ->where("menu_id", '=',$de_id)
-	    ->get(); //To get users in checkboxes
+        // $cntUsers = DB::table("menu_access")
+	    // ->select('user_id')
+        // ->where("menu_id", '=',$de_id)
+	    // ->get(); //To get users in checkboxes
         $parentMenu = DB::table("menu")
 	    ->select('id','menu_name')
 	    ->get(); //To get all parent menu in drop down
-        $users= app('App\Http\Models\TrackerModel')->getUsers(); //To get all users
-        return response()->json(array('menu' => $menu,'users'=>$users,'parentMenu'=>$parentMenu,'res'=>$cntUsers), 200);
+        $cntUsers =DB::table('menu_access')
+        ->join('user_category', 'user_category.id', '=', 'menu_access.user_category')
+        ->join('user_profile', 'menu_access.user_id', '=', 'user_profile.id')
+        ->select('user_category.id as cat_id','user_category.category_name as category_name',DB::raw("ARRAY_TO_STRING(ARRAY_AGG (user_profile.firstname || ' ' || user_profile.lastname), '|') as fullname"),DB::raw("ARRAY_TO_STRING(ARRAY_AGG (user_profile.id), '|') as user_p_id"))
+        ->where('user_category.user_category_status','=','Active')
+        ->where("menu_access.menu_id", '=',$de_id) 
+        ->where('user_profile.is_active','=',true)
+        ->groupBy(DB::raw("user_category.id"))
+        ->get();
+        $allUsers =DB::table('user_profile')
+        ->join('user_category', 'user_category.id', '=', 'user_profile.user_category')
+        ->select('user_category.id as cat_id','user_category.category_name as category_name',DB::raw("ARRAY_TO_STRING(ARRAY_AGG (user_profile.firstname || ' ' || user_profile.lastname), '|') as fullname"),DB::raw("ARRAY_TO_STRING(ARRAY_AGG (user_profile.id), '|') as user_p_id"))
+        ->where('user_category.user_category_status','=','Active')
+        ->where('user_profile.is_active','=',true)
+        ->groupBy(DB::raw("user_category.id"))
+        ->get();
+
+        return response()->json(array('menu' => $menu,'res'=>$cntUsers,'all'=>$allUsers,'parentMenu'=>$parentMenu), 200);
     }
     /**
      * Remove the specified resource from storage.

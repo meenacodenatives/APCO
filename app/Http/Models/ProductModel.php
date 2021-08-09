@@ -24,7 +24,6 @@ class ProductModel extends Model
         'batch_number',
         'mfg_date',
         'expiry_date',
-        'price',
         'gst',
         'product_code',
         'created_at',

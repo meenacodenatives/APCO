@@ -33,25 +33,28 @@ class LeadController extends Controller
 
     public function createLead(Request $request)
     {
+        DB::enableQueryLog();
+
         $lead_model = new LeadModel();
         $_POST['data']['country']=1;
         if ($_POST['data']['country'] > 0) {
         $param = array(
         'country'=> 1,
-        'region'=> 1,
+        'region'=>  $_POST['data']['region'],
+        'state'=>  $_POST['data']['state'],
         'name'=> $_POST['data']['leadName'],
         'email'=> $_POST['data']['leadEmail'],
-        'phone'=>$_POST['data']['leadPhone'],
-        'skype_id'=> $_POST['data']['leadSkype'],
-        'website'=> $_POST['data']['leadWebsite'],
-        'location'=>6,
+        'phone'=>!empty($_POST['data']['leadPhone']) ?$_POST['data']['leadPhone'] : NULL,
+        'skype_id'=>!empty($_POST['data']['leadSkype']) ?$_POST['data']['leadSkype'] : NULL,
+        'website'=> !empty($_POST['data']['leadWebsite']) ?$_POST['data']['leadWebsite'] : NULL,
+        'location'=> $_POST['data']['location'],
         'contact_name'=> $_POST['data']['leadcontactName'],
         'source'=> $_POST['data']['source'],
         'status'=> $_POST['data']['status'],
-        'company_type'=> $_POST['data']['company_type'],
-        'address'=> $_POST['data']['address'],
-        'remarks'=> $_POST['data']['remarks'],
-        'description'=> $_POST['data']['description'],
+        'company_type'=>!empty($_POST['data']['company_type']) ?$_POST['data']['company_type'] : NULL,
+        'address'=> !empty($_POST['data']['address']) ?$_POST['data']['address'] : NULL,
+        'remarks'=>!empty($_POST['data']['remarks']) ?$_POST['data']['remarks'] : NULL, 
+        'description'=>!empty($_POST['data']['description']) ?$_POST['data']['description'] : NULL, 
         'is_active'=>true
         );
         if ($_POST['data']['id'] == '0') {
@@ -62,6 +65,10 @@ class LeadController extends Controller
                 $param['modified_date'] = date('Y-m-d H:i:s');
             }
         $result = $lead_model->saveLead($param, $_POST['data']['id']);
+//         print_r($param);
+//        $query = DB::getQueryLog();
+// $query = end($query);
+// print_r($query); exit;
         return response()->json(array('status' => $result), 200);
     }
     return response()->json(array('status' => 0), 200);
@@ -71,12 +78,21 @@ class LeadController extends Controller
             $lead_model = new LeadModel();
             $de_id=base64_decode($id);
             $res['type']='Edit';
-            $region=1;
+           // $region=1;
             $res['lead'] = $lead_model->singleSelectLead($de_id);
+          //  print_r($res['lead']);
+        $rowStateID=$res['lead'][0]->state;
+        $rowLocationID=$res['lead'][0]->region;
+
            // $res['location'] = app('App\Http\Models\LeadModel')->getLocationFromRegion($region);
             $res['status'] = app('App\Http\Models\EmployeeModel')->getLookup('lead_status');
             $res['company_type'] = app('App\Http\Models\EmployeeModel')->getLookup('lead_company_type');
             $res['source'] = app('App\Http\Models\EmployeeModel')->getLookup('lead_source'); 
+            $res['state'] =app('App\Http\Controllers\CountryController')->getStates();
+            $res['region'] =app('App\Http\Controllers\CountryController')->getRegionFromStates($rowStateID,'edit');
+            $res['location'] =app('App\Http\Controllers\CountryController')->getLocationFromRegion($rowLocationID,'edit');
+
+           // print_r($res); exit;
             return \View::make('add-lead')->with(["data" => $res]);
         }
     public function deleteLead(Request $request) {
@@ -88,7 +104,7 @@ class LeadController extends Controller
     public function viewSinglelead($id)
     {
         $lead_model = new LeadModel();
-        $res = $lead_model->viewSingleLeadInfo($id);
+        $res = $lead_model->singleSelectLead($id);
         return response()->json(array('lead' => $res), 200);
     }
     public function leadSearchResults(Request $request)

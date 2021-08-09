@@ -47,13 +47,13 @@
 		<script src="{{URL::asset('assets/js/cn-rfq.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-rfq-tracker.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-rfq-scheduler.js')}}"></script>
-		<script src="{{URL::asset('assets/js/cn-custom.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-lead.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-tracker.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-scheduler.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-customer.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-searchProduct.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-product.js')}}"></script>
+		<script src="{{URL::asset('assets/js/commonLocation.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-category.js')}}"></script>
 		<script src="{{URL::asset('assets/js/multiselect.min.js')}}"></script>
 		<!-- INTERNAL TABS JS -->

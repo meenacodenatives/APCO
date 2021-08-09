@@ -11,11 +11,18 @@ class TrackerModel extends Model
 {
    public function getUsers() 
    {
+      DB::enableQueryLog();
+
       //userProfile
       $users =DB::table('user_profile')->select('*')->where('is_active', '=', true)->get();
       if (count($users) > 0) {
          return $users;
       }
+      $query = DB::getQueryLog();
+                      $query = end($query);
+                      print_r($query); exit;
+      return array();
+
    }
    public function saveLeadTracker($param,$param_tracker,$param_scheduler,$id) 
    {

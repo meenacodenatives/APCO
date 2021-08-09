@@ -51,8 +51,8 @@
                         <tbody>
                             <?php if (count($data['employees']) > 0): foreach ($data['employees'] as $emp): ?>
                                     <tr>
-                                        <td><?= $emp->firstname . ' ' . $emp->lastname ?></td>
-                                        <td><?= $emp->category ?></td>
+                                        <td><?= $emp->username?></td>
+                                        <td><?= $emp->category_name ?></td>
                                         <td><?= $emp->email ?></td>
                                         <td><?= $emp->phone ?></td>
                                         <td><?php if ($emp->status == 'Active'): ?>
@@ -64,7 +64,7 @@
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <a href="{{url('/' . $page='edit-employee')}}/<?= $emp->id; ?>" class="ubtn<?= $emp->id; ?> btn btn-primary btn-sm mb-2 mb-xl-0" data-toggle="tooltip" data-original-title="Edit"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;
+                                            <a href="{{url('/' . $page='edit-employee')}}/<?= $emp->profID; ?>" class="ubtn<?= $emp->id; ?> btn btn-primary btn-sm mb-2 mb-xl-0" data-toggle="tooltip" data-original-title="Edit"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;
                                             <a id="empConfirmUserDelete" data-id="<?= $emp->id; ?>" class="ubtn<?= $emp->id; ?> btn btn-danger btn-sm mb-2 mb-xl-0" data-toggle="tooltip" data-original-title="Delete"><i class="fa fa-trash"></i></a>&nbsp;&nbsp;
                                             <span class="deluser<?= $emp->id; ?>"></span>
                                         </td>

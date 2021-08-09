@@ -119,10 +119,10 @@
                             <thead>
 
                                 <tr>
+                                    <th class="wd-25p">Quotation ID</th>
                                     <th class="wd-25p">Business Name</th>
                                     <th class="wd-25p">Contact Name</th>
                                     <th class="wd-10p">Email</th>
-                                    <th class="wd-25p">Proposed Value</th>
                                     <th class="wd-25p">Final Value</th>
                                     <th class="wd-25p">Last Track</th>
                                     <th class="wd-10p">Updated On</th>
@@ -135,22 +135,19 @@
                                 @if($RFQList->count() > 0 )
                                 @foreach($RFQList as $pt)
                                 <tr>
+                                    <td>{{$pt->quote_id}} </td>
                                     <td>{{$pt->customer_name}} </td>
                                     <td>{{$pt->contact_name}} </td>
                                     <td>{{$pt->email}}</td>
                                     <td>
-                                        {{$pt->proposed_value}}
-                                    </td>
-                                    <td>
                                         {{$pt->final_value}}
                                     </td>
-
                                     @if($pt->last_tracked_date!=null)
                                     <td>{{date('M d, Y', strtotime($pt->last_tracked_date))}}</td>
                                     @else
                                     <td>{{$pt->last_tracked_date}}</td>
                                     @endif
-                                    <td>{{date('M d, Y', strtotime($pt->updated_at))}}</td>
+                                    <td>{{date('M d, Y', strtotime($pt->created_at))}}</td>
                                     <td>
                                         <a href="#" class="btn btn-secondary btn-sm mb-2 mb-xl-0 getRFQname"
                                             data-toggle="modal" id="viewSingleRFQ" data-target="#viewRFQ"
@@ -208,15 +205,15 @@
 
                 <div class="card-body p-6">
                     <div class="panel panel-primary">
-                        <div class="tab_wrapper first_tab tab-style3">
+                        <div class="tab_wrapper first_tab tab-style3 " id="tabs">
                             <ul class="tab_list">
                                 <li class="active">View RFQ</li>
                                 <li>Update Tracker</li>
                                 <li>Scheduler</li>
-
-                            </ul>
-
+                                <li >History</li>
+                           </ul>
                             <div class="content_wrapper">
+                            <!-- 1 st tab -->
                                 <div class="tab_content active">
 
                                     <div class="container">
@@ -260,14 +257,52 @@
                                             <div class="col">
 
                                                 <div class="form-group">
+                                                    <label class="form-label lightBlue text-capitalize">
+                                                        Labour Charge</label>
+                                                    <span id="labour_charge"></span>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label lightBlue text-capitalize">Transport Charge</label>
+                                                    <span id="transport_charge"></span>
+                                                </div>
+
+                                            </div>
+                                            <div class="col">
+
+                                                <div class="form-group">
+                                                    <label class="form-label lightBlue text-capitalize">Margin</label>
+                                                    <span id="margin"></span>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label lightBlue text-capitalize">Proposed Value</label>
+                                                    <span id="proposed_value"></span>
+                                                </div>
+
+                                            </div>
+                                            <div class="col">
+
+                                                <div class="form-group">
+                                                    <label class="form-label lightBlue text-capitalize">Final Value</label>
+                                                    <span id="final_value"></span>
+                                                </div>
+                                                <div class="form-group">
                                                     <label class="form-label lightBlue text-capitalize">Discount</label>
                                                     <span id="popup_discount_value"></span>
                                                 </div>
+
+                                            </div>
+                                            <div class="col">
+
+                                                
                                                 <div class="form-group">
                                                     <label class="form-label lightBlue text-capitalize">AMC</label>
                                                     <span id="popup_amc"></span>
                                                 </div>
-
+                                                <div class="form-group">
+                                                <label class="form-label lightBlue text-capitalize">Last Tracked
+                                                    Comment</label>
+                                                <span id="lastTrakedComment"></span>
+                                            </div>
                                             </div>
 
                                         </div>
@@ -286,13 +321,7 @@
                                                 <span id="description"></span>
                                             </div>
                                         </div>
-                                        <div class="row hideForm" style="width:700px;">
-                                            <div class="form-group">
-                                                <label class="form-label lightBlue text-capitalize">Last Tracked
-                                                    Comment</label>
-                                                <span id="lastTrakedComment"></span>
-                                            </div>
-                                        </div>
+                                        
                                         <div class="row viewMultiplePdts">
 
                                         </div>
@@ -305,7 +334,7 @@
 
 
                                 </div>
-
+<!-- 2 nd tab -->
                                 <div class="tab_content">
                                     <form>
                                         <div class="container">
@@ -438,6 +467,7 @@ echo date('h.i A', $endTime); ?>
 
                                     </form>
                                 </div>
+                                <!-- 3 rd tab -->
                                 <div class="tab_content active">
 
                                     <div class="container">
@@ -520,6 +550,23 @@ echo date('h.i A', $endTime); ?>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+
+                               <!-- 4th tab -->
+                               <div class="tab_content history">
+
+                                    <div class="container">
+
+                                        <div class="span12 text-center load-view-singleRFQ">
+
+                                        </div>
+                                        <div class="row viewHistoryPdts">
+
+                                        </div>
+                                        
+                                    </div>
+
+
                                 </div>
                             </div>
                         </div>

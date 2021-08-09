@@ -71,7 +71,7 @@ class ProductController extends Controller
     public function storeProduct(Request $request,ProductModel $Product)
     {
         $param = array(
-            'category'=>$_POST['data']['category'],
+            'category'=>isset($_POST['data']['category']) ?$_POST['data']['category'] : '',
             'product_name'=>$_POST['data']['product_name'],
             'product_type'=> $_POST['data']['product_type'],
             'quantity'=>$_POST['data']['quantity'],
@@ -79,14 +79,15 @@ class ProductController extends Controller
             'actual_price'=> $_POST['data']['actual_price'],
             'units'=>$_POST['data']['units'],
             'mfg_date'=>$_POST['data']['mfg_date'],
-            'selling_price'=> $_POST['data']['selling_price'],
-            'selling_price2'=> $_POST['data']['selling_price2'],
-            'selling_price3'=> $_POST['data']['selling_price3'],
+            'selling_price'=>!empty($_POST['data']['selling_price']) ?$_POST['data']['selling_price'] : NULL,
+            'selling_price2'=>!empty($_POST['data']['selling_price2']) ?$_POST['data']['selling_price2'] :NULL,
+            'selling_price3'=>!empty($_POST['data']['selling_price3']) ?$_POST['data']['selling_price3'] : NULL,
             'batch_number'=>$_POST['data']['batch_number'],
             'expiry_date'=> $_POST['data']['expiry_date'],
             'gst'=> $_POST['data']['gst'],
             'is_active'=>true
             );
+            
             DB::enableQueryLog();
         if($_POST['data']['id']!='')
         {
@@ -102,6 +103,9 @@ class ProductController extends Controller
             ProductModel::create($param);
             $result=1;
         }
+        //  $query = DB::getQueryLog();
+        //               $query = end($query);
+        //               print_r($query); exit;
         return response()->json(array('status' => $result), 200);
     }
     
@@ -117,9 +121,11 @@ class ProductController extends Controller
         $productList = ProductModel::all()->sortByDesc("id");
         $allCategories = CategoryModel::all()->sortByDesc("id");
         $product_type = app('App\Http\Models\EmployeeModel')->getLookup('product_inventory_type');
-        $allProducts =ProductModel::join('category', 'category.id', '=', 'product.category')
-               ->get(['category.name', 'product.*'])
-               ->sortByDesc("id");
+        $allProducts =ProductModel::join('category', 'category.id', '=', 'product.category')->get(['product.id as pdtID','product.created_at as pdtcreated_at','product.*','category.*'])->sortByDesc("pdtID");
+               // $query = DB::getQueryLog();
+        // $query = end($query);
+        // print_r($query);
+        // exit;
         return view('showProduct',compact('allProducts','productList','allCategories','product_type')); 
     }
     /*
