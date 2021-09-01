@@ -8056,7 +8056,7 @@ select.form-control-lg:not([size]):not([multiple]) {
 
 @media (min-width: 992px) {
   .modal-lg {
-    max-width: 800px;
+    max-width: 1200px;
   }
 }
 

@@ -12,6 +12,8 @@ class RFQModel extends Model
     protected $table = 'rfq';
 
     public $fillable = [
+        'id',
+        'lead_id',
         'customer_name',
         'contact_name',
         'email',
@@ -37,7 +39,15 @@ class RFQModel extends Model
         'is_active',
         'modified_by',
         'updated_at',
-        'quote_id'
+        'quote_id',
+        'amc_value',
+        'labours',
+        'rate',
+        'hours',
+        'country',
+        'state',
+        'location',
+        'region'
     ];
 }
 

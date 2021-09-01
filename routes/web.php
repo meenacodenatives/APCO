@@ -79,6 +79,19 @@ Route::group(['middleware' => 'usersession'], function () {
   Route::get('/edit-product/{id}', 'ProductController@editProduct');
   //view Single Product
   Route::get('/viewSingleproduct/{id}', 'ProductController@viewSingleproduct');
+  //Work Order - view
+  Route::get('/showWorkOrder', 'WorkOrderController@showWorkOrder');
+ //view Single Work Order
+  Route::get('/viewSingleWorkOrder/{id}', 'WorkOrderController@viewSingleWorkOrder');
+  //Delete Invoices
+  Route::post('/delete-Invoice', 'InvoicesController@destroyInvoice');
+  //Invoices - view
+  Route::get('/showInvoices', 'InvoicesController@showInvoices');
+  //Add Invoices
+  Route::get('/create-Invoice/{id}', 'InvoicesController@createInvoice');
+    //view Single Invoices
+  Route::get('/viewSingleInvoice/{id}', 'InvoicesController@viewSingleInvoice');
+
   // RFQ -View
   Route::get('/showRFQ', 'RFQController@showRFQ');
   //Add RFQ
@@ -87,7 +100,10 @@ Route::group(['middleware' => 'usersession'], function () {
   Route::post('/storeRFQ', 'RFQController@storeRFQ');
   //Edit RFQ
   Route::get('/edit-RFQ/{id}', 'RFQController@editRFQ');
-   //view Single Product
+  //Download RFQ
+  Route::get('pdfview/{id}',array('as'=>'pdfview','uses'=>'RFQController@downloadQuote'));
+
+   //view Single viewHistoryRFQ
    Route::get('/viewHistoryRFQ/{id}', 'RFQController@viewHistoryRFQ');
   //view Single Product
   Route::get('/viewSingleRFQ/{id}', 'RFQController@viewSingleRFQ');
@@ -96,8 +112,13 @@ Route::group(['middleware' => 'usersession'], function () {
   //Grid Data - Quantity
   Route::get('/compareStockQuantity/{price}/product_code/{code}', 'RFQController@compareStockQuantity');
   //Update RFQ status
-  Route::post('/quotationStatus', 'RFQController@quotationStatus');
+  Route::post('/approveQuotation', 'RFQController@approveQuotation');
+  //Lead Phone Number
+  Route::get('/leadPhoneNumber/{phone}', 'RFQController@leadPhoneNumber');
+  //Get Lead Information
+  Route::get('/getLeadInfo/{phone}', 'RFQController@getLeadInfo');
 
+  
   //delete RFQsearchResultsRFQ
   Route::post('/delete-RFQ', 'RFQController@destroyRFQ');
   Route::post('/RFQsearchResults', 'RFQController@searchResults');
@@ -125,6 +146,10 @@ Route::group(['middleware' => 'usersession'], function () {
   Route::get('/RFQTracker/{id}', 'RFQTrackerController@getRFQTrackerList');
   //Create RFQ Tracker
   Route::post('/saveRFQTracker', 'RFQTrackerController@saveRFQTracker');
+  //View work Order Tracker List
+  Route::get('/WOTracker/{id}', 'WorkOrderTrackerController@getWOTrackerList');
+  //Create work Order Tracker
+  Route::post('/saveWOTracker', 'WorkOrderTrackerController@saveWOTracker');
   //Create Lead
   Route::post('/createLead', 'LeadController@createLead');
   //View Lead

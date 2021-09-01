@@ -29,9 +29,10 @@
 @endsection
 @section('content')
 <!-- ROW-1 OPEN -->
+@csrf
 <div class="row">
     <div class="col-md-12">
-        <div class="card">@csrf
+        <div class="card">
 
             <div class="card-body">
                 <div class="row">

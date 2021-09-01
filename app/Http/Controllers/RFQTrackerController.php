@@ -15,7 +15,7 @@ class RFQTrackerController extends Controller
     public function __construct() {
 
     }
-    //Save Lead Tracker
+    //Save RFQ Tracker
     public function saveRFQTracker(Request $request)
     {
         DB::enableQueryLog();

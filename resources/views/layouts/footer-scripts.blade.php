@@ -44,6 +44,9 @@
 		<script src="{{URL::asset('assets/js/cn-employeeGrp.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-menu.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-forgotPassword.js')}}"></script>
+		<script src="{{URL::asset('assets/js/cn-invoice.js')}}"></script>
+		<script src="{{URL::asset('assets/js/cn-workOrder-tracker.js')}}"></script>
+		<script src="{{URL::asset('assets/js/cn-workOrder.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-rfq.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-rfq-tracker.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-rfq-scheduler.js')}}"></script>

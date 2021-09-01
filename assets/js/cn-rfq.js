@@ -2,8 +2,56 @@ var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 var loading_icon = '<img class="load-icon" src=' + base_url + '/assets/images/brand/loader.gif>';
 var host = window.location.host;
 var pathname = window.location.pathname.split("/");
+console.log("path=" + pathname[1]);
+//View RFQ - detailed - History
+function quotationDetailed(id) {
+    $('.showQuotation-' + id).toggle();
+}
 //On page load - select 2 and validation
 $(function () {
+    $('#phone').on('keyup', function (e) {
+        e.preventDefault();
+        var query = $(this).val();
+        if (query != '') { $('.load-phone-number').html(loading_icon); }
+        $.ajax({
+            url: base_url + '/leadPhoneNumber/' + query,
+            type: 'GET',
+            success: function (data) {
+                console.log("data" + JSON.stringify(data.phoneNo));
+                if (data.phoneNo == '') {
+                    $('#phoneNumber_list').hide();
+                    $('.load-phone-number').html('');
+                }
+                else {
+                    $('.load-phone-number').html('');
+                    $('#phoneNumber_list').show().html(data.phoneNo);
+                }
+            }
+        })
+    });
+    $(document).on('click', '.rfq li', function (e) {
+        e.preventDefault();
+        $('#phoneNumber_list').hide();
+        var phoneVal = $(this).text();
+        $('#phone').val(phoneVal);
+        $('.load-phone-number').html('');
+        $('.load-lead-info').html(loading_icon);
+        $('#phoneNumber_list').html("");
+        $.ajax({
+            url: base_url + '/getLeadInfo/' + phoneVal,
+            type: 'GET',
+            success: function (data) {
+                var lead = data.leadInfo;
+                $('.load-lead-info').html('');
+                $('#customer_name').val(lead.name);
+                $('#contact_name').val(lead.contact_name);
+                $('#email').val(lead.email);
+                $('#address').val(lead.address);
+                $('#description').val(lead.description);
+            }
+        })
+    });
+
     //To display the select 2 drop down
     var rowCnt = $('#sno').val();
     if (pathname[1] == 'edit-RFQ') {
@@ -54,47 +102,55 @@ $(function () {
     });
     //END
 });
+
+
 //Close Quotation and Generate Quotation in View popup
-$('.quotationBut').click(function(){
-    var data={}
-    data.status = $(this).attr('data-value'); 
-    data.id = btoa($('#rowID').val()); 
-    console.log("data="+JSON.stringify(data));
-    $.ajax({
-        url: base_url + '/quotationStatus',
-        type: 'POST',
-        data: {
-            _token: CSRF_TOKEN,
-            data: data
-        },
-        dataType: 'JSON',
-        success: function (data) {
-            console.log("data"+JSON.stringify(data.result));
-            var res = data.result;
-            console.log("ts"+res.status);
-            if(res.status=='close'){
-                $.growl({
-                    title: "",
-                    message: 'Quotation has been closed',
-                    duration: "3000",
-                    location: "tr",
-                    style: "warning"
-                });
-                $('#viewProduct').modal("hide");
-            }
-            else{
-            $.growl({
-                title: "",
-                message: 'Quotation has been sent',
-                duration: "3000",
-                location: "tr",
-                style: "warning"
+function generateQuote(id) {
+    console.log("data=" + id);
+    swal({
+        title: "",
+        text: "Do you want to approve the RFQ to work order?",
+        type: "success",
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        //confirmButtonColor: '#DD6B55',
+        cancelButtonText: 'Cancel'
+    }, function (isConfirm) {
+        if (isConfirm) {
+            var data = {}
+            data.id = btoa(id);
+            $('.approve' + id).hide();
+            $('.load-approve' + id).html(loading_icon);
+            $.ajax({
+                url: base_url + '/approveQuotation',
+                type: 'POST',
+                data: {
+                    _token: CSRF_TOKEN,
+                    data: data
+                },
+                dataType: 'JSON',
+                success: function (data) {
+                    
+                    if (data.status == 1) {
+                        $.growl({
+                            title: "",
+                            message: "Quotation has been approved successfully",
+                            duration: "3000",
+                            location: "tr",
+                            style: "notice"
+                        });
+                        setTimeout(function () {
+                            window.location.href = base_url + '/showWorkOrder';
+                        }, 1000);
+                    }
+                }
             });
-            $('#viewProduct').modal("hide");
-            }
         }
     });
-});
+
+        }
+
+
 //Recurring - AMC
 $('#recurring').click(function () {
     if ($(this).is(':checked')) {
@@ -103,15 +159,21 @@ $('#recurring').click(function () {
     else {
         $("#amc").attr("disabled", "disabled");
         $("#amc").val('');
+        $('.hideSlotVal').hide();
+        $('.hideFinalVal').hide();
+        $('#add_discount').val('');
+        $('#discount_type').val('');
     }
 });
 //Discount - Type
 $('#discount_type').click(function () {
-    if ($(this).find("option:selected").text()!='Select') {
+    if ($(this).find("option:selected").text() != 'Select') {
         $("#add_discount").removeAttr("disabled");
     }
     else {
         $("#add_discount").attr("disabled", "disabled");
+        $("#add_discount").val('');
+        $('.hideFinalVal').hide();
     }
 });
 //On page load show/hide buttons - pathname will change
@@ -119,7 +181,18 @@ if (pathname[1] == 'edit-RFQ') {
     $('#editPreselectProducts').show();
     $('.hideProposalVal').show();
     $('.hideTotPdt').show();
+    $('.hideTotLabour').show();
     $('.hideFinalVal').show();
+    var amc = $('#amc').val();
+    console.log("amc==" + amc);
+    if (amc == 0) {
+        $('.hideSlotVal').hide(); // AMC - hide
+    }
+    else {
+        $('.hideSlotVal').show(); // AMC - show
+        $("#amc").removeAttr("disabled", "disabled");
+        $("#recurring").prop("checked", true);
+    }
     $("#quantity-1").removeAttr("disabled", "disabled");
 }
 //On page load show/hide buttons - pathname will change
@@ -150,11 +223,14 @@ $('#rfqSearch').click(function () {
 
 //compare Stock with quantity
 $(document).delegate(".chkQuantitybyPrice", "change", function (e) {
-    var price = $(this).val();
+    var price = $(this).find("option:selected").text();
     var rowID = $(this).attr('data-id');
-    var code = $("#hid_product_code").val();
+    var code = $(this).val();
+
+    console.log("price=" + price);
+    console.log("code=" + code);
     $.ajax({
-        url: base_url + '/compareStockQuantity/' + price+'/product_code/'+ code,
+        url: base_url + '/compareStockQuantity/' + price + '/product_code/' + code,
         type: 'GET',
         dataType: 'JSON',
         success: function (data) {
@@ -165,14 +241,14 @@ $(document).delegate(".chkQuantitybyPrice", "change", function (e) {
                 var product_id_c = $("#product_id-1").val(product_id);
                 var lengthPri = $("#cntPrice-1").val(priceLen);
                 var qunPrice = $("#compareQuantity-1").val(result);
+                $("#quantity-1").removeAttr("disabled", "disabled");
             }
             else {
                 var product_id_c = $("#product_id-" + rowID).val(product_id);
                 var lengthPri = $("#cntPrice-" + rowID).val(priceLen);
                 var qunPrice = $("#compareQuantity-" + rowID).val(result);
+                $("#quantity-" + rowID).removeAttr("disabled", "disabled");
             }
-            $("#quantity-1").removeAttr("disabled", "disabled");
-            $("#quantity-" + rowID).removeAttr("disabled", "disabled");
         }
     });
     $(".subtotal").attr("disabled", "disabled");
@@ -185,27 +261,28 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
     var quantity = parseInt($(this).val());
     var rowID = $(this).attr('data-id');
     if (rowID == '') {
-        var cntPriceLen= $("#cntPrice-1").val();
-        var stock= $("#compareQuantity-1").val();
+        var cntPriceLen = $("#cntPrice-1").val();
+        var stock = $("#compareQuantity-1").val();
         var qty = $('#quantity-1').val();
-        var price = $('#actual_price-1').val();
-        var r_price = price.replace("Rs.", "");
-        var subTotal = parseInt(qty, 10) * parseFloat(r_price);
+        var price = $('#actual_price-1').find("option:selected").text();
+        var subTotal = parseInt(qty, 10) * parseFloat(price);
         $("#subtotal-1").val('Rs.' + subTotal.toFixed(2));
+        $('.db_subtotal-1').val(subTotal.toFixed(2));
     }
     else {
-        var  cntPriceLen= $("#cntPrice-" + rowID).val();
-        var  stock= $("#compareQuantity-" + rowID).val();
+        var cntPriceLen = $("#cntPrice-" + rowID).val();
+        var stock = $("#compareQuantity-" + rowID).val();
         var qty = $('#quantity-' + rowID).val();
-        var price = $('#actual_price-' + rowID).val();
-        var r_price = price.replace("Rs.", "");
-        var subTotal = parseInt(qty, 10) * parseFloat(r_price);
+        var price = $('#actual_price-' + rowID).find("option:selected").text();
+        var subTotal = parseInt(qty, 10) * parseFloat(price);
+        $('.db_subtotal-'+ rowID).val(subTotal.toFixed(2));
         $("#subtotal-" + rowID).val('Rs.' + subTotal.toFixed(2));
     }
+    console.log("price" + price);
     //Error Message for quantity and stock - scenario
     if (quantity != '') {
         if (cntPriceLen > 1 && quantity > stock) {
-            var stockLeft = 'Only '+stock+' Stocks available with this price.Please choose another price for futher remaining requirement.';
+            var stockLeft = 'Only ' + stock + ' Stocks available with this price.Please choose another price for futher remaining requirement.';
             $.growl({
                 title: "",
                 message: stockLeft,
@@ -222,7 +299,7 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
             }
             else {
                 $('#quantity-' + rowID).addClass('is-invalid');
-                $("#actual_price-"+ rowID).removeAttr("disabled", "disabled");
+                $("#actual_price-" + rowID).removeAttr("disabled", "disabled");
                 $("#subtotal-" + rowID).val('');
                 $('.grdtot').text('');
                 err++;
@@ -230,8 +307,8 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
             return false;
         }
         if (cntPriceLen == 1 && quantity > stock) {
-            console.log("OUT="+quantity);
-            var stockLeft ='Only '+stock+' Stocks available with this price.';
+            console.log("OUT=" + quantity);
+            var stockLeft = 'Only ' + stock + ' Stocks available with this price.';
             $.growl({
                 title: "",
                 message: stockLeft,
@@ -248,15 +325,14 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
             }
             else {
                 $('#quantity-' + rowID).addClass('is-invalid');
-                $("#actual_price-"+ rowID).removeAttr("disabled", "disabled");
+                $("#actual_price-" + rowID).removeAttr("disabled", "disabled");
                 $("#subtotal-" + rowID).val('');
                 $('.grdtot').text('');
                 err++;
             }
             return false;
         }
-        if(stock >= quantity && cntPriceLen >= 1)
-        { 
+        if (stock >= quantity && cntPriceLen >= 1) {
             if (rowID == '') {
                 $('#quantity-1').removeClass('is-invalid');
                 err++;
@@ -269,15 +345,17 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
                 $('.hideTotPdt').show();
                 var grandTotal = 0;
                 $(".subtotal").each(function () {
-                    var r_subtotal = $(this).val().replace("Rs.", "");
+                    var r_subtotal = $(this).val().replace('Rs.','');
                     var stval = parseFloat(r_subtotal);
                     grandTotal += isNaN(stval) ? 0 : stval;
                 });
                 $('.grdtot').text('Rs. ' + grandTotal.toFixed(2));
+                $('.db_total_pdt_price').val(grandTotal.toFixed(2));
+
             }
         }
     }
-    
+
     $('#labour_charge').val('');
     $('#transport_charge').val('');
     $('#margin').val('');
@@ -286,6 +364,7 @@ $(document).delegate(".rfq_quantity", "change", function (e) {
     $('#amc').val('');
     $('.hideProposalVal').hide();
     $('.hideFinalVal').hide();
+    $('.hideSlotVal').hide();
     $("#add_discount").attr("disabled", "disabled");
 });
 //END
@@ -298,61 +377,100 @@ $('.labour_val_change').on('input', function (e) {
     if (!isNaN(labourCharge)) {
         $('.hideTotLabour').show();
         $('.labour_value').text('Rs.' + labourCharge.toFixed(2));
+        $('.db_labour_value').val(labourCharge);
     }
 });
-//Proposal val
+//Proposal val - calculation
 $('.proposed_val_change').on('input', function (e) {
-    var grdtot = $('.grdtot').text();
-    var labour_charge = $('#labour_charge').val();
+    var grdtot = $('.db_total_pdt_price').val();
+    var labour_value = $('.db_labour_value').val();
+    //var labour_charge = $('#labour_charge').val();
+    
     var transport_charge = $('#transport_charge').val();
     var margin = $('#margin').val();
-    var r_gTotal = grdtot.replace("Rs.", "");
-    var totalExpenses = parseFloat(r_gTotal) + parseFloat(labour_charge) + parseFloat(transport_charge);
+    var sp = parseFloat(grdtot) + parseFloat(labour_value) + parseFloat(transport_charge);
     var r_margin = margin.replace("%", "");
-    var marginProposalVal = (r_margin / 100) * totalExpenses;
-    var proposalVal = parseFloat(marginProposalVal) + parseFloat(totalExpenses);
+    //var cp= 100 - parseFloat(r_margin) / 100;
+    var cp = 100 - parseFloat(r_margin);
+    //var cp= 1 + parseFloat(r_margin);
+    //var marginProposalVal = (r_margin / 100) * totalExpenses;
+    var margin = (sp / cp) * 100;
+    console.log("margin" + margin);
+    var proposalVal = parseFloat(margin) + parseFloat(sp);
     if (!isNaN(proposalVal)) {
         $('.hideProposalVal').show();
         $('.proposal_value').text('Rs.' + proposalVal.toFixed(2));
+        $('.final_value').text('Rs.' + proposalVal.toFixed(2));
+        $('.hideFinalVal').show();
+        $('.db_proposal_value').val(proposalVal.toFixed(2));
     }
+    $('.db_final_value').val(proposalVal.toFixed(2));
+});
+//AMC VAL Change
+$(document).delegate(".amc_val_change", "change", function (e) {
+    var amcVal = $('#amc').val();
+    var proposalVal = $('.db_proposal_value').val();
+    var amc_value = (parseFloat(amcVal) * parseFloat(proposalVal));
+    if (!isNaN(amc_value)) {
+        $('.hideSlotVal').show();
+        $('.amc_value').text('Rs.' + amc_value.toFixed(2));
+        $('.final_value').text('Rs.' + amc_value.toFixed(2));
+        $('.hideFinalVal').show();
+    }
+    $('.db_amc_value').val(amc_value.toFixed(2));
+    $('.db_final_value').val(amc_value.toFixed(2));
 });
 //Final val
 $(document).delegate(".final_val_change", "change", function (e) {
     var type = $('#discount_type').val();
-    var proposalVal = $('.proposal_value').text();
-    var r_proposalVal = proposalVal.replace("Rs.", "");
-    var add_discount = $('#add_discount').val();
     var amcVal = $('#amc').val();
+    var proposalVal = $('.db_proposal_value').val();
+    var add_discount = $('#add_discount').val();
     if (type == 'Flat') {
-        $("#add_discount").attr('maxlength','4');
-        var final_value_wout_awc = (r_proposalVal - add_discount);
+        $("#add_discount").attr('maxlength', '5');
+        var discount_value = (proposalVal - add_discount);
+        if (amcVal != '') {
+            var amc_value = (parseFloat(amcVal) * parseFloat(proposalVal));
+            var final_value = amc_value - parseFloat(add_discount);
+        }
+        else {
+            var final_value = discount_value;
+        }
     }
     else {
-        $("#add_discount").attr('maxlength','3');
+        $("#add_discount").attr('maxlength', '4');
         var r_add_discount = add_discount.replace("%", "");
-        var disFinalValue = r_add_discount / 100 * r_proposalVal;
-        var final_value_wout_awc = (r_proposalVal - disFinalValue);
+        var disFinalValue = r_add_discount / 100 * proposalVal;
+        var discount_value = (proposalVal - disFinalValue);
+        if (amcVal != '') {
+            var amc_value = (parseFloat(amcVal) * parseFloat(proposalVal));
+            var final_value = amc_value - parseFloat(disFinalValue);
+        }
+        else {
+            var final_value = discount_value;
+        }
     }
-    if(amcVal!='')
-    {    
-      var final_value =  parseFloat(amcVal) * parseFloat(r_proposalVal);
-    }
-    else
-    {
-      var final_value = final_value_wout_awc;
-    }
+    //Final Value
     if (!isNaN(final_value)) {
         $('.hideFinalVal').show();
+        if (amcVal != '') {
+            $('.hideSlotVal').show();
+        }
         $('.final_value').text('Rs.' + final_value.toFixed(2));
     }
-   
+    if (amcVal != '') {
+        $('.amc_value').text('Rs.' + amc_value.toFixed(2));
+        $('.final_value').text('Rs.' + final_value.toFixed(2));
+    }
+    $('.db_final_value').val(final_value.toFixed(2));
+    $('.db_amc_value').val(amc_value.toFixed(2));
+
 });
 //Product name - get price,units
 $(document).delegate(".rfq_Product_name", "change", function (e) {
-    var product_code = $(this).val();
     var rowID = $(this).attr('data-id');
-    $("#hid_product_code").val(product_code);
-     if (rowID == '') {
+    var product_code = $(this).val();
+    if (rowID == '') {
         $('.load-mul-product1').html(loading_icon);
         $('.load-mul-product1').show();
         $("#quantity-1").attr("disabled", "disabled");
@@ -375,17 +493,17 @@ $(document).delegate(".rfq_Product_name", "change", function (e) {
         dataType: 'JSON',
         success: function (data) {
             var result = data.allProducts;
+            console.log("result" + JSON.stringify(result));
             if (rowID == '') {
                 $('.load-mul-product1').html("");
                 $('.load-mul-product1').hide();
-                //  $("#quantity-1").removeAttr("disabled", "disabled");
                 $("#units-1").removeAttr("disabled", "disabled");
                 $("#actual_price-1").removeAttr("disabled", "disabled");
                 var actual_p = '';
                 actual_p = actual_p + '<option value="">Select</option>';
                 $.each(result, function (key, value) {
                     $('#units-1').val(value.units);
-                    actual_p = actual_p + '<option value="' + value.actual_price + '">' + value.actual_price + '</option>';
+                    actual_p = actual_p + '<option value="' + value.product_code + '">' + value.actual_price + '</option>';
                     actual_p = actual_p + '</option>';
                 });
                 $('#actual_price-1').html(actual_p);
@@ -393,17 +511,15 @@ $(document).delegate(".rfq_Product_name", "change", function (e) {
             else {
                 $('.load-mul-product' + rowID).html("");
                 $('.load-mul-product' + rowID).hide();
-                //  $("#quantity-" + rowID).removeAttr("disabled", "disabled");
                 $("#units-" + rowID).removeAttr("disabled", "disabled");
                 $("#actual_price-" + rowID).removeAttr("disabled", "disabled");
                 var actual_p = '';
                 actual_p = actual_p + '<option value="">Select</option>';
                 $.each(result, function (key, value) {
                     $('#units-' + rowID).val(value.units);
-                    actual_p = actual_p + '<option value="' + value.actual_price + '">' + value.actual_price + '</option>';
+                    actual_p = actual_p + '<option value="' + value.product_code + '">' + value.actual_price + '</option>';
                     actual_p = actual_p + '</option>';
                 });
-
             }
             var priceLen = data.cntAp;
             var lengthPri = $("#cntPrice").val(priceLen);
@@ -416,12 +532,20 @@ $(document).delegate("a.add-record", "click", function (e) {
     $('#editPreselectProducts').hide();
     e.preventDefault();
     var content = $('#pdt_table tr'),
-        size = $('#tbl_pdts >tbody >tr').length + 1,
-        element = null,
+        lastid = $('#tbl_pdts tr').last().attr('id'),
+        split_id = lastid.split("-");
+    nextindex = Number(split_id[1]) + 1;
+    size = nextindex;
+    element = null,
         element = content.clone();
     element.find('.rfq_Product_name').select2({
         filter: true
     })
+    console.log("nextindex=" + nextindex);
+    //regnerate index number on table
+    var firstid = $('#tbl_pdts >tbody >tr').length + 1;
+    console.log("firstid=" + firstid);
+    element.find('.sn').html(firstid);
     element.attr('id', 'rec-' + size);
     element.find('.load-mul-product').attr('class', 'load-mul-product' + size);
     $("#quantity-" + size).attr("disabled", "disabled");
@@ -429,26 +553,27 @@ $(document).delegate("a.add-record", "click", function (e) {
     $("#units-" + size).attr("disabled", "disabled");
     element.find('#quantity-').attr('id', 'quantity-' + size);
     element.find('#units-').attr('id', 'units-' + size);
+    element.find('#product_name-1').attr('data-id', 1);
     element.find('#product_name-').attr('id', 'product_name-' + size);
     element.find('#product_id-').attr('id', 'product_id-' + size);
     element.find('#cntPrice-').attr('id', 'cntPrice-' + size);
     element.find('#compareQuantity-').attr('id', 'compareQuantity-' + size);
     element.find('#actual_price-').attr('id', 'actual_price-' + size);
     element.find('#subtotal-').attr('id', 'subtotal-' + size);
+    element.find('.db_subtotal-').attr('class', 'db_subtotal-' + size);
     element.find('.delete-record').attr('data-id', size);
     element.find('.rfq_Product_name').attr('data-id', size);
     element.find('.rfq_quantity').attr('data-id', size);
     element.find('.chkQuantitybyPrice').attr('data-id', size);
     element.appendTo('#tbl_pdts_body');
-    element.find('.sn').html(size);
     var actual_p = '';
     actual_p = actual_p + '<option value="">Select</option>';
     $('#actual_price-' + size).html(actual_p);
 });
 
-//DELETE Rcord in product grid data
+//DELETE Record in product grid data
 $(document).delegate('a.delete-record', 'click', function () {
-    var id = jQuery(this).attr('data-id');
+    var id = $(this).attr('data-id');
     swal({
         title: "",
         text: "Are you really want to delete ?",
@@ -463,6 +588,11 @@ $(document).delegate('a.delete-record', 'click', function () {
             var size = $('#tbl_pdts >tbody >tr').length;
             if (size > 1) {
                 $('#rec-' + id).remove();
+                $('#product_name-' + id).val('');
+                $('#quantity-' + id).val('');
+                $('#units-' + id).val('');
+                $('#actual_price-' + id).val('');
+                $('#subtotal-' + id).val('');
             }
             else {
                 $.growl({
@@ -478,6 +608,23 @@ $(document).delegate('a.delete-record', 'click', function () {
                 //alert(index);
                 $(this).find('span.sn').html(index + 1);
             });
+            var grandTotal = 0;
+            var chkSubTot = $('#subtotal-' + id).val();
+            console.log("chkSubTot"+chkSubTot);
+
+            if (chkSubTot != 'Rs.NAN') {
+                $(".subtotal").each(function () {
+                    var r_subtotal = $(this).val().replace('Rs.','');
+                    console.log("r_subtotal"+r_subtotal);
+
+                    var stval = parseFloat(r_subtotal);
+                    grandTotal += isNaN(stval) ? 0 : stval;
+                });
+
+                console.log("grandTotal"+grandTotal);
+                $('.grdtot').text('Rs. ' + grandTotal.toFixed(2));
+                $('.db_total_pdt_price').val(grandTotal.toFixed(2));
+            }
             return true;
         }
     });
@@ -501,6 +648,9 @@ function createRFQ() {
     var err = 0;
     var data = {}
     data.customer_name = $('#customer_name').val();
+    data.state = $('#state').val();
+    data.region = $('#region').val();
+    data.location = $('#location').val();
     data.contact_name = $('#contact_name').val();
     data.email = $('#email').val();
     data.phone = $('#phone').val();
@@ -508,20 +658,96 @@ function createRFQ() {
     data.description = $('#description').val();
     data.quantity = $('#quantity-1').val();
     data.units = $('#units-1').val();
-    data.grdtot = $('.grdtot').text();
-    data.labour_charge = $('#labour_charge').val();
+    data.grdtot = $('.db_total_pdt_price').val();
+    data.labours = $('#labours').val();
+    data.rate = $('#rate').val();
+    data.hours = $('#hours').val();
     data.transport_charge = $('#transport_charge').val();
     data.margin = $('#margin').val();
-    data.proposed_value = $('.proposal_value').text();
-    data.final_value = $('.final_value').text();
+    data.proposed_value = $('.db_proposal_value').val();
+    data.labour_charge = $('.db_labour_value').val();
     data.discount_type = $('#discount_type').val();
     data.discount_value = $('#add_discount').val();
+    data.final_value = $('.db_final_value').val();
+    data.quotationNo = $('#quotationNo').val();
+
     if ($('#amc').val() != '') {
         data.amc = $('#amc').val();
+        data.amc_value = $('.db_amc_value').val();
     }
     else {
         data.amc = 0;
+        data.amc_value = '';
     }
+    console.log("proposed_value" + data.proposed_value);
+    if ($("#email").val() == '') {
+        $('#email').addClass('is-invalid');
+        err++;
+    }
+    if (data.email != '') {
+        if (!regex_email.test(data.email)) {
+            $('#email').addClass('is-invalid');
+            $.growl({
+                title: "",
+                message: "Please enter valid email address",
+                duration: "2000",
+                location: "tr",
+                style: "error"
+            });
+            err++;
+        }
+    }
+    if ($("#customer_name").val() == '') {
+        $('#customer_name').addClass('is-invalid');
+        err++;
+    }
+    
+    if ($("#contact_name").val() == '') {
+        $('#contact_name').addClass('is-invalid');
+        err++;
+    }
+    
+    if ($("#phone").val() == '') {
+        $('#phone').addClass('is-invalid');
+        err++;
+    }
+    data.rowLen = $('#tbl_pdts >tbody >tr').length;
+    console.log("rowLen==" + data.rowLen);
+    data.mul_quantity = [];
+    data.mul_pdt_name = [];
+    data.mul_units = [];
+    data.mul_actual_price = [];
+    data.mul_subtotal = [];
+    //         $('.rfq_Product_name').each(function(index) {
+    //          //   index+=2;
+    //         var not_del_rowID= $(this).attr('data-id');  
+    //         console.log("index="+not_del_rowID);
+    //         mul_pdt_name = $('#product_id-' + [not_del_rowID]).val();
+    //         mul_quantity = $('#quantity-' + [not_del_rowID]).val();
+    //         mul_units = $('#units-' + [not_del_rowID]).val();
+    //         mul_actual_price= $('#actual_price-' + [not_del_rowID]).find("option:selected").text();
+    //         mul_subtotal = $('#subtotal-' + [not_del_rowID]).val();
+    //         data.mul_quantity.push(mul_quantity);
+    //         data.mul_pdt_name.push(mul_pdt_name);
+    //         data.mul_units.push(mul_units);
+    //         data.mul_actual_price.push(mul_actual_price);
+    //         data.mul_subtotal.push(mul_subtotal);
+    //         console.log("not_del_rowID="+not_del_rowID);
+    //         console.log("quantity"+$('#quantity-' + [not_del_rowID]).val());
+
+    //         if ($("#quantity-" + [not_del_rowID]).val() == '') {
+    //             $('#quantity-' + [not_del_rowID]).addClass('is-invalid');
+    //             err++;
+    //         }
+    //         if ($("#product_name-" + [not_del_rowID]).val() == '') {
+    //             $('.select2').addClass('users-invalid');
+    //             err++;
+    //         }
+    //         if ($("#actual_price-" + [not_del_rowID]).val() == '') {
+    //             $('#actual_price-' + [not_del_rowID]).addClass('is-invalid');
+    //             err++;
+    //         }
+    //    });
     data.rowLen = $('#tbl_pdts >tbody >tr').length;
     data.mul_quantity = [];
     data.mul_pdt_name = [];
@@ -532,8 +758,8 @@ function createRFQ() {
         mul_pdt_name = $('#product_id-' + [i]).val();
         mul_quantity = $('#quantity-' + [i]).val();
         mul_units = $('#units-' + [i]).val();
-        mul_actual_price = $('#actual_price-' + [i]).val();
-        mul_subtotal = $('#subtotal-' + [i]).val();
+        mul_actual_price = $('#actual_price-' + [i]).find("option:selected").text();
+        mul_subtotal = $('.db_subtotal-' + [i]).val();
         data.mul_quantity.push(mul_quantity);
         data.mul_pdt_name.push(mul_pdt_name);
         data.mul_units.push(mul_units);
@@ -552,43 +778,8 @@ function createRFQ() {
             err++;
         }
     }
-    if ($("#customer_name").val() == '') {
-        $('#customer_name').addClass('is-invalid');
-        err++;
-    }
-    
-    if ($("#customer_name").val() == '') {
-        $('#customer_name').addClass('is-invalid');
-        err++;
-    }
-    if ($("#contact_name").val() == '') {
-        $('#contact_name').addClass('is-invalid');
-        err++;
-    }
-    if ($("#email").val() == '') {
-        $('#email').addClass('is-invalid');
-        err++;
-    }
-    if ($("#address").val() == '') {
-        $('#address').addClass('is-invalid');
-        err++;
-    }
-    if ($("#labour_charge").val() == '') {
-        $('#labour_charge').addClass('is-invalid');
-        err++;
-    }
-    if ($("#transport_charge").val() == '') {
-        $('#transport_charge').addClass('is-invalid');
-        err++;
-    }
-    if ($("#margin").val() == '') {
-        $('#margin').addClass('is-invalid');
-        err++;
-    }
-    if ($("#address").val() == '') {
-        $('#address').addClass('is-invalid');
-        err++;
-    }
+    console.log("data" + JSON.stringify(data));
+
     if (err > 0) {
         return false;
 
@@ -598,6 +789,8 @@ function createRFQ() {
         $('.is-invalid').removeClass('is-invalid');
         $('.users-invalid').removeClass('users-invalid');
     }
+    
+    console.log("data" + JSON.stringify(data));
     data.id = $('#editRFQID').val();
     data.editDis = $('#editDis').val();
     data.lead_id = $('#lead_id').val();
@@ -670,34 +863,34 @@ $(document).on("click", "#viewSingleRFQ", function (e) {
     $('.quotationBut').hide();
     var id = $(this).data('id');
     $("#viewProduct").modal("show");
-    var title = 'View Product ';
-    $('.showTitle').text(title);
     $('.hideForm').hide();
     $.ajax({
         url: base_url + '/viewSingleRFQ/' + id,
         type: 'GET',
         dataType: 'JSON',
         success: function (data) {
+            // console.log("data="+JSON.stringify(data));
             $('.quotationBut').show();
             var RFQProducts = data.RFQProducts;
-            var RFQHistoryProducts = data.RFQHistoryProducts;
             var RFQList = data.RFQList;
             var rows = '';
-            var historyRows = '';
             $('.load-view-singleRFQ').hide();
             $('.hideForm').show();
             $('#rowID').val(RFQList.id);
+            // console.log("rfqDetails1"+data.rfqDetails1);
             $('.showBusinessName').text(RFQList.customer_name);
             $('#popup_customer_name').text(RFQList.customer_name);
             $('#popup_contact_name').text(RFQList.contact_name);
             $('#popup_email').text(RFQList.email);
-            $('#popup_discount_value').text(RFQList.discount_value);
-            $('#labour_charge').text(RFQList.labourcharge);
-            $('#transport_charge').text(RFQList.transportcharge);
-            $('#margin').text(RFQList.margin);
-            $('#proposed_value').text(RFQList.proposed_value);
-            $('#final_value').text(RFQList.final_value);
+            $('#popup_discount_value').text('Rs. '+RFQList.discount_value);
+            $('#labour_charge').text('Rs. '+RFQList.labourcharge);
+            $('#transport_charge').text('Rs. '+RFQList.transportcharge);
+            $('#margin').text('Rs. '+RFQList.margin);
+            $('#proposed_value').text('Rs. '+RFQList.proposed_value);
+            $('#total_pdt_price').text('Rs. '+RFQList.total_pdt_price);
+            $('#final_value').text('Rs. '+RFQList.final_value);
             $('#popup_amc').text(RFQList.amc);
+            $('#popup_amc_value').text('Rs. '+RFQList.amc_value);
             $('#popup_phone').text(RFQList.phone);
             $('#address').text(RFQList.address);
             $('#description').text(RFQList.description);
@@ -711,48 +904,31 @@ $(document).on("click", "#viewSingleRFQ", function (e) {
             rows = rows + '<th class="wd-35p lightBlue">Actual Price</th>';
             rows = rows + '<th class="wd-35p lightBlue">Subtotal</th>';
             rows = rows + '</tr></thead><tbody>';
-
-            historyRows = historyRows + '<table class="table table-striped table-bordered text-nowrap w-100">';
-            historyRows = historyRows + '<thead><tr><th class="wd-35p lightBlue">Product Name</th>';
-            historyRows = historyRows + '<th class="wd-35p lightBlue">Quantity</th>';
-            historyRows = historyRows + '<th class="wd-35p lightBlue">Units</th>';
-            historyRows = historyRows + '<th class="wd-35p lightBlue">Actual Price</th>';
-            historyRows = historyRows + '<th class="wd-35p lightBlue">Subtotal</th>';
-            historyRows = historyRows + '</tr></thead><tbody>';
             $.each(RFQProducts, function (key, value) {
                 rows = rows + '<tr>';
                 rows = rows + '<td>' + value.product_name + '</td>';
                 rows = rows + '<td>' + value.quantity + '</td>';
                 rows = rows + '<td>' + value.units + '</td>';
-                rows = rows + '<td>' + value.actual_price + '</td>';
-                rows = rows + '<td>' + value.subtotal + '</td>';
+                rows = rows + '<td>Rs. ' + value.actual_price + '</td>';
+                rows = rows + '<td>Rs. ' + value.subtotal + '</td>';
                 rows = rows + '</tr>';
             });
+            rows = rows + '<tr>';
+            rows = rows + '<td align="right" colspan="5" class="lightBlue">Total Product Price:Rs. ' + RFQList.total_pdt_price + '</td>';
+            rows = rows + '</tr>';
             rows = rows + '</tbody></table>';
-
-            $.each(RFQHistoryProducts, function (key, value) {
-                historyRows = historyRows + '<tr>';
-                historyRows = historyRows + '<td>' + value.product_name + '</td>';
-                historyRows = historyRows + '<td>' + value.quantity + '</td>';
-                historyRows = historyRows + '<td>' + value.units + '</td>';
-                historyRows = historyRows + '<td>' + value.actual_price + '</td>';
-                historyRows = historyRows + '<td>' + value.subtotal + '</td>';
-                historyRows = historyRows + '</tr>';
-            });
-            historyRows = historyRows + '</tbody></table>';
-
             $("div.row.viewMultiplePdts").html(rows);
-            $("div.row.viewHistoryPdts").html(historyRows);
+            $("div.row.viewHistoryPdts").html(data.rfqDetails2);
+            $("div.row.viewHistoryRFQ").html(data.rfqDetails1);
             $('.load-view-singleRFQ').html('');
         }
     });
 
 });
 
-
-//DELETE RFQ
+//Delete
 $(document).on("click", "#confirmRFQDelete", function (e) {
-    var id = $(this).data('id');
+    var quote_id = $(this).data('id');
     swal({
         title: "",
         text: "Are you really want to delete ?",
@@ -763,16 +939,17 @@ $(document).on("click", "#confirmRFQDelete", function (e) {
         cancelButtonText: 'Cancel'
     }, function (isConfirm) {
         if (isConfirm) {
-            deleteRFQ(id);
+            deleteRFQ(quote_id);
         }
     });
 });
 
-function deleteRFQ(id) {
+
+function deleteRFQ(quote_id) {
     var data = {}
-    data.id = id;
-    $('.ubtn' + id).hide();
-    $('.delrfq' + id).html(loading_icon);
+    data.quote_id = quote_id;
+    $('.ubtn' + quote_id).hide();
+    $('.delrfq' + quote_id).html(loading_icon);
     $.ajax({
         url: base_url + '/delete-RFQ',
         type: 'POST',
@@ -858,7 +1035,7 @@ function searchRFQ() {
                         var last_tracked_date = '';
                     }
 
-                   var pg = '/edit-RFQ/' + btoa(pt.id);
+                    var pg = '/edit-RFQ/' + btoa(pt.id);
                     rows = rows + '<tr">';
                     rows = rows + '<td>' + pt.customer_name + '</td>';
                     rows = rows + '<td>' + pt.contact_name + '</td>';

@@ -43,6 +43,7 @@
 		<!-- APCO -->
 		<script src="{{URL::asset('assets/js/cn-forgotPassword.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-rfq.js')}}"></script>
+		<script src="{{URL::asset('assets/js/cn-custom.js')}}"></script>
 
 		<script src="{{URL::asset('assets/js/cn-custom.js')}}"></script>
 		<script src="{{URL::asset('assets/js/cn-lead.js')}}"></script>

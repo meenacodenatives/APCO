@@ -18,9 +18,9 @@ class TrackerModel extends Model
       if (count($users) > 0) {
          return $users;
       }
-      $query = DB::getQueryLog();
-                      $query = end($query);
-                      print_r($query); exit;
+      // $query = DB::getQueryLog();
+      //                 $query = end($query);
+      //                 print_r($query); exit;
       return array();
 
    }

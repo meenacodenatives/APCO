@@ -14,19 +14,25 @@
         <h1 class="page-title"> @if($product!='') Edit @else Add @endif RFQ </h1>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{url('/' . $page='dashboard')}}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('/' . $page='showRFQ')}}">Products</a></li>
+            <li class="breadcrumb-item"><a href="{{url('/' . $page='showRFQ')}}">RFQ</a></li>
             <li class="breadcrumb-item active" aria-current="page">
                 @if($product!='') Edit @else Add @endif RFQ </li>
+            <li>
+            </li>
         </ol>
 
+
     </div>
+
     <div class="ml-auto pageheader-btn">
         <a href="{{url('/' . $page='showRFQ')}}" class="btn btn-cyan btn-icon text-white">
             <span>
                 <i class="fe fe-corner-up-left"></i>
             </span> Back
         </a>
+
     </div>
+
 </div>
 <!-- PAGE-HEADER END -->
 @endsection
@@ -38,15 +44,103 @@
 
     <div class="col-md-12 col-sm-12">
         <div class="card">
+            <div class="row">
+                <div class="col-md-8 card-header pl-6">
+                    <h3 class="card-title">Location Information</h3>
+                </div>
+                <div class="col-4 card-header text-xl-right">
+                    <h3 class="card-title">Quotation No: {{($product!='') ? $product->quote_id :$quotationNo}}
+                        <input type="hidden" name="quotationNo" id="quotationNo" value=" {{($product!='') ? $product->quote_id :$quotationNo}}">
+
+                    </h3>
+                </div>
+            </div>
+
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">State </label>
+                            <select name="state" id="state" class="form-control custom-select">
+                                <option value="">Select</option>
+                                <?php foreach ($state as $st) : ?>
+                                    <option value="<?= $st->id ?>" <?php
+                                                                    if ($product != '') {
+                                                                        if ($product->state == $st->id) {
+                                                                            echo 'selected';
+                                                                        }
+                                                                    }
+                                                                    ?>><?= $st->name ?>
+                                    <?php endforeach; ?>
+
+                                    </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Region</label>
+                            <select class="form-control" id="region" name="region">
+                                <option value="">Select</option>
+                                <?php foreach ($region as $re) : ?>
+                                    <option value="<?= $re->regID ?>" <?php
+                                                                        if ($product != '') {
+                                                                            if ($product->region == $re->regID) {
+                                                                                echo 'selected';
+                                                                            }
+                                                                        }
+                                                                        ?>><?= $re->regName ?>
+                                    </option>
+
+                                <?php endforeach; ?>
+
+                            </select>
+
+                            <div class="form-group load-region" style="display: none">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Location</label>
+                            <select class="form-control" id="location" name="location">
+                                <option value="">Select</option>
+                                <?php foreach ($location as $lo) : ?>
+                                    <option value="<?= $lo->locID ?>" <?php
+                                                                        if ($product != '') {
+                                                                            if ($product->location == $lo->locID) {
+                                                                                echo 'selected';
+                                                                            }
+                                                                        }
+                                                                        ?>><?= $lo->locName ?>
+                                    </option>
+
+                                <?php endforeach; ?>
+                            </select>
+                            <div class="form-group load-location" style="display: none">
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+            </div>
+        </div>
+        <div class="card">
+
             <div class="card-header">
-                <h3 class="card-title">Basic Information</h3>
+                <h3 class="card-title">Basic Information </h3>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-3">
+                      <div class="col-md-3">
                         <div class="form-group">
                             <label class="form-label">Business Name</label>
                             <input type="text" value="{{($product!='') ? $product->customer_name : (($lead != '') ? $lead[0]->name : '')}}" name="customer_name" id="customer_name" class="form-control" placeholder="Business Name">
+                            <span class="wd-10p load-lead-info"></span>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -64,19 +158,23 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label class="form-label">Phone</label>
-                            <input type="text" class="form-control" name="phone" placeholder="Phone" id="phone" value="{{($product!='') ? $product->phone : (($lead != '') ? $lead[0]->phone : '')}}">
+                            <input type="text" maxlength="12" class="form-control" name="phone" placeholder="Phone" id="phone" value="{{($product!='') ? $product->phone : (($lead != '') ? $lead[0]->phone : '')}}">
+                            <span class="wd-10p load-phone-number"></span>
+                            <span id="phoneNumber_list"></span>
+
                         </div>
                     </div>
 
                 </div>
                 <div class="row">
-                    <div class="col-md-5">
+
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label class="form-label">Address</label>
                             <textarea class="form-control" id="address" style="resize:none" placeholder="Address">{{($product!='') ? $product->address : (($lead != '') ? $lead[0]->address : '')}}</textarea>
                         </div>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label class="form-label">Description</label>
                             <textarea class="form-control" id="description" style="resize:none" placeholder="Description">{{($product!='') ? $product->description : (($lead != '') ? $lead[0]->description : '')}}</textarea>
@@ -123,6 +221,7 @@
                                         </option>
                                         @endforeach
                                     </select>
+
                                     <span class="wd-10p load-mul-product1"></span>
 
                                 </td>
@@ -145,6 +244,7 @@
                                     <input type="hidden" class="form-control" name="cntPrice" id="cntPrice-1" value="@if($RFQProducts!=''){{$cntPriceFirst}}@else @endif">
                                 </td>
                                 <td><input type="text" class="form-control subtotal" name="subtotal" placeholder="Subtotal" id="subtotal-1" value="@if($RFQProducts!=''){{$subtotalFirst }}@endif" readonly></td>
+                                <input type="hidden"  name="subtotal" class="db_subtotal-1" value="">
                                 <td><a class="btn btn-primary btn-sm mb-2 mb-xl-0 add-record hidetd1" data-added="0"><i class="fa fa-plus"></i></a>&nbsp;&nbsp;
                                     <a class="btn btn-danger btn-sm mb-2 mb-xl-0 delete-record hidetd1" data-id="1"><i class="fa fa-trash"></i></a>
 
@@ -179,12 +279,13 @@
                                 <input type="hidden" class="form-control" name="cntPrice" id="cntPrice-" value="">
                             </td>
                             <td><input type="text" class="form-control subtotal" name="subtotal" placeholder="Subtotal" id="subtotal-" value="" data-id="" readonly>
+                            <input type="hidden"  name="subtotal" class="db_subtotal-" data-id="" value="">
                             </td>
                             <td>
                                 <a class="btn btn-primary btn-sm mb-2 mb-xl-0 add-record hidetd fa fa-plus" id="testbtn" data-added="0"><i></i></a>&nbsp;&nbsp;
                                 <a class="btn btn-danger btn-sm mb-2 mb-xl-0 delete-record hidetd fa fa-trash" data-id=""><i></i></a>
                             </td>
-                            
+
                         </tr>
                     </table>
                 </div>
@@ -193,8 +294,8 @@
                         <tr>
                             <th class="wd-25p" colspan="3">Labour Charge</th>
                         </tr>
-                            <tr>
-                            <td >
+                        <tr>
+                            <td>
                                 <input type="text" class="form-control labour_val_change" name="labours" placeholder="Labours" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="labours" value="@if($product!=''){{$product->labours}}@endif">
                             </td>
                             <td>
@@ -203,21 +304,24 @@
                             <td>
                                 <input type="text" class="form-control labour_val_change" name="hours" placeholder="Hours" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="hours" value="@if($product!=''){{$product->hours}}@endif">
                             </td>
-                            
+
                         </tr>
                     </tbody>
                 </table>
                 <table class="col-md-12 col-sm-12 w-30 pull-right">
                     <tbody>
                         <tr class="wd-25p pb-10 lightBlue text-capitalize hideTotPdt" style="display:none;">
-                            <td class="wd-10p">Total Amount</td>
-                            <td class="wd-20p hideTotPdt" style="display:none;"><span class="grdtot">@if($product!=''){{$product->total_pdt_price}}@endif</span></td>
+                            <td class="wd-10p"> Product Amount</td>
+                            <td class="wd-20p hideTotPdt" style="display:none;"><span class="grdtot">@if($product!=''){{$product->total_pdt_price}}@endif</span>
+                            <input type="hidden"  name="pdt_price" class="db_total_pdt_price" value="">
+                            </td>
                         </tr>
                         <tr class="wd-25p pb-10 lightBlue text-capitalize hideTotLabour" style="display:none;">
-                        <td >
-                            Total Labour Charge</td>
-                        <td>
-                        <span id="labour_charge" class="labour_value">@if($product!=''){{$product->labour_charge}}@endif</span>
+                            <td>
+                                Labour Charge</td>
+                            <td>
+                                <span id="labour_charge" class="labour_value">@if($product!=''){{$product->labourcharge}}@endif</span>
+                                <input type="hidden"  name="db_labour_charge" class="db_labour_value" value="">
                             </td>
                         </tr>
                         <tr>
@@ -225,8 +329,8 @@
                             <td>
                                 <input type="text" class="form-control proposed_val_change" name="transport_charge" placeholder="Transport Charge" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="transport_charge" value="@if($product!=''){{$product->transportcharge }}@endif">
                             </td>
-
                         </tr>
+
                         <tr>
                             <td>Margin (%)</td>
                             <td><input type="text" maxlength="10" class="form-control proposed_val_change margin" name="margin" placeholder="Margin" id="margin" value="@if($product!=''){{$product->margin}}@endif">
@@ -237,6 +341,22 @@
                             <td class="wd-10p">Proposal Value</td>
                             <td class="wd-25p">
                                 <span class="proposal_value">@if($product!=''){{$product->proposed_value}}@endif</span>
+                                <input type="hidden"  name="proposed_value" class="db_proposal_value" value="">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>AMC
+                                <input type="checkbox" name="" id="recurring" value="" class="amc_val_change">
+                            </td>
+                            <td class="wd-25p">
+                                <input type="text" class="form-control amc_val_change final_val_change" disabled="disabled" placeholder="No of services" id="amc" value="@if($product!=''){{$product->amc}}@endif">
+                            </td>
+                        </tr>
+                        <tr class="wd-25p p-10 lightBlue text-capitalize hideSlotVal" style="display:none;">
+                            <td class="wd-10p">AMC Value</td>
+                            <td class="wd-25p">
+                                <span class="amc_value">@if($product!=''){{$product->amc_value}}@endif</span>
+                                <input type="hidden"  name="db_amc_value" class="db_amc_value" value="">
                             </td>
                         </tr>
                         <tr>
@@ -258,17 +378,12 @@
                             </td>
                         </tr>
 
-                        <tr>
-                            <td>AMC
-                                <input type="checkbox" name="" id="recurring" value="" class="final_val_change">
-                            </td>
-                            <td class="wd-25p">
-                                <input type="text" class="form-control final_val_change" disabled="disabled" placeholder="AMC" id="amc" value="@if($product!=''){{$product->amc}}@endif">
-                            </td>
-                        </tr>
+
                         <tr class="wd-25p p-10 lightBlue text-capitalize hideFinalVal" style="display:none;">
                             <td class="wd-10p">Final Value</td>
                             <td class="wd-25p hideFinalVal" style="display:none;"><span class="final_value">@if($product!=''){{$product->final_value}}@endif</span>
+                            <input type="hidden"  name="final_value" class="db_final_value" value="">
+
                             </td>
                         </tr>
                     </tbody>

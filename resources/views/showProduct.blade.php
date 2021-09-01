@@ -168,8 +168,11 @@
                                     <td>
                                         {{$pt->quantity}}  {{$pt->units}}
                                     </td>
-                                   
+                                    @if($pt->pdtcreated_at!=null)
                                     <td>{{date('M d, Y', strtotime($pt->pdtcreated_at))}}</td>
+                                    @else
+                                    <td>{{$pt->pdtcreated_at}}</td>
+                                    @endif
                                     <td>
                                         <a href="#" class="btn btn-secondary btn-sm mb-2 mb-xl-0" data-toggle="modal"
                                             id="viewSingleProduct" data-target="#viewProduct" data-id="<?= $pt->pdtID; ?>">
@@ -183,6 +186,8 @@
                                             data-toggle="tooltip" data-original-title="Delete"><i
                                                 class="fa fa-trash"></i></a>&nbsp;&nbsp;
                                         <span class="delpdt<?= $pt->pdtID; ?>"></span>
+                                        
+                                        
                                     </td>
                                 </tr>
                                 @endforeach

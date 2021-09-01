@@ -20,18 +20,19 @@ class LeadModel extends Model {
         }
         return array();
     }
-
-    
     public function getAllLead() {
         $result =DB::table('lead')->select('*')->where('is_active', '=', true)
         ->orderby('created_date','desc')
       ->get();
-   
-   return $result;
+    return $result;
     }
 
     public function singleSelectLead($id) {
-        $result = DB::select("select * from lead where is_active = true and id = " . $id);
+        // DB::enableQueryLog();
+        $result = DB::select("select * from lead where is_active = true and id = '$id'");
+    //    $query = DB::getQueryLog();
+    //                   $query = end($query);
+    //                   print_r($query); exit;
         if (count($result) > 0) {
             return $result;
         }
